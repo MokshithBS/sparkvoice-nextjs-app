@@ -6,11 +6,10 @@ export function DiwaliBanner() {
     <div className="my-4 space-y-2">
         <div className="relative rounded-xl overflow-hidden aspect-[2/1]">
             <Image
-                src="https://placehold.co/600x300.png"
+                src="https://storage.googleapis.com/aip-dev-images-public/65b10e52-eb06-444a-9b4a-a4e9b97779de.png"
                 alt="Sparkathon Sale Banner"
                 fill
                 className="object-cover"
-                data-ai-hint="shopping festival sale"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent p-4 flex flex-col justify-end">
                 <h2 className="text-white text-3xl font-extrabold drop-shadow-lg">Grand</h2>
