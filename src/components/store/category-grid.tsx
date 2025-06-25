@@ -1,14 +1,14 @@
 import Image from 'next/image';
 
 const categories = [
-  { name: 'Vegetables & Fruits', discount: '70% OFF', image: 'https://placehold.co/100x100.png', hint: 'fresh vegetables' },
-  { name: 'Dairy, Bread & Eggs', discount: '80% OFF', image: 'https://placehold.co/100x100.png', hint: 'milk bread' },
-  { name: 'Atta, Rice & Dals', discount: '70% OFF', image: 'https://placehold.co/100x100.png', hint: 'rice bag' },
-  { name: 'Masala & Oils', discount: '60% OFF', image: 'https://placehold.co/100x100.png', hint: 'spices cooking' },
-  { name: 'Snacks & Beverages', discount: '70% OFF', image: 'https://placehold.co/100x100.png', hint: 'potato chips' },
-  { name: 'Cleaning Essentials', discount: '50% OFF', image: 'https://placehold.co/100x100.png', hint: 'cleaning supplies' },
-  { name: 'Personal Care', discount: '70% OFF', image: 'https://placehold.co/100x100.png', hint: 'shampoo bottle' },
-  { name: 'Instant & Frozen Food', discount: '80% OFF', image: 'https://placehold.co/100x100.png', hint: 'instant noodles' },
+  { name: 'Vegetables & Fruits', discount: '70% OFF', image: 'https://storage.googleapis.com/aip-dev-images-public/vegetables.png', hint: 'fresh vegetables' },
+  { name: 'Dairy, Bread & Eggs', discount: '80% OFF', image: 'https://storage.googleapis.com/aip-dev-images-public/dairy.png', hint: 'milk bread' },
+  { name: 'Atta, Rice & Dals', discount: '70% OFF', image: 'https://storage.googleapis.com/aip-dev-images-public/grains.png', hint: 'rice bag' },
+  { name: 'Masala & Oils', discount: '60% OFF', image: 'https://storage.googleapis.com/aip-dev-images-public/spices.png', hint: 'spices cooking' },
+  { name: 'Snacks & Beverages', discount: '70% OFF', image: 'https://storage.googleapis.com/aip-dev-images-public/snacks.png', hint: 'potato chips' },
+  { name: 'Cleaning Essentials', discount: '50% OFF', image: 'https://storage.googleapis.com/aip-dev-images-public/cleaning.png', hint: 'cleaning supplies' },
+  { name: 'Personal Care', discount: '70% OFF', image: 'https://storage.googleapis.com/aip-dev-images-public/personal-care.png', hint: 'shampoo bottle' },
+  { name: 'Instant & Frozen Food', discount: '80% OFF', image: 'https://storage.googleapis.com/aip-dev-images-public/frozen-food.png', hint: 'instant noodles' },
 ];
 
 export function CategoryGrid() {

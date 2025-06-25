@@ -6,18 +6,24 @@ const testimonials = [
     name: "Radha K.",
     title: "Homemaker, Pune",
     avatar: "RK",
+    avatarUrl: "https://storage.googleapis.com/aip-dev-images-public/avatar-1.png",
+    hint: "woman face",
     testimonial: "I used to write a list and wait for my son to order everything. Now I just take a photo of my list and SparkVoice does the rest. It's so simple!"
   },
   {
     name: "Suresh P.",
     title: "Kirana Store Owner, Bengaluru",
     avatar: "SP",
+    avatarUrl: "https://storage.googleapis.com/aip-dev-images-public/avatar-2.png",
+    hint: "man face",
     testimonial: "Receiving orders on WhatsApp as a ready-made list saves me so much time. No more mistakes from reading bad handwriting. My customers are happier too."
   },
   {
     name: "Mr. Gupta",
     title: "Retired Teacher, Lucknow",
     avatar: "MG",
+    avatarUrl: "https://storage.googleapis.com/aip-dev-images-public/avatar-3.png",
+    hint: "man face",
     testimonial: "I don't like typing on the small phone screen. With SparkVoice, I just tell it what I need in Hindi, and my groceries arrive. It feels like magic."
   },
 ]
@@ -44,7 +50,7 @@ export function Testimonials() {
               </CardContent>
               <div className="mt-6 flex items-center space-x-4">
                 <Avatar>
-                  <AvatarImage src={`https://placehold.co/40x40.png?text=${testimonial.avatar}`} />
+                  <AvatarImage src={testimonial.avatarUrl} data-ai-hint={testimonial.hint} />
                   <AvatarFallback>{testimonial.avatar}</AvatarFallback>
                 </Avatar>
                 <div>
