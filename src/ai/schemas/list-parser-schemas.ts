@@ -9,6 +9,15 @@ export const ListParserInputSchema = z.object({
 });
 export type ListParserInput = z.infer<typeof ListParserInputSchema>;
 
+export const VoiceListParserInputSchema = z.object({
+  audioDataUri: z
+    .string()
+    .describe(
+      "An audio recording of a shopping list, as a data URI that must include a MIME type and use Base64 encoding. Expected format: 'data:<mimetype>;base64,<encoded_data>'."
+    ),
+});
+export type VoiceListParserInput = z.infer<typeof VoiceListParserInputSchema>;
+
 export const ListParserOutputSchema = z.object({
   items: z.array(z.object({
     product: z.string().describe('The name of the product identified, e.g., "Milk" or "Basmati Rice".'),

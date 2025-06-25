@@ -5,20 +5,12 @@
  */
 
 import {ai} from '@/ai/genkit';
-import {z} from 'zod';
 import {
   type ListParserOutput,
   ListParserOutputSchema,
+  type VoiceListParserInput,
+  VoiceListParserInputSchema,
 } from '@/ai/schemas/list-parser-schemas';
-
-export const VoiceListParserInputSchema = z.object({
-  audioDataUri: z
-    .string()
-    .describe(
-      "An audio recording of a shopping list, as a data URI that must include a MIME type and use Base64 encoding. Expected format: 'data:<mimetype>;base64,<encoded_data>'."
-    ),
-});
-export type VoiceListParserInput = z.infer<typeof VoiceListParserInputSchema>;
 
 export async function parseVoiceList(input: VoiceListParserInput): Promise<ListParserOutput> {
   return voiceListParserFlow(input);
