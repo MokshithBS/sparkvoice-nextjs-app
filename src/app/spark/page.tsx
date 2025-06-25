@@ -1,24 +1,30 @@
 'use client';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { ArrowLeft, Camera, Loader2, Sparkles } from 'lucide-react';
+import { ArrowLeft, Camera, Loader2, Mic, Sparkles, StopCircle } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { parseList } from '@/ai/flows/list-parser-flow';
+import { parseVoiceList } from '@/ai/flows/voice-list-parser-flow';
 import { type ListParserOutput } from '@/ai/schemas/list-parser-schemas';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 export default function SparkPage() {
   const [photoDataUri, setPhotoDataUri] = useState<string | null>(null);
   const [parsedItems, setParsedItems] = useState<ListParserOutput | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
   const { toast } = useToast();
+
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -26,7 +32,6 @@ export default function SparkPage() {
       const reader = new FileReader();
       reader.onloadend = () => {
         setPhotoDataUri(reader.result as string);
-        setParsedItems(null); // Reset previous results
       };
       reader.readAsDataURL(file);
     }
@@ -59,6 +64,61 @@ export default function SparkPage() {
       setIsLoading(false);
     }
   };
+  
+  const handleStartRecording = async () => {
+    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        setIsRecording(true);
+        mediaRecorderRef.current = new MediaRecorder(stream);
+        mediaRecorderRef.current.ondataavailable = (event) => {
+          audioChunksRef.current.push(event.data);
+        };
+        mediaRecorderRef.current.onstop = () => {
+          const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+          const reader = new FileReader();
+          reader.readAsDataURL(audioBlob);
+          reader.onloadend = () => {
+            const base64data = reader.result as string;
+            handleParseVoiceList(base64data);
+          };
+          audioChunksRef.current = [];
+          stream.getTracks().forEach(track => track.stop());
+        };
+        audioChunksRef.current = [];
+        mediaRecorderRef.current.start();
+      } catch (err) {
+        console.error('Error accessing microphone:', err);
+        toast({ variant: 'destructive', title: 'Microphone Access Denied', description: 'Please allow microphone access to use this feature.' });
+      }
+    }
+  };
+
+  const handleStopRecording = () => {
+    if (mediaRecorderRef.current) {
+      mediaRecorderRef.current.stop();
+      setIsRecording(false);
+    }
+  };
+
+  const handleParseVoiceList = async (audioDataUri: string) => {
+    setIsLoading(true);
+    setParsedItems(null);
+    try {
+      const result = await parseVoiceList({ audioDataUri });
+      setParsedItems(result);
+    } catch (error) {
+      console.error('Error parsing voice list:', error);
+      toast({ variant: 'destructive', title: 'Parsing Failed', description: 'Could not understand the shopping list. Please try speaking clearly.' });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const resetState = () => {
+    setParsedItems(null);
+    setPhotoDataUri(null);
+  };
 
   return (
     <div className="flex flex-col min-h-dvh bg-background">
@@ -80,72 +140,99 @@ export default function SparkPage() {
 
       <main className="flex-1 py-8 px-4">
         <div className="container mx-auto max-w-2xl">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2"><Camera /> Scan Your List</CardTitle>
-              <CardDescription>Upload a picture of your handwritten shopping list and let our AI build your cart instantly.</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="space-y-2">
-                <Label htmlFor="list-photo">Upload Photo</Label>
-                <Input id="list-photo" type="file" accept="image/*" onChange={handleFileChange} className="file:text-foreground"/>
-              </div>
+          <Tabs defaultValue="scan" className="w-full" onValueChange={resetState}>
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="scan" className="gap-2"><Camera /> Scan List</TabsTrigger>
+              <TabsTrigger value="speak" className="gap-2"><Mic /> Speak List</TabsTrigger>
+            </TabsList>
+            <TabsContent value="scan">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">Scan Your List</CardTitle>
+                  <CardDescription>Upload a picture of your handwritten shopping list and let our AI build your cart instantly.</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div className="space-y-2">
+                    <Label htmlFor="list-photo">Upload Photo</Label>
+                    <Input id="list-photo" type="file" accept="image/*" onChange={handleFileChange} className="file:text-foreground" disabled={isLoading}/>
+                  </div>
 
-              {photoDataUri && (
-                <div className="flex justify-center">
-                  <Image
-                    src={photoDataUri}
-                    alt="Shopping list preview"
-                    width={400}
-                    height={300}
-                    className="rounded-lg object-contain border"
-                  />
-                </div>
-              )}
+                  {photoDataUri && (
+                    <div className="flex justify-center">
+                      <Image
+                        src={photoDataUri}
+                        alt="Shopping list preview"
+                        width={400}
+                        height={300}
+                        className="rounded-lg object-contain border"
+                      />
+                    </div>
+                  )}
 
-              <Button onClick={handleParseList} disabled={isLoading || !photoDataUri} className="w-full" size="lg">
-                {isLoading ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Parsing your list...
-                  </>
+                  <Button onClick={handleParseList} disabled={isLoading || !photoDataUri} className="w-full" size="lg">
+                    {isLoading ? (
+                      <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Parsing your list...</>
+                    ) : (
+                      <><Sparkles className="mr-2 h-4 w-4" /> Spark It!</>
+                    )}
+                  </Button>
+                </CardContent>
+              </Card>
+            </TabsContent>
+            <TabsContent value="speak">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">Speak Your List</CardTitle>
+                  <CardDescription>Press record, speak your shopping list in any language, and we'll build your cart.</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6 flex flex-col items-center">
+                  <Button 
+                    onClick={isRecording ? handleStopRecording : handleStartRecording} 
+                    disabled={isLoading}
+                    className="w-48 h-16 text-lg"
+                    variant={isRecording ? 'destructive' : 'default'}
+                    size="lg"
+                  >
+                    {isRecording ? (
+                      <><StopCircle className="mr-2 h-6 w-6" /> Stop Recording</>
+                    ) : (
+                      <><Mic className="mr-2 h-6 w-6" /> Start Recording</>
+                    )}
+                  </Button>
+                  {isRecording && <p className="text-sm text-muted-foreground animate-pulse">Recording... speak now!</p>}
+                  {isLoading && <p className="text-sm text-muted-foreground flex items-center gap-2"><Loader2 className="h-4 w-4 animate-spin" /> Processing your voice...</p>}
+                </CardContent>
+              </Card>
+            </TabsContent>
+          </Tabs>
+
+          {parsedItems && (
+            <div className="mt-6">
+              <h3 className="text-lg font-semibold mb-2">Here's what we found:</h3>
+              {parsedItems.items.length > 0 ? (
+              <Card>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Product</TableHead>
+                      <TableHead className="text-right">Quantity</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {parsedItems.items.map((item, index) => (
+                      <TableRow key={index}>
+                        <TableCell className="font-medium">{item.product}</TableCell>
+                        <TableCell className="text-right">{item.quantity}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </Card>
                 ) : (
-                  <>
-                    <Sparkles className="mr-2 h-4 w-4" />
-                    Spark It!
-                  </>
+                <p className="text-muted-foreground text-center py-4">We couldn't find any items on your list. Please try again.</p>
                 )}
-              </Button>
-
-              {parsedItems && (
-                <div>
-                  <h3 className="text-lg font-semibold mb-2">Here's what we found:</h3>
-                  {parsedItems.items.length > 0 ? (
-                  <Card>
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead>Product</TableHead>
-                          <TableHead className="text-right">Quantity</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {parsedItems.items.map((item, index) => (
-                          <TableRow key={index}>
-                            <TableCell className="font-medium">{item.product}</TableCell>
-                            <TableCell className="text-right">{item.quantity}</TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </Card>
-                   ) : (
-                    <p className="text-muted-foreground text-center py-4">We couldn't find any items on your list. Please try another image.</p>
-                   )}
-                </div>
-              )}
-            </CardContent>
-          </Card>
+            </div>
+          )}
         </div>
       </main>
     </div>
