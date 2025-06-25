@@ -18,6 +18,15 @@ export const VoiceListParserInputSchema = z.object({
 });
 export type VoiceListParserInput = z.infer<typeof VoiceListParserInputSchema>;
 
+export const TextListParserInputSchema = z.object({
+  textList: z
+    .string()
+    .describe(
+      'A typed or pasted shopping list as a plain text string. Each item may be on a new line.'
+    ),
+});
+export type TextListParserInput = z.infer<typeof TextListParserInputSchema>;
+
 export const ListParserOutputSchema = z.object({
   items: z.array(z.object({
     product: z.string().describe('The name of the product identified, e.g., "Milk" or "Basmati Rice".'),

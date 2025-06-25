@@ -4,24 +4,27 @@ import { Suspense, useRef, useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import { ArrowLeft, Camera, Loader2, Mic, Sparkles, StopCircle } from 'lucide-react';
+import { ArrowLeft, Camera, FileText, Loader2, Mic, Sparkles, StopCircle } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { parseList } from '@/ai/flows/list-parser-flow';
 import { parseVoiceList } from '@/ai/flows/voice-list-parser-flow';
+import { parseTextList } from '@/ai/flows/text-list-parser-flow';
 import { type ListParserOutput } from '@/ai/schemas/list-parser-schemas';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Textarea } from '@/components/ui/textarea';
 
 function SparkPageComponent() {
   const searchParams = useSearchParams();
   const initialTab = searchParams.get('tab') || 'scan';
 
   const [photoDataUri, setPhotoDataUri] = useState<string | null>(null);
+  const [textList, setTextList] = useState('');
   const [parsedItems, setParsedItems] = useState<ListParserOutput | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
@@ -31,7 +34,7 @@ function SparkPageComponent() {
 
   useEffect(() => {
     const tabFromQuery = searchParams.get('tab');
-    if (tabFromQuery === 'scan' || tabFromQuery === 'speak') {
+    if (tabFromQuery === 'scan' || tabFromQuery === 'speak' || tabFromQuery === 'type') {
         setActiveTab(tabFromQuery);
         resetState();
     }
@@ -73,6 +76,34 @@ function SparkPageComponent() {
         variant: 'destructive',
         title: 'Parsing Failed',
         description: 'Could not read the shopping list. Please try a clearer image.',
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleParseTextList = async () => {
+    if (!textList.trim()) {
+      toast({
+        variant: 'destructive',
+        title: 'Empty List',
+        description: 'Please type or paste your shopping list first.',
+      });
+      return;
+    }
+
+    setIsLoading(true);
+    setParsedItems(null);
+
+    try {
+      const result = await parseTextList({ textList });
+      setParsedItems(result);
+    } catch (error) {
+      console.error('Error parsing text list:', error);
+      toast({
+        variant: 'destructive',
+        title: 'Parsing Failed',
+        description: 'Could not read the shopping list. Please check the format.',
       });
     } finally {
       setIsLoading(false);
@@ -132,6 +163,7 @@ function SparkPageComponent() {
   const resetState = () => {
     setParsedItems(null);
     setPhotoDataUri(null);
+    setTextList('');
   };
 
   const handleTabChange = (tab: string) => {
@@ -160,9 +192,10 @@ function SparkPageComponent() {
       <main className="flex-1 py-8 px-4">
         <div className="container mx-auto max-w-2xl">
           <Tabs value={activeTab} className="w-full" onValueChange={handleTabChange}>
-            <TabsList className="grid w-full grid-cols-2">
+            <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="scan" className="gap-2"><Camera /> Scan List</TabsTrigger>
               <TabsTrigger value="speak" className="gap-2"><Mic /> Speak List</TabsTrigger>
+              <TabsTrigger value="type" className="gap-2"><FileText /> Type List</TabsTrigger>
             </TabsList>
             <TabsContent value="scan">
               <Card>
@@ -220,6 +253,34 @@ function SparkPageComponent() {
                   </Button>
                   {isRecording && <p className="text-sm text-muted-foreground animate-pulse">Recording... speak now!</p>}
                   {isLoading && <p className="text-sm text-muted-foreground flex items-center gap-2"><Loader2 className="h-4 w-4 animate-spin" /> Processing your voice...</p>}
+                </CardContent>
+              </Card>
+            </TabsContent>
+            <TabsContent value="type">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">Type Your List</CardTitle>
+                  <CardDescription>Type or paste your shopping list below. Put each item on a new line for best results.</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div className="space-y-2">
+                    <Label htmlFor="text-list">Your List</Label>
+                    <Textarea 
+                      id="text-list" 
+                      placeholder="e.g.&#10;2 kg Onions&#10;1 dozen Eggs&#10;Milk"
+                      value={textList}
+                      onChange={(e) => setTextList(e.target.value)}
+                      className="min-h-[150px]"
+                      disabled={isLoading}
+                    />
+                  </div>
+                  <Button onClick={handleParseTextList} disabled={isLoading || !textList.trim()} className="w-full" size="lg">
+                    {isLoading ? (
+                      <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Parsing your list...</>
+                    ) : (
+                      <><Sparkles className="mr-2 h-4 w-4" /> Spark It!</>
+                    )}
+                  </Button>
                 </CardContent>
               </Card>
             </TabsContent>

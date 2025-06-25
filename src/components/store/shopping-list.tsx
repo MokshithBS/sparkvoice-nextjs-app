@@ -1,4 +1,4 @@
-import { Camera, Mic } from 'lucide-react';
+import { Camera, Mic, FileText } from 'lucide-react';
 import Link from 'next/link';
 
 export function ShoppingList() {
@@ -7,9 +7,10 @@ export function ShoppingList() {
       <div className="p-4 rounded-xl bg-gradient-to-br from-white/20 to-white/5 backdrop-blur-md border border-white/10 shadow-lg">
         <h3 className="font-bold text-lg text-foreground">Have a shopping list?</h3>
         <p className="text-sm text-muted-foreground mb-4">Find all items in one go & build your cart 10x faster!</p>
-        <div className="grid grid-cols-2 gap-3 text-center">
+        <div className="grid grid-cols-3 gap-3 text-center">
           <GlassButton href="/spark?tab=scan" icon={Camera} label="Scan it" />
           <GlassButton href="/spark?tab=speak" icon={Mic} label="Say it" className="!bg-blue-400/20 !border-blue-300/50" />
+          <GlassButton href="/spark?tab=type" icon={FileText} label="Type it" className="!bg-green-400/20 !border-green-300/50" />
         </div>
       </div>
     </div>
