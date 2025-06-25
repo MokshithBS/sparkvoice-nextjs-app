@@ -222,7 +222,7 @@ function SparkPageComponent() {
   };
 
   const handleCapture = () => {
-    if (videoRef.current) {
+    if (videoRef.current && videoRef.current.videoWidth > 0 && videoRef.current.videoHeight > 0) {
       const canvas = document.createElement('canvas');
       canvas.width = videoRef.current.videoWidth;
       canvas.height = videoRef.current.videoHeight;
@@ -230,9 +230,23 @@ function SparkPageComponent() {
       if (context) {
         context.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
         const dataUri = canvas.toDataURL('image/png');
-        setPhotoDataUri(dataUri);
-        handleCloseCamera();
+        if (dataUri && dataUri !== 'data:,') {
+          setPhotoDataUri(dataUri);
+          handleCloseCamera();
+        } else {
+          toast({
+            variant: 'destructive',
+            title: 'Capture Failed',
+            description: 'Could not capture image from camera. Please try again.',
+          });
+        }
       }
+    } else {
+        toast({
+            variant: 'destructive',
+            title: 'Camera Not Ready',
+            description: 'Please wait a moment for the camera to initialize.',
+        });
     }
   };
 
