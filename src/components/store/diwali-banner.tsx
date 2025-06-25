@@ -15,7 +15,7 @@ export function DiwaliBanner() {
                 <h2 className="text-white text-3xl font-extrabold drop-shadow-lg">Grand</h2>
                 <h2 className="text-white text-3xl font-extrabold drop-shadow-lg -mt-2">Sparkathon Sale</h2>
                 <Button size="sm" className="bg-accent hover:bg-accent/90 text-accent-foreground h-auto p-1 px-3 rounded-full w-fit mt-2 text-xs font-bold">
-                UPTO 80% OFF &gt;
+                UPTO 50% OFF &gt;
                 </Button>
             </div>
         </div>
