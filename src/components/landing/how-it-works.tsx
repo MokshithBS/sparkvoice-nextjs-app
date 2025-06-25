@@ -40,7 +40,7 @@ const steps = [
 
 export function HowItWorks() {
   return (
-    <section id="how-it-works" className="w-full py-12 md:py-24 lg:py-32 bg-background">
+    <section id="how-it-works" className="w-full py-12 md:py-24 lg:py-32 bg-card">
       <div className="container mx-auto px-4 md:px-6">
         <div className="flex flex-col items-center justify-center space-y-4 text-center">
           <div className="space-y-2">
@@ -52,7 +52,7 @@ export function HowItWorks() {
         </div>
         <div className="mx-auto grid max-w-5xl items-stretch gap-8 sm:grid-cols-1 md:grid-cols-3 lg:gap-12 mt-12">
           {steps.map((step) => (
-            <Card key={step.title} className="shadow-lg hover:shadow-xl transition-shadow duration-300 flex flex-col bg-card">
+            <Card key={step.title} className="shadow-lg hover:shadow-xl transition-shadow duration-300 flex flex-col">
               <CardHeader className="flex flex-col items-center text-center pb-4">
                 {step.icon}
                 <CardTitle className="mt-4 font-headline text-2xl">{step.title}</CardTitle>

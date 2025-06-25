@@ -3,8 +3,9 @@ import { Features } from "@/components/landing/features";
 import { Footer } from "@/components/landing/footer";
 import { Header } from "@/components/landing/header";
 import { Hero } from "@/components/landing/hero";
+import { HowItWorks } from "@/components/landing/how-it-works";
+import { Problem } from "@/components/landing/problem";
 import { Testimonials } from "@/components/landing/testimonials";
-import { VisualDemos } from "@/components/landing/visual-demos";
 
 export default function Home() {
   return (
@@ -12,8 +13,9 @@ export default function Home() {
       <Header />
       <main className="flex-1">
         <Hero />
+        <Problem />
         <Features />
-        <VisualDemos />
+        <HowItWorks />
         <Testimonials />
         <Faq />
       </main>

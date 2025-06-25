@@ -1,4 +1,4 @@
-import { Voicemail, Twitter, Linkedin, Github } from "lucide-react"
+import { ShoppingCart, Twitter, Linkedin, Github } from "lucide-react"
 import Link from "next/link"
 
 export function Footer() {
@@ -8,11 +8,11 @@ export function Footer() {
         <div className="grid gap-8 md:grid-cols-3">
           <div className="space-y-4">
             <Link href="#" className="flex items-center space-x-2" prefetch={false}>
-              <Voicemail className="h-8 w-8 text-primary" />
+              <ShoppingCart className="h-8 w-8 text-primary" />
               <span className="text-2xl font-bold font-headline">SparkVoice</span>
             </Link>
             <p className="text-muted-foreground">
-              Our mission is to empower individuals to communicate with confidence and clarity.
+              Our mission is to empower individuals to shop with confidence and ease.
             </p>
           </div>
           <div className="grid grid-cols-2 gap-8 md:col-span-2 md:grid-cols-3">

@@ -9,14 +9,14 @@ export function Hero() {
         <div className="grid gap-6 lg:grid-cols-2 lg:gap-12 xl:gap-16">
           <div className="flex flex-col justify-center space-y-4 text-center lg:text-left">
             <h1 className="text-4xl font-bold tracking-tighter sm:text-5xl md:text-6xl lg:text-7xl font-headline">
-              Amplify Your Voice with AI
+              Speak It or Snap It. Just Spark It.
             </h1>
             <p className="max-w-[600px] text-muted-foreground md:text-xl lg:mx-0">
-              Transform your communication with SparkVoice. Get real-time feedback and AI-powered coaching to speak with confidence and impact.
+              SparkVoice digitizes the way India already shops. Turn your handwritten chits and verbal instructions into a digital shopping cart, instantly.
             </p>
             <div className="flex flex-col gap-2 min-[400px]:flex-row lg:justify-start justify-center">
               <Link href="#" prefetch={false}>
-                <Button size="lg" style={{ backgroundColor: "hsl(var(--accent))", color: "hsl(var(--accent-foreground))" }}>Start Free Trial</Button>
+                <Button size="lg" style={{ backgroundColor: "hsl(var(--accent))", color: "hsl(var(--accent-foreground))" }}>Get Started for Free</Button>
               </Link>
               <Link href="#" prefetch={false}>
                 <Button variant="outline" size="lg">
@@ -32,7 +32,7 @@ export function Hero() {
               width={600}
               height={400}
               className="rounded-xl shadow-2xl"
-              data-ai-hint="voice ai"
+              data-ai-hint="handwritten list phone"
             />
           </div>
         </div>

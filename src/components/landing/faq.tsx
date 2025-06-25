@@ -5,27 +5,27 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 const faqs = [
   {
     question: "What is SparkVoice?",
-    answer: "SparkVoice is an AI-powered platform that analyzes your speech patterns, provides real-time feedback, and helps you improve your vocal delivery for presentations, meetings, and public speaking."
+    answer: "SparkVoice is an AI-powered shopping platform that lets you create a grocery cart by either speaking or scanning a handwritten list. It's designed to make e-commerce accessible to everyone in India, especially those who find typical shopping apps difficult to use."
   },
   {
-    question: "How does the real-time feedback work?",
-    answer: "Our advanced AI listens to your voice during live practice sessions or actual conversations. It provides on-the-spot suggestions about your pace, tone, filler words, and clarity, displayed discreetly on your screen."
+    question: "Do I need to install an app?",
+    answer: "Not at all! You can use SparkVoice directly through WhatsApp, by making a simple phone call (IVR), or through our lightweight app. The choice is yours."
   },
   {
-    question: "Is my voice data secure?",
-    answer: "Absolutely. We prioritize user privacy and data security. All voice data is encrypted and processed anonymously. You have full control over your data and can delete it at any time."
+    question: "Can it understand my handwriting and language?",
+    answer: "Yes. Our AI is trained to read various styles of handwriting, including messy and curved text. It also understands multiple Indian languages, so you can speak or write your list naturally."
   },
   {
-    question: "What integrations are available?",
-    answer: "SparkVoice seamlessly integrates with popular video conferencing tools like Zoom, Google Meet, and Microsoft Teams, allowing you to get feedback during your actual meetings. We also offer API access for custom integrations."
+    question: "How does it know which brand of an item I want?",
+    answer: "SparkVoice gets smarter with each order. It learns your preferences and will automatically suggest your favorite brands. For new items, it picks the most popular option, which you can easily change."
   },
   {
-    question: "Who can benefit from using SparkVoice?",
-    answer: "SparkVoice is for professionals, students, public speakers, sales teams, and anyone looking to communicate more effectively and confidently. If you use your voice to persuade, inform, or lead, SparkVoice can help."
+    question: "Is this only for customers?",
+    answer: "No, SparkVoice is built for local kirana stores too. It provides them with a simple way to receive digital orders via a dashboard, WhatsApp, or a soundbox, helping them reduce errors and save time."
   },
   {
-    question: "Is there a free trial available?",
-    answer: "Yes! We offer a 14-day free trial with full access to all premium features. No credit card is required to get started. Just sign up and begin improving your voice today."
+    question: "How do I pay for my order?",
+    answer: "You can pay through all major UPI apps, just like you normally would. The order is fulfilled by your trusted local store."
   },
 ]
 
@@ -45,8 +45,8 @@ export function Faq() {
           <Accordion type="single" collapsible className="w-full">
             {faqs.map((faq, index) => (
               <AccordionItem key={index} value={`item-${index}`}>
-                <AccordionTrigger className="text-lg font-medium">{faq.question}</AccordionTrigger>
-                <AccordionContent className="text-base text-muted-foreground">
+                <AccordionTrigger className="text-lg font-medium text-left">{faq.question}</AccordionTrigger>
+                <AccordionContent className="text-base text-muted-foreground text-left">
                   {faq.answer}
                 </AccordionContent>
               </AccordionItem>

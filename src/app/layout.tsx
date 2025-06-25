@@ -4,7 +4,7 @@ import { Toaster } from "@/components/ui/toaster"
 
 export const metadata: Metadata = {
   title: 'SparkVoice',
-  description: 'Transform your communication with SparkVoice. Get real-time feedback and AI-powered coaching to speak with confidence and impact.',
+  description: 'A voice-first shopping platform where users speak or snap handwritten slips—via app, IVR, or soundbox.',
 };
 
 export default function RootLayout({
