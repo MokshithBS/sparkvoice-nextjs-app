@@ -26,7 +26,9 @@ export function Header() {
         </nav>
         <div className="hidden md:flex items-center gap-4">
           <Button variant="outline">Request a Demo</Button>
-          <Button style={{ backgroundColor: "hsl(var(--accent))", color: "hsl(var(--accent-foreground))" }}>Get Started</Button>
+          <Button asChild style={{ backgroundColor: "hsl(var(--accent))", color: "hsl(var(--accent-foreground))" }}>
+            <Link href="/spark">Get Started</Link>
+          </Button>
         </div>
         <Sheet open={isSheetOpen} onOpenChange={setSheetOpen}>
           <SheetTrigger asChild>
@@ -49,7 +51,9 @@ export function Header() {
               </nav>
               <div className="flex flex-col gap-4 mt-4">
                 <Button variant="outline" onClick={closeSheet}>Request a Demo</Button>
-                <Button style={{ backgroundColor: "hsl(var(--accent))", color: "hsl(var(--accent-foreground))" }} onClick={closeSheet}>Get Started</Button>
+                <Button asChild style={{ backgroundColor: "hsl(var(--accent))", color: "hsl(var(--accent-foreground))" }} onClick={closeSheet}>
+                  <Link href="/spark">Get Started</Link>
+                </Button>
               </div>
             </div>
           </SheetContent>
