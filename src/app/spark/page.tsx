@@ -54,6 +54,28 @@ function SparkPageComponent() {
     }
   };
 
+  const handleTextFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const text = e.target?.result;
+        if (typeof text === 'string') {
+          setTextList(text);
+        }
+      };
+      reader.onerror = (e) => {
+        console.error("Error reading file:", e);
+        toast({
+            variant: 'destructive',
+            title: 'File Read Error',
+            description: 'Could not read the selected file.',
+        });
+      }
+      reader.readAsText(file);
+    }
+  };
+
   const handleParseList = async () => {
     if (!photoDataUri) {
       toast({
@@ -259,12 +281,20 @@ function SparkPageComponent() {
             <TabsContent value="type">
               <Card>
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2">Type Your List</CardTitle>
-                  <CardDescription>Type or paste your shopping list below. Put each item on a new line for best results.</CardDescription>
+                  <CardTitle className="flex items-center gap-2">Type or Import Your List</CardTitle>
+                  <CardDescription>Type your list, paste from your notes, or upload a text file directly.</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
                   <div className="space-y-2">
-                    <Label htmlFor="text-list">Your List</Label>
+                    <Label htmlFor="notes-file">Import from Notes (.txt)</Label>
+                    <Input id="notes-file" type="file" accept="text/plain" onChange={handleTextFileChange} className="file:text-foreground" disabled={isLoading}/>
+                  </div>
+                  <div className="relative">
+                    <div className="absolute inset-0 flex items-center"><span className="w-full border-t" /></div>
+                    <div className="relative flex justify-center text-xs uppercase"><span className="bg-card px-2 text-muted-foreground">Or</span></div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="text-list">Type or Paste Your List</Label>
                     <Textarea 
                       id="text-list" 
                       placeholder="e.g.&#10;2 kg Onions&#10;1 dozen Eggs&#10;Milk"
