@@ -27,7 +27,7 @@ export function Hero() {
           </div>
           <div className="flex items-center justify-center">
             <Image
-              src="https://placehold.co/600x400.png"
+              src="https://storage.googleapis.com/aip-dev-images-public/spark-voice-hero.png"
               alt="Hero"
               width={600}
               height={400}

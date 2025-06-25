@@ -19,21 +19,21 @@ const steps = [
     icon: <Camera className="w-10 h-10 text-accent" />,
     title: "1. Scan Your List",
     description: "Upload a photo of your handwritten grocery slip. Our AI reads it line by line.",
-    image: "https://placehold.co/400x300.png",
+    image: "https://storage.googleapis.com/aip-dev-images-public/spark-voice-scan.png",
     hint: "handwritten list scan"
   },
   {
     icon: <MicVocal className="w-10 h-10 text-accent" />,
     title: "2. Speak Your Order",
     description: "Simply talk in your native language. SparkVoice understands and adds items to your cart.",
-    image: "https://placehold.co/400x300.png",
+    image: "https://storage.googleapis.com/aip-dev-images-public/spark-voice-speak.png",
     hint: "voice command phone"
   },
   {
     icon: <WhatsAppIcon className="w-10 h-10 text-accent" />,
     title: "3. Chat on WhatsApp",
     description: "Send a text, image, or voice note to our number. We'll reply with a pre-filled cart.",
-    image: "https://placehold.co/400x300.png",
+    image: "https://storage.googleapis.com/aip-dev-images-public/spark-voice-chat.png",
     hint: "whatsapp chat phone"
   }
 ]
@@ -64,7 +64,7 @@ export function HowItWorks() {
                     alt={step.title}
                     width={400}
                     height={300}
-                    className="rounded-lg shadow-md"
+                    className="rounded-lg shadow-md object-cover aspect-[4/3]"
                     data-ai-hint={step.hint}
                   />
               </CardContent>
