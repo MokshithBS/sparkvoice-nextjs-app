@@ -28,7 +28,7 @@ export function Header() {
         <div className="hidden md:flex items-center gap-4">
           <Button variant="outline">Request a Demo</Button>
           <Button asChild style={{ backgroundColor: "hsl(var(--accent))", color: "hsl(var(--accent-foreground))" }}>
-            <Link href="/spark">Get Started</Link>
+            <Link href="/store">Get Started</Link>
           </Button>
         </div>
         <Sheet open={isSheetOpen} onOpenChange={setSheetOpen}>
@@ -54,7 +54,7 @@ export function Header() {
               <div className="flex flex-col gap-4 mt-4">
                 <Button variant="outline" onClick={closeSheet}>Request a Demo</Button>
                 <Button asChild style={{ backgroundColor: "hsl(var(--accent))", color: "hsl(var(--accent-foreground))" }} onClick={closeSheet}>
-                  <Link href="/spark">Get Started</Link>
+                  <Link href="/store">Get Started</Link>
                 </Button>
               </div>
             </div>

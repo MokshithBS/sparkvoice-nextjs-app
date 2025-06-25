@@ -15,7 +15,7 @@ export function Hero() {
               SparkVoice digitizes the way India already shops. Turn your handwritten chits and verbal instructions into a digital shopping cart, instantly.
             </p>
             <div className="flex flex-col gap-2 min-[400px]:flex-row lg:justify-start justify-center">
-              <Link href="/spark" prefetch={false}>
+              <Link href="/store" prefetch={false}>
                 <Button size="lg" style={{ backgroundColor: "hsl(var(--accent))", color: "hsl(var(--accent-foreground))" }}>Get Started for Free</Button>
               </Link>
               <Link href="#" prefetch={false}>
