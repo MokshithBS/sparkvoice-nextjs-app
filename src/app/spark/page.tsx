@@ -4,7 +4,7 @@ import { Suspense, useRef, useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import { ArrowLeft, Camera, FileText, Loader2, Mic, Sparkles, StopCircle } from 'lucide-react';
+import { ArrowLeft, Camera, FileText, Loader2, Mic, Sparkles, StopCircle, Video } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
@@ -31,6 +31,10 @@ function SparkPageComponent() {
   const { toast } = useToast();
   
   const [activeTab, setActiveTab] = useState(initialTab);
+  
+  const [isCameraOpen, setIsCameraOpen] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [stream, setStream] = useState<MediaStream | null>(null);
 
   useEffect(() => {
     const tabFromQuery = searchParams.get('tab');
@@ -81,7 +85,7 @@ function SparkPageComponent() {
       toast({
         variant: 'destructive',
         title: 'No Image Selected',
-        description: 'Please upload a photo of your shopping list first.',
+        description: 'Please upload or capture a photo of your shopping list first.',
       });
       return;
     }
@@ -182,6 +186,64 @@ function SparkPageComponent() {
     }
   };
 
+  const handleOpenCamera = async () => {
+    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+      try {
+        const mediaStream = await navigator.mediaDevices.getUserMedia({ video: true });
+        if (videoRef.current) {
+          videoRef.current.srcObject = mediaStream;
+        }
+        setStream(mediaStream);
+        setIsCameraOpen(true);
+        setPhotoDataUri(null);
+      } catch (err) {
+        console.error('Error accessing camera:', err);
+        toast({
+          variant: 'destructive',
+          title: 'Camera Access Denied',
+          description: 'Please enable camera permissions in your browser settings.',
+        });
+      }
+    } else {
+       toast({
+        variant: 'destructive',
+        title: 'Feature Not Supported',
+        description: 'Your browser does not support camera access.',
+      });
+    }
+  };
+
+  const handleCloseCamera = () => {
+    if (stream) {
+      stream.getTracks().forEach((track) => track.stop());
+    }
+    setIsCameraOpen(false);
+    setStream(null);
+  };
+
+  const handleCapture = () => {
+    if (videoRef.current) {
+      const canvas = document.createElement('canvas');
+      canvas.width = videoRef.current.videoWidth;
+      canvas.height = videoRef.current.videoHeight;
+      const context = canvas.getContext('2d');
+      if (context) {
+        context.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
+        const dataUri = canvas.toDataURL('image/png');
+        setPhotoDataUri(dataUri);
+        handleCloseCamera();
+      }
+    }
+  };
+
+  useEffect(() => {
+    return () => {
+      if (stream) {
+        stream.getTracks().forEach((track) => track.stop());
+      }
+    };
+  }, [stream]);
+
   const resetState = () => {
     setParsedItems(null);
     setPhotoDataUri(null);
@@ -190,6 +252,7 @@ function SparkPageComponent() {
 
   const handleTabChange = (tab: string) => {
     resetState();
+    if(isCameraOpen) handleCloseCamera();
     setActiveTab(tab);
   };
 
@@ -223,33 +286,63 @@ function SparkPageComponent() {
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">Scan Your List</CardTitle>
-                  <CardDescription>Upload a picture of your handwritten shopping list and let our AI build your cart instantly.</CardDescription>
+                  <CardDescription>Capture a photo of your list or upload an image to build your cart instantly.</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
-                  <div className="space-y-2">
-                    <Label htmlFor="list-photo">Upload Photo</Label>
-                    <Input id="list-photo" type="file" accept="image/*" onChange={handleFileChange} className="file:text-foreground" disabled={isLoading}/>
-                  </div>
-
-                  {photoDataUri && (
-                    <div className="flex justify-center">
-                      <Image
-                        src={photoDataUri}
-                        alt="Shopping list preview"
-                        width={400}
-                        height={300}
-                        className="rounded-lg object-contain border"
-                      />
+                {isCameraOpen ? (
+                  <div className="space-y-4 text-center">
+                    <div className="relative w-full aspect-video bg-muted rounded-lg overflow-hidden border">
+                      <video ref={videoRef} className="w-full h-full object-cover" autoPlay playsInline muted />
                     </div>
-                  )}
-
-                  <Button onClick={handleParseList} disabled={isLoading || !photoDataUri} className="w-full" size="lg">
-                    {isLoading ? (
-                      <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Parsing your list...</>
+                    <div className="flex justify-center gap-4">
+                      <Button onClick={handleCapture} size="lg">
+                        <Camera className="mr-2" /> Capture
+                      </Button>
+                      <Button onClick={handleCloseCamera} variant="outline" size="lg">
+                        Cancel
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="list-photo">Upload from Device</Label>
+                        <Input id="list-photo" type="file" accept="image/*" onChange={handleFileChange} className="file:text-foreground" disabled={isLoading}/>
+                      </div>
+                      <div className="flex flex-col space-y-2">
+                        <Label>Or Use Camera</Label>
+                        <Button onClick={handleOpenCamera} variant="outline" disabled={isLoading} className="w-full">
+                          <Video className="mr-2" /> Open Camera
+                        </Button>
+                      </div>
+                    </div>
+                    
+                    {photoDataUri ? (
+                      <div className="flex justify-center">
+                        <Image
+                          src={photoDataUri}
+                          alt="Shopping list preview"
+                          width={400}
+                          height={300}
+                          className="rounded-lg object-contain border"
+                        />
+                      </div>
                     ) : (
-                      <><Sparkles className="mr-2 h-4 w-4" /> Spark It!</>
+                       <div className="flex items-center justify-center h-48 bg-muted rounded-lg border-dashed border-2">
+                          <p className="text-muted-foreground">Image preview will appear here</p>
+                       </div>
                     )}
-                  </Button>
+
+                    <Button onClick={handleParseList} disabled={isLoading || !photoDataUri} className="w-full" size="lg">
+                      {isLoading ? (
+                        <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Parsing your list...</>
+                      ) : (
+                        <><Sparkles className="mr-2 h-4 w-4" /> Spark It!</>
+                      )}
+                    </Button>
+                  </div>
+                )}
                 </CardContent>
               </Card>
             </TabsContent>
