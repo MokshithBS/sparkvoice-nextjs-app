@@ -6,7 +6,7 @@ export function LocationHeader() {
       <div className="flex items-start gap-3">
         <div className="text-center">
             <div className="w-10 h-10 rounded-lg bg-orange-500 flex items-center justify-center">
-                <span className="font-bold text-white text-lg">5</span>
+                <span className="font-bold text-white text-lg">10</span>
             </div>
             <span className="text-[10px] font-bold text-orange-200">MINS</span>
         </div>

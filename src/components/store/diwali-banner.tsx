@@ -21,7 +21,7 @@ export function DiwaliBanner() {
             </div>
         </div>
         <div className="text-center text-xs text-muted-foreground">
-            Powered by <span className="font-bold text-foreground">Coca-Cola</span> &middot; <span className="font-bold text-foreground">Cadbury</span> &middot; <span className="font-bold text-foreground">Farmley</span>
+            powered by students of siddaganga institute of technology
         </div>
     </div>
   );
