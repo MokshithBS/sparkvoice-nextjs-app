@@ -1,8 +1,9 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { Suspense, useRef, useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import { ArrowLeft, Camera, Loader2, Mic, Sparkles, StopCircle } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
@@ -16,12 +17,25 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
-export default function SparkPage() {
+function SparkPageComponent() {
+  const searchParams = useSearchParams();
+  const initialTab = searchParams.get('tab') || 'scan';
+
   const [photoDataUri, setPhotoDataUri] = useState<string | null>(null);
   const [parsedItems, setParsedItems] = useState<ListParserOutput | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   const { toast } = useToast();
+  
+  const [activeTab, setActiveTab] = useState(initialTab);
+
+  useEffect(() => {
+    const tabFromQuery = searchParams.get('tab');
+    if (tabFromQuery === 'scan' || tabFromQuery === 'speak') {
+        setActiveTab(tabFromQuery);
+        resetState();
+    }
+  }, [searchParams]);
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
@@ -120,6 +134,11 @@ export default function SparkPage() {
     setPhotoDataUri(null);
   };
 
+  const handleTabChange = (tab: string) => {
+    resetState();
+    setActiveTab(tab);
+  };
+
   return (
     <div className="flex flex-col min-h-dvh bg-background">
        <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -140,7 +159,7 @@ export default function SparkPage() {
 
       <main className="flex-1 py-8 px-4">
         <div className="container mx-auto max-w-2xl">
-          <Tabs defaultValue="scan" className="w-full" onValueChange={resetState}>
+          <Tabs value={activeTab} className="w-full" onValueChange={handleTabChange}>
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="scan" className="gap-2"><Camera /> Scan List</TabsTrigger>
               <TabsTrigger value="speak" className="gap-2"><Mic /> Speak List</TabsTrigger>
@@ -237,4 +256,12 @@ export default function SparkPage() {
       </main>
     </div>
   );
+}
+
+export default function SparkPage() {
+  return (
+    <Suspense>
+      <SparkPageComponent />
+    </Suspense>
+  )
 }
