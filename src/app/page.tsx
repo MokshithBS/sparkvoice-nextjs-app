@@ -1,23 +1,24 @@
-import { Header } from "@/components/landing/header";
-import { Hero } from "@/components/landing/hero";
-import { Features } from "@/components/landing/features";
-import { VisualDemos } from "@/components/landing/visual-demos";
-import { Testimonials } from "@/components/landing/testimonials";
-import { Faq } from "@/components/landing/faq";
-import { Footer } from "@/components/landing/footer";
+import { LocationHeader } from "@/components/store/location-header";
+import { SearchBar } from "@/components/store/search-bar";
+import { DiwaliBanner } from "@/components/store/diwali-banner";
+import { CategoryGrid } from "@/components/store/category-grid";
+import { ShoppingList } from "@/components/store/shopping-list";
 
 export default function Home() {
   return (
-    <div className="flex min-h-screen w-full flex-col">
-      <Header />
-      <main className="flex-1">
-        <Hero />
-        <Features />
-        <VisualDemos />
-        <Testimonials />
-        <Faq />
-      </main>
-      <Footer />
+    <div className="bg-neutral-900 py-10 flex items-center justify-center min-h-screen">
+      <div className="relative mx-auto h-[844px] w-[390px] overflow-hidden rounded-[40px] border-[8px] border-black bg-background shadow-xl">
+        <div className="absolute top-0 left-1/2 z-20 h-7 w-36 -translate-x-1/2 rounded-b-2xl bg-black"></div>
+        <div className="h-full overflow-y-auto pb-40 scrollbar-hide">
+          <LocationHeader />
+          <main className="px-4">
+            <SearchBar />
+            <DiwaliBanner />
+            <CategoryGrid />
+          </main>
+        </div>
+        <ShoppingList />
+      </div>
     </div>
   );
 }
