@@ -23,6 +23,7 @@ export function Header() {
           <Link href="#features" className="text-sm font-medium hover:text-primary transition-colors" prefetch={false}>Features</Link>
           <Link href="#how-it-works" className="text-sm font-medium hover:text-primary transition-colors" prefetch={false}>How It Works</Link>
           <Link href="#faq" className="text-sm font-medium hover:text-primary transition-colors" prefetch={false}>FAQ</Link>
+          <Link href="/store" className="text-sm font-medium hover:text-primary transition-colors" prefetch={false}>Store</Link>
         </nav>
         <div className="hidden md:flex items-center gap-4">
           <Button variant="outline">Request a Demo</Button>
@@ -48,6 +49,7 @@ export function Header() {
                 <Link href="#features" className="text-sm font-medium hover:text-primary transition-colors" prefetch={false} onClick={closeSheet}>Features</Link>
                 <Link href="#how-it-works" className="text-sm font-medium hover:text-primary transition-colors" prefetch={false} onClick={closeSheet}>How It Works</Link>
                 <Link href="#faq" className="text-sm font-medium hover:text-primary transition-colors" prefetch={false} onClick={closeSheet}>FAQ</Link>
+                <Link href="/store" className="text-sm font-medium hover:text-primary transition-colors" prefetch={false} onClick={closeSheet}>Store</Link>
               </nav>
               <div className="flex flex-col gap-4 mt-4">
                 <Button variant="outline" onClick={closeSheet}>Request a Demo</Button>
