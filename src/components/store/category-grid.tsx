@@ -1,14 +1,14 @@
 import Image from 'next/image';
 
 const categories = [
-  { name: 'Diyas, idols & puja needs', discount: '70% OFF', image: 'https://placehold.co/100x100.png', hint: 'diya lamp' },
-  { name: 'Festive gifting & chocolates', discount: '80% OFF', image: 'https://placehold.co/100x100.png', hint: 'chocolate gift' },
-  { name: 'Sweets & dry fruits', discount: '70% OFF', image: 'https://placehold.co/100x100.png', hint: 'indian sweets' },
-  { name: 'Festive cooking', discount: '60% OFF', image: 'https://placehold.co/100x100.png', hint: 'cooking oil' },
-  { name: 'Lights & home needs', discount: '70% OFF', image: 'https://placehold.co/100x100.png', hint: 'fairy lights' },
-  { name: 'Festive cleaning', discount: '50% OFF', image: 'https://placehold.co/100x100.png', hint: 'cleaning spray' },
-  { name: 'Diwali party picks', discount: '70% OFF', image: 'https://placehold.co/100x100.png', hint: 'soda can' },
-  { name: 'Beauty & fashion', discount: '80% OFF', image: 'https://placehold.co/100x100.png', hint: 'kurta fashion' },
+  { name: 'Vegetables & Fruits', discount: '70% OFF', image: 'https://placehold.co/100x100.png', hint: 'fresh vegetables' },
+  { name: 'Dairy, Bread & Eggs', discount: '80% OFF', image: 'https://placehold.co/100x100.png', hint: 'milk bread' },
+  { name: 'Atta, Rice & Dals', discount: '70% OFF', image: 'https://placehold.co/100x100.png', hint: 'rice bag' },
+  { name: 'Masala & Oils', discount: '60% OFF', image: 'https://placehold.co/100x100.png', hint: 'spices cooking' },
+  { name: 'Snacks & Beverages', discount: '70% OFF', image: 'https://placehold.co/100x100.png', hint: 'potato chips' },
+  { name: 'Cleaning Essentials', discount: '50% OFF', image: 'https://placehold.co/100x100.png', hint: 'cleaning supplies' },
+  { name: 'Personal Care', discount: '70% OFF', image: 'https://placehold.co/100x100.png', hint: 'shampoo bottle' },
+  { name: 'Instant & Frozen Food', discount: '80% OFF', image: 'https://placehold.co/100x100.png', hint: 'instant noodles' },
 ];
 
 export function CategoryGrid() {

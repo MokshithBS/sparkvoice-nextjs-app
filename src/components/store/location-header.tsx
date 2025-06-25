@@ -12,10 +12,10 @@ export function LocationHeader() {
         </div>
         <div>
           <div className="flex items-center font-bold text-lg">
-            <span>Hsr Layout</span>
+            <span>SIT, Tumkur</span>
             <ChevronDown className="w-5 h-5 mt-1" />
           </div>
-          <p className="text-xs text-muted-foreground">HSR Layout, Bengaluru, Karnataka, India</p>
+          <p className="text-xs text-muted-foreground">SIT, BH Road, Tumkur, Karnataka, India</p>
         </div>
       </div>
       <CircleUserRound className="w-8 h-8 text-foreground/80" />
