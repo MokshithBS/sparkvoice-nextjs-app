@@ -7,7 +7,8 @@ import { ArrowLeft, Camera, Loader2, Sparkles } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { parseList, type ListParserOutput } from '@/ai/flows/list-parser-flow';
+import { parseList } from '@/ai/flows/list-parser-flow';
+import { type ListParserOutput } from '@/ai/schemas/list-parser-schemas';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Input } from '@/components/ui/input';
