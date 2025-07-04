@@ -5,6 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { ArrowLeft, Camera, FileText, Loader2, Mic, Sparkles, StopCircle, Trash2, Video, Volume2, ScanSearch } from 'lucide-react';
+import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
@@ -45,17 +46,55 @@ function SparkPageComponent() {
   const [activeTab, setActiveTab] = useState(initialTab);
   
   const [isCameraOpen, setIsCameraOpen] = useState(false);
+  const [hasCameraPermission, setHasCameraPermission] = useState<boolean | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
-  const audioRef = useRef<HTMLAudioElement>(null);
-  const [stream, setStream] = useState<MediaStream | null>(null);
+
+  useEffect(() => {
+    if (!isCameraOpen) {
+        return;
+    }
+
+    let mediaStream: MediaStream;
+
+    const getCameraPermission = async () => {
+        setHasCameraPermission(null);
+        if (!navigator.mediaDevices?.getUserMedia) {
+            console.error("Camera API not supported in this browser.");
+            toast({ variant: "destructive", title: "Not Supported", description: "Your browser does not support camera access." });
+            setHasCameraPermission(false);
+            return;
+        }
+
+        try {
+            mediaStream = await navigator.mediaDevices.getUserMedia({ video: true });
+            if (videoRef.current) {
+                videoRef.current.srcObject = mediaStream;
+            }
+            setHasCameraPermission(true);
+        } catch (error) {
+            console.error("Error accessing camera:", error);
+            setHasCameraPermission(false);
+            toast({
+                variant: 'destructive',
+                title: 'Camera Access Denied',
+                description: 'Please enable camera permissions in your browser settings to use this app.',
+            });
+        }
+    };
+
+    getCameraPermission();
+
+    return () => {
+        if (mediaStream) {
+            mediaStream.getTracks().forEach((track) => track.stop());
+        }
+    };
+}, [isCameraOpen, toast]);
+
 
   const handleCloseCamera = useCallback(() => {
-    if (stream) {
-      stream.getTracks().forEach((track) => track.stop());
-    }
     setIsCameraOpen(false);
-    setStream(null);
-  }, [stream]);
+  }, []);
 
   const resetState = useCallback(() => {
     setParsedItems([]);
@@ -84,6 +123,7 @@ function SparkPageComponent() {
   }, [confirmationAudio]);
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioRef = useRef<HTMLAudioElement>(null);
   const audioChunksRef = useRef<Blob[]>([]);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -289,31 +329,9 @@ function SparkPageComponent() {
     }
   };
 
-  const handleOpenCamera = async () => {
-    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-      try {
-        const mediaStream = await navigator.mediaDevices.getUserMedia({ video: true });
-        if (videoRef.current) {
-          videoRef.current.srcObject = mediaStream;
-        }
-        setStream(mediaStream);
-        setIsCameraOpen(true);
-        setPhotoDataUri(null);
-      } catch (err) {
-        console.error('Error accessing camera:', err);
-        toast({
-          variant: 'destructive',
-          title: 'Camera Access Denied',
-          description: 'Please enable camera permissions in your browser settings.',
-        });
-      }
-    } else {
-       toast({
-        variant: 'destructive',
-        title: 'Feature Not Supported',
-        description: 'Your browser does not support camera access.',
-      });
-    }
+  const handleOpenCamera = () => {
+    setIsCameraOpen(true);
+    setPhotoDataUri(null);
   };
 
   const handleCapture = () => {
@@ -361,14 +379,6 @@ function SparkPageComponent() {
     router.push('/cart');
   };
 
-  useEffect(() => {
-    return () => {
-      if (stream) {
-        stream.getTracks().forEach((track) => track.stop());
-      }
-    };
-  }, [stream]);
-
   const handleTabChange = (tab: string) => {
     resetState();
     setActiveTab(tab);
@@ -383,9 +393,40 @@ function SparkPageComponent() {
 
   const startOver = () => {
     resetViewStates();
+    setPhotoDataUri(null);
   }
 
   const hasResults = parsedItems.length > 0 || pantrySuggestions.length > 0 || (confirmationText && pantrySuggestions.length === 0);
+
+  const CameraView = ({ onCapture, onClose }: { onCapture: () => void, onClose: () => void }) => (
+    <div className="space-y-4 text-center">
+      <div className="relative w-full aspect-video bg-muted rounded-lg overflow-hidden border">
+        <video ref={videoRef} className="w-full h-full object-cover" autoPlay playsInline muted />
+        {hasCameraPermission === false && (
+          <div className="absolute inset-0 flex items-center justify-center p-4 bg-background/80">
+            <Alert variant="destructive">
+              <Camera className="h-4 w-4" />
+              <AlertTitle>Camera Access Denied</AlertTitle>
+              <AlertDescription>
+                Please enable camera access in your browser settings to use this feature.
+              </AlertDescription>
+            </Alert>
+          </div>
+        )}
+        {hasCameraPermission === null && (
+          <div className="absolute inset-0 flex items-center justify-center bg-background/80">
+            <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+          </div>
+        )}
+      </div>
+      <div className="flex justify-center gap-4">
+        <Button onClick={onCapture} size="lg" disabled={!hasCameraPermission}>
+          <Camera className="mr-2" /> Capture
+        </Button>
+        <Button onClick={onClose} variant="outline" size="lg">Cancel</Button>
+      </div>
+    </div>
+  );
 
   return (
     <div className="flex flex-col min-h-dvh bg-background">
@@ -407,7 +448,7 @@ function SparkPageComponent() {
 
       <main className="flex-1 py-8 px-4">
         <div className="container mx-auto max-w-2xl">
-          {!hasResults ? (
+          {!hasResults && !photoDataUri ? (
             <Tabs value={activeTab} className="w-full" onValueChange={handleTabChange}>
               <TabsList className="grid w-full grid-cols-4">
                 <TabsTrigger value="scan" className="gap-2"><Camera /> Scan</TabsTrigger>
@@ -424,15 +465,7 @@ function SparkPageComponent() {
                   </CardHeader>
                   <CardContent className="space-y-6">
                   {isCameraOpen ? (
-                     <div className="space-y-4 text-center">
-                      <div className="relative w-full aspect-video bg-muted rounded-lg overflow-hidden border">
-                        <video ref={videoRef} className="w-full h-full object-cover" autoPlay playsInline muted />
-                      </div>
-                      <div className="flex justify-center gap-4">
-                        <Button onClick={handleCapture} size="lg"><Camera className="mr-2" /> Capture</Button>
-                        <Button onClick={handleCloseCamera} variant="outline" size="lg">Cancel</Button>
-                      </div>
-                    </div>
+                     <CameraView onCapture={handleCapture} onClose={handleCloseCamera} />
                   ) : (
                     <div className="space-y-6">
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -467,15 +500,7 @@ function SparkPageComponent() {
                   </CardHeader>
                   <CardContent className="space-y-6">
                   {isCameraOpen ? (
-                     <div className="space-y-4 text-center">
-                      <div className="relative w-full aspect-video bg-muted rounded-lg overflow-hidden border">
-                        <video ref={videoRef} className="w-full h-full object-cover" autoPlay playsInline muted />
-                      </div>
-                      <div className="flex justify-center gap-4">
-                        <Button onClick={handleCapture} size="lg"><Camera className="mr-2" /> Capture</Button>
-                        <Button onClick={handleCloseCamera} variant="outline" size="lg">Cancel</Button>
-                      </div>
-                    </div>
+                     <CameraView onCapture={handleCapture} onClose={handleCloseCamera} />
                   ) : (
                     <div className="space-y-6">
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
