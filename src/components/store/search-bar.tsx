@@ -1,6 +1,7 @@
-import { Search, X } from 'lucide-react';
+import { Search, X, Mic, Camera } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '../ui/button';
+import Link from 'next/link';
 
 interface SearchBarProps extends React.InputHTMLAttributes<HTMLInputElement> {
   onClear?: () => void;
@@ -8,26 +9,40 @@ interface SearchBarProps extends React.InputHTMLAttributes<HTMLInputElement> {
 
 export function SearchBar({ value, onClear, ...props }: SearchBarProps) {
   return (
-    <div className="relative my-2">
+    <div className="relative my-2 flex h-12 w-full items-center rounded-lg bg-card/80 focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2 ring-offset-background">
+      <Search className="absolute left-3 z-10 h-5 w-5 text-muted-foreground" />
       <Input
         type="search"
         placeholder="Search for 'Atta'"
-        className="w-full rounded-lg bg-card/80 border-0 pl-10 pr-10 h-12 text-foreground placeholder:text-muted-foreground"
+        className="h-full w-full border-0 bg-transparent pl-10 pr-2 text-foreground placeholder:text-muted-foreground focus-visible:ring-0 focus-visible:ring-offset-0"
         value={value}
         {...props}
       />
-      <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-      {value && (
-        <Button 
-          variant="ghost" 
-          size="icon" 
-          className="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full"
-          onClick={onClear}
-        >
-          <X className="w-4 h-4" />
-          <span className="sr-only">Clear search</span>
+      <div className="flex items-center gap-1 pr-2">
+        {value && (
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8 flex-shrink-0 rounded-full"
+            onClick={onClear}
+          >
+            <X className="h-4 w-4" />
+            <span className="sr-only">Clear search</span>
+          </Button>
+        )}
+        <Button asChild variant="ghost" size="icon" className="h-8 w-8 flex-shrink-0 rounded-full">
+          <Link href="/spark?tab=speak">
+            <Mic className="h-4 w-4" />
+            <span className="sr-only">Speak list</span>
+          </Link>
         </Button>
-      )}
+        <Button asChild variant="ghost" size="icon" className="h-8 w-8 flex-shrink-0 rounded-full">
+          <Link href="/spark?tab=scan">
+            <Camera className="h-4 w-4" />
+            <span className="sr-only">Scan list</span>
+          </Link>
+        </Button>
+      </div>
     </div>
   );
 }

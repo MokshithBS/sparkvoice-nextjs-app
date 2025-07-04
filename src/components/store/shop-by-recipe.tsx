@@ -4,7 +4,8 @@ import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { ChefHat, Loader2 } from 'lucide-react';
+import { ChefHat, Loader2, Mic, Camera } from 'lucide-react';
+import Link from 'next/link';
 
 interface ShopByRecipeProps {
   onSubmit: (dishName: string) => void;
@@ -34,12 +35,29 @@ export function ShopByRecipe({ onSubmit, isLoading }: ShopByRecipeProps) {
       </CardHeader>
       <CardContent className="pt-0">
         <form onSubmit={handleSubmit} className="space-y-4">
-          <Input
-            placeholder="e.g., Paneer Butter Masala"
-            value={dishName}
-            onChange={(e) => setDishName(e.target.value)}
-            disabled={isLoading}
-          />
+          <div className="relative flex h-10 w-full items-center rounded-md border border-input bg-background ring-offset-background focus-within:ring-2 focus-within:ring-ring">
+            <Input
+                placeholder="e.g., Paneer Butter Masala"
+                value={dishName}
+                onChange={(e) => setDishName(e.target.value)}
+                disabled={isLoading}
+                className="h-full w-full border-0 bg-transparent pl-3 pr-2 text-base placeholder:text-muted-foreground focus-visible:ring-0 focus-visible:ring-offset-0 md:text-sm"
+            />
+            <div className="flex items-center gap-1 pr-2">
+                <Button asChild variant="ghost" size="icon" className="h-8 w-8 flex-shrink-0 rounded-full" disabled={isLoading}>
+                    <Link href="/spark?tab=speak">
+                        <Mic className="h-4 w-4" />
+                        <span className="sr-only">Speak dish name</span>
+                    </Link>
+                </Button>
+                <Button asChild variant="ghost" size="icon" className="h-8 w-8 flex-shrink-0 rounded-full" disabled={isLoading}>
+                    <Link href="/spark?tab=scan">
+                        <Camera className="h-4 w-4" />
+                        <span className="sr-only">Scan recipe list</span>
+                    </Link>
+                </Button>
+            </div>
+          </div>
           <Button type="submit" className="w-full" disabled={isLoading || !dishName.trim()}>
             {isLoading ? (
               <>
