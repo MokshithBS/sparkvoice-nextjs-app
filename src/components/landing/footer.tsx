@@ -12,7 +12,7 @@ export function Footer() {
               <span className="text-2xl font-bold font-headline">SparkVoice</span>
             </Link>
             <p className="text-muted-foreground">
-              Our mission is to empower individuals to shop with confidence and ease.
+              A full-stack, voice-first commerce platform enabling customers and local retailers to thrive in a connected, inclusive ecosystem.
             </p>
           </div>
           <div className="grid grid-cols-2 gap-8 md:col-span-2 md:grid-cols-3">

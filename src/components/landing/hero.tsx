@@ -12,7 +12,7 @@ export function Hero() {
               Speak It or Snap It. Just Spark It.
             </h1>
             <p className="max-w-[600px] text-muted-foreground md:text-xl lg:mx-0">
-              SparkVoice digitizes the way India already shops. Turn your handwritten chits and verbal instructions into a digital shopping cart, instantly.
+              The full-stack, voice-first commerce platform for India. Create your shopping list by speaking, snapping a photo, or simply texting it.
             </p>
             <div className="flex flex-col gap-2 min-[400px]:flex-row lg:justify-start justify-center">
               <Link href="/store" prefetch={false}>

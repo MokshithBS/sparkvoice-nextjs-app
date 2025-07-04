@@ -1,21 +1,21 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { BrainCircuit, Languages, ListChecks, Phone, Store, Zap } from "lucide-react"
+import { Languages, ListChecks, Network, Phone, Store, Zap } from "lucide-react"
 
 const features = [
   {
     icon: <Zap className="w-8 h-8 text-accent" />,
     title: "Zero-Friction Entry",
-    description: "Just speak or snap your list. No typing, no browsing, no complex menus.",
+    description: "Just speak, snap, or text your list. No typing, no browsing, no complex menus.",
   },
   {
     icon: <ListChecks className="w-8 h-8 text-accent" />,
-    title: "List Intelligence",
-    description: "Our AI reads messy handwriting, understands quantities, and auto-builds your cart.",
+    title: "Personalized Cart",
+    description: "Our AI reads messy handwriting and understands you, building a cart with your preferred brands and items.",
   },
   {
-    icon: <BrainCircuit className="w-8 h-8 text-accent" />,
-    title: "Brand Smartness",
-    description: "Remembers your favorite brands and defaults to your past purchases for a personalized cart.",
+    icon: <Store className="w-8 h-8 text-accent" />,
+    title: "Smart Order Routing",
+    description: "Your personalized cart is routed to the nearest kirana store for fulfillment via dashboards, WhatsApp, or IVR.",
   },
   {
     icon: <Languages className="w-8 h-8 text-accent" />,
@@ -28,9 +28,9 @@ const features = [
     description: "No smartphone? No problem. Place orders easily with our IVR system via a simple call.",
   },
   {
-    icon: <Store className="w-8 h-8 text-accent" />,
-    title: "Real-Time Retail Sync",
-    description: "Your orders are sent instantly to your local kirana store, ready for delivery.",
+    icon: <Network className="w-8 h-8 text-accent" />,
+    title: "Powered by Flipkart",
+    description: "Kiranas are enabled via Flipkart Wholesale’s network for real-time orders, stock updates, and restocking.",
   },
 ]
 
@@ -43,7 +43,7 @@ export function Features() {
             <div className="inline-block rounded-lg bg-secondary px-3 py-1 text-sm">What Makes SparkVoice Powerful</div>
             <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl font-headline">A Smarter Way to Shop</h2>
             <p className="max-w-[900px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-              Our AI-driven platform is designed to understand you, not the other way around.
+             SparkVoice is more than an input tool; it's a full-stack platform enabling customers and local retailers to thrive in a connected, inclusive ecosystem.
             </p>
           </div>
         </div>
