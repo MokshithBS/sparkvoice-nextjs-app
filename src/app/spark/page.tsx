@@ -3,7 +3,7 @@
 import { Suspense, useRef, useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { ArrowLeft, Camera, FileText, Loader2, Mic, Sparkles, StopCircle, Trash2, Video, Volume2 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
@@ -18,9 +18,11 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
+import { useCart } from '@/context/cart-context';
 
 function SparkPageComponent() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const initialTab = searchParams.get('tab') || 'scan';
 
   const [photoDataUri, setPhotoDataUri] = useState<string | null>(null);
@@ -32,6 +34,7 @@ function SparkPageComponent() {
   const [confirmationAudio, setConfirmationAudio] = useState<string | null>(null);
   
   const { toast } = useToast();
+  const { addToCartBatch } = useCart();
   
   const [activeTab, setActiveTab] = useState(initialTab);
   
@@ -40,6 +43,14 @@ function SparkPageComponent() {
   const audioRef = useRef<HTMLAudioElement>(null);
   const [stream, setStream] = useState<MediaStream | null>(null);
 
+  const handleCloseCamera = useCallback(() => {
+    if (stream) {
+      stream.getTracks().forEach((track) => track.stop());
+    }
+    setIsCameraOpen(false);
+    setStream(null);
+  }, [stream]);
+
   const resetState = useCallback(() => {
     setParsedItems([]);
     setPhotoDataUri(null);
@@ -47,7 +58,8 @@ function SparkPageComponent() {
     setIsLoading(false);
     setIsGeneratingSpeech(false);
     setConfirmationAudio(null);
-  }, []);
+    if (isCameraOpen) handleCloseCamera();
+  }, [isCameraOpen, handleCloseCamera]);
 
   useEffect(() => {
     const tabFromQuery = searchParams.get('tab');
@@ -100,23 +112,31 @@ function SparkPageComponent() {
   };
 
   const processAndConfirmList = async (result: ListParserOutput) => {
-    setParsedItems(result.items);
-    if (result.items.length > 0) {
-      setIsGeneratingSpeech(true);
-      const confirmationText = `I found ${result.items.length} items. They are: ${result.items.map(i => `${i.quantity} ${i.product}`).join(', ')}. Please review the list below and make any changes.`;
-      try {
-        const audioUri = await generateSpeech(confirmationText);
-        setConfirmationAudio(audioUri);
-      } catch (error) {
-        console.error('Error generating speech:', error);
+    if (result.items.length === 0) {
         toast({
-          variant: 'destructive',
-          title: 'Audio Confirmation Failed',
-          description: 'We could not generate the audio confirmation for your list.',
+            variant: 'destructive',
+            title: 'No items found',
+            description: 'We could not find any items in your list. Please try again.',
         });
-      } finally {
-        setIsGeneratingSpeech(false);
-      }
+        setParsedItems([]);
+        return;
+    }
+
+    setParsedItems(result.items);
+    setIsGeneratingSpeech(true);
+    const confirmationText = `I found ${result.items.length} items. They are: ${result.items.map(i => `${i.quantity} ${i.product}`).join(', ')}. Please review the list below and make any changes.`;
+    try {
+      const audioUri = await generateSpeech(confirmationText);
+      setConfirmationAudio(audioUri);
+    } catch (error) {
+      console.error('Error generating speech:', error);
+      toast({
+        variant: 'destructive',
+        title: 'Audio Confirmation Failed',
+        description: 'We could not generate the audio confirmation for your list.',
+      });
+    } finally {
+      setIsGeneratingSpeech(false);
     }
   };
 
@@ -131,7 +151,8 @@ function SparkPageComponent() {
     }
 
     setIsLoading(true);
-    resetState();
+    setParsedItems([]);
+    setConfirmationAudio(null);
 
     try {
       const result = await parseList({ photoDataUri });
@@ -159,7 +180,8 @@ function SparkPageComponent() {
     }
 
     setIsLoading(true);
-    resetState();
+    setParsedItems([]);
+    setConfirmationAudio(null);
 
     try {
       const result = await parseTextList({ textList });
@@ -214,7 +236,8 @@ function SparkPageComponent() {
 
   const handleParseVoiceList = async (audioDataUri: string) => {
     setIsLoading(true);
-    resetState();
+    setParsedItems([]);
+    setConfirmationAudio(null);
     try {
       const result = await parseVoiceList({ audioDataUri });
       await processAndConfirmList(result);
@@ -251,14 +274,6 @@ function SparkPageComponent() {
         description: 'Your browser does not support camera access.',
       });
     }
-  };
-
-  const handleCloseCamera = () => {
-    if (stream) {
-      stream.getTracks().forEach((track) => track.stop());
-    }
-    setIsCameraOpen(false);
-    setStream(null);
   };
 
   const handleCapture = () => {
@@ -302,14 +317,8 @@ function SparkPageComponent() {
   };
   
   const handleConfirmList = () => {
-    toast({
-        title: "List Confirmed!",
-        description: "Your items would now be added to your cart.",
-    });
-    // Here you would typically navigate to the cart or add items to a global state
-    console.log("Final List:", parsedItems);
-    resetState();
-    setActiveTab(initialTab);
+    addToCartBatch(parsedItems);
+    router.push('/cart');
   };
 
   useEffect(() => {
@@ -322,9 +331,13 @@ function SparkPageComponent() {
 
   const handleTabChange = (tab: string) => {
     resetState();
-    if(isCameraOpen) handleCloseCamera();
     setActiveTab(tab);
   };
+
+  const startOver = () => {
+    setParsedItems([]);
+    setConfirmationAudio(null);
+  }
 
   return (
     <div className="flex flex-col min-h-dvh bg-background">
@@ -531,7 +544,7 @@ function SparkPageComponent() {
                   </div>
 
                   <div className="flex justify-between items-center pt-4">
-                    <Button variant="outline" onClick={() => resetState()}>Start Over</Button>
+                    <Button variant="outline" onClick={startOver}>Start Over</Button>
                     <Button onClick={handleConfirmList} size="lg">Confirm & Add to Cart</Button>
                   </div>
                 </CardContent>
