@@ -15,7 +15,7 @@ const features = [
   {
     icon: <Speaker className="w-8 h-8 text-accent" />,
     title: "Kirana-Ready Orders",
-    description: "Retailers receive orders instantly via dashboard, WhatsApp, IVR, or a Soundbox that announces new orders, eliminating manual entry.",
+    description: "Retailers receive orders instantly via dashboard, WhatsApp, IVR, or a custom PhonePe Soundbox that announces new orders, eliminating manual entry.",
   },
   {
     icon: <Languages className="w-8 h-8 text-accent" />,
