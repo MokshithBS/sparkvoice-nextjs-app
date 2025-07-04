@@ -2,6 +2,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { WhatsAppIcon } from "../icons/whatsapp-icon"
+import { Phone } from "lucide-react"
 
 export function Hero() {
   return (
@@ -15,9 +16,15 @@ export function Hero() {
             <p className="max-w-[600px] text-muted-foreground md:text-xl lg:mx-0">
               The full-stack, voice-first commerce platform for India. Create your shopping list by speaking, snapping a photo, or simply texting it.
             </p>
-            <div className="flex flex-col gap-2 min-[400px]:flex-row lg:justify-start justify-center">
+            <div className="flex flex-col gap-2 min-[400px]:flex-row lg:justify-start justify-center flex-wrap">
               <Link href="/store" prefetch={false}>
                 <Button size="lg" style={{ backgroundColor: "hsl(var(--accent))", color: "hsl(var(--accent-foreground))" }}>Get Started for Free</Button>
+              </Link>
+              <Link href="tel:+910000000000" prefetch={false}>
+                <Button variant="outline" size="lg">
+                  <Phone className="w-5 h-5" />
+                  Order by Call
+                </Button>
               </Link>
               <Link href="https://wa.me/910000000000?text=Hi%2C%20I'd%20like%20to%20place%20an%20order%20with%20SparkVoice" target="_blank" prefetch={false}>
                 <Button variant="outline" size="lg">

@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { ShoppingCart, Menu } from "lucide-react"
+import { ShoppingCart, Menu, Phone } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { useState } from "react"
@@ -26,14 +26,20 @@ export function Header() {
           <Link href="#faq" className="text-sm font-medium hover:text-primary transition-colors" prefetch={false}>FAQ</Link>
           <Link href="/store" className="text-sm font-medium hover:text-primary transition-colors" prefetch={false}>Store</Link>
         </nav>
-        <div className="hidden md:flex items-center gap-4">
-          <Button variant="outline" asChild>
+        <div className="hidden md:flex items-center gap-2">
+          <Button variant="outline" size="sm" asChild>
+            <Link href="tel:+910000000000">
+              <Phone className="w-4 h-4" />
+              Order by Call
+            </Link>
+          </Button>
+          <Button variant="outline" size="sm" asChild>
             <Link href="https://wa.me/910000000000?text=Hi%2C%20I'd%20like%20to%20place%20an%20order%20with%20SparkVoice" target="_blank">
-              <WhatsAppIcon className="w-5 h-5" />
+              <WhatsAppIcon className="w-4 h-4" />
               Order on WhatsApp
             </Link>
           </Button>
-          <Button asChild style={{ backgroundColor: "hsl(var(--accent))", color: "hsl(var(--accent-foreground))" }}>
+          <Button asChild size="sm" style={{ backgroundColor: "hsl(var(--accent))", color: "hsl(var(--accent-foreground))" }}>
             <Link href="/store">Get Started</Link>
           </Button>
         </div>
@@ -58,6 +64,12 @@ export function Header() {
                 <Link href="/store" className="text-sm font-medium hover:text-primary transition-colors" prefetch={false} onClick={closeSheet}>Store</Link>
               </nav>
               <div className="flex flex-col gap-4 mt-4">
+                 <Button variant="outline" asChild onClick={closeSheet}>
+                   <Link href="tel:+910000000000">
+                    <Phone className="w-5 h-5" />
+                    Order by Call
+                   </Link>
+                </Button>
                 <Button variant="outline" asChild onClick={closeSheet}>
                    <Link href="https://wa.me/910000000000?text=Hi%2C%20I'd%20like%20to%20place%20an%20order%20with%20SparkVoice" target="_blank">
                     <WhatsAppIcon className="w-5 h-5" />
