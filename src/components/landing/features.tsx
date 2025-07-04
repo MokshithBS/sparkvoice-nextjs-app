@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Languages, ListChecks, Network, Phone, Store, Zap } from "lucide-react"
+import { Languages, ListChecks, Network, Phone, Speaker, Zap } from "lucide-react"
 
 const features = [
   {
@@ -10,17 +10,17 @@ const features = [
   {
     icon: <ListChecks className="w-8 h-8 text-accent" />,
     title: "Personalized Cart",
-    description: "Our AI reads messy handwriting and understands you, building a cart with your preferred brands and items.",
+    description: "Our AI learns your preferences, building a cart with your favorite brands and items, just like your local shopkeeper would.",
   },
   {
-    icon: <Store className="w-8 h-8 text-accent" />,
-    title: "Smart Order Routing",
-    description: "Your personalized cart is routed to the nearest kirana store for fulfillment via dashboards, WhatsApp, or IVR.",
+    icon: <Speaker className="w-8 h-8 text-accent" />,
+    title: "Kirana-Ready Orders",
+    description: "Retailers receive orders instantly via dashboard, WhatsApp, IVR, or a Soundbox that announces new orders, eliminating manual entry.",
   },
   {
     icon: <Languages className="w-8 h-8 text-accent" />,
     title: "Multilingual & Multimodal",
-    description: "Works in your language across voice, text, image, WhatsApp, and even simple phone calls.",
+    description: "Works in your language across voice, text, image, WhatsApp, and even simple phone calls (IVR).",
   },
   {
     icon: <Phone className="w-8 h-8 text-accent" />,
@@ -30,7 +30,7 @@ const features = [
   {
     icon: <Network className="w-8 h-8 text-accent" />,
     title: "Powered by Flipkart",
-    description: "Kiranas are enabled via Flipkart Wholesale’s network for real-time orders, stock updates, and restocking.",
+    description: "Kiranas get real-time order receipt, stock updates, and restocking powered by Flipkart Wholesale’s backend network.",
   },
 ]
 

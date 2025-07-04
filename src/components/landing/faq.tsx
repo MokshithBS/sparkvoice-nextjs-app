@@ -21,7 +21,7 @@ const faqs = [
   },
   {
     question: "Is this only for customers?",
-    answer: "No, SparkVoice is built for local kirana stores too. It provides them with a simple way to receive digital orders via a dashboard, WhatsApp, or a soundbox, helping them reduce errors and save time."
+    answer: "No, SparkVoice is built for local kirana stores too. It provides them with a simple way to receive digital orders via a dashboard, WhatsApp, IVR call, or even a dedicated Soundbox that announces new orders in real-time."
   },
   {
     question: "How do I pay for my order?",
