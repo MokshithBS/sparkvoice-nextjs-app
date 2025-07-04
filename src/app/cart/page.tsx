@@ -7,14 +7,52 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
-import { ArrowLeft, Trash2, Minus, Plus, ShoppingCart } from 'lucide-react';
+import { ArrowLeft, Trash2, Minus, Plus, ShoppingCart, Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import type { Product } from '@/lib/products';
+import { products } from '@/lib/products';
+import { suggestProducts } from '@/ai/flows/product-suggester-flow';
+import { ProductGrid } from '@/components/store/product-grid';
 
 
 export default function CartPage() {
   const { cartItems, updateQuantity, removeFromCart, cartTotal, itemCount, clearCart } = useCart();
   const { toast } = useToast();
   const router = useRouter();
+  const [suggestedProducts, setSuggestedProducts] = useState<Product[]>([]);
+  const [isSuggesting, setIsSuggesting] = useState(false);
+
+  useEffect(() => {
+    if (cartItems.length > 0) {
+        const getSuggestions = async () => {
+            setIsSuggesting(true);
+            try {
+                const cartItemNames = cartItems.map(item => item.name);
+                const availableProductsForAI = products
+                    .filter(p => !cartItems.some(ci => ci.id === p.id))
+                    .map(({ id, name, category }) => ({ id, name, category }));
+
+                const result = await suggestProducts({
+                    contextProducts: cartItemNames,
+                    availableProducts: availableProductsForAI,
+                });
+                
+                if (result.suggestionIds && result.suggestionIds.length > 0) {
+                    const suggestions = products.filter(p => result.suggestionIds.includes(p.id));
+                    setSuggestedProducts(suggestions);
+                }
+            } catch (error) {
+                console.error("Failed to get product suggestions:", error);
+            } finally {
+                setIsSuggesting(false);
+            }
+        };
+        getSuggestions();
+    } else {
+        setSuggestedProducts([]);
+    }
+  }, [cartItems]);
 
   const handleCheckout = () => {
     toast({
@@ -90,6 +128,22 @@ export default function CartPage() {
                     </CardContent>
                   </Card>
                 ))}
+                
+                <div className="mt-12">
+                    {isSuggesting && (
+                        <div className="flex items-center justify-center gap-2 py-8 text-muted-foreground">
+                            <Loader2 className="h-5 w-5 animate-spin" />
+                            <span>Looking for suggestions...</span>
+                        </div>
+                    )}
+                    {suggestedProducts.length > 0 && !isSuggesting && (
+                        <>
+                            <h2 className="text-xl font-bold mb-4 mt-8 pt-8 border-t">You Might Also Like</h2>
+                            <ProductGrid products={suggestedProducts} />
+                        </>
+                    )}
+                </div>
+
               </div>
               <div className="space-y-4 sticky top-24">
                 <Card>
