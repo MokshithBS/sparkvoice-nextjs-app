@@ -4,7 +4,7 @@ import { Suspense, useRef, useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { ArrowLeft, Camera, FileText, Loader2, Mic, PiggyBank, Sparkles, StopCircle, Trash2, Video, Volume2, Receipt, AlertCircle } from 'lucide-react';
+import { ArrowLeft, Camera, FileText, Loader2, Mic, PiggyBank, Sparkles, StopCircle, Trash2, Video, Volume2, Receipt, AlertCircle, Globe } from 'lucide-react';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 
 import { Button } from '@/components/ui/button';
@@ -26,6 +26,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
 import { useCart } from '@/context/cart-context';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { useLanguage } from '@/context/language-context';
+import type { Language } from '@/lib/translations';
+import { translations } from '@/lib/translations';
 
 
 function SparkPageComponent() {
@@ -51,12 +54,14 @@ function SparkPageComponent() {
   
   const { toast } = useToast();
   const { addToCartBatch } = useCart();
+  const { t, languageNames, setLanguage, language } = useLanguage();
   
   const [activeTab, setActiveTab] = useState(initialTab);
   
   const [isCameraOpen, setIsCameraOpen] = useState(false);
   const [hasCameraPermission, setHasCameraPermission] = useState<boolean | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const [languagePrompt, setLanguagePrompt] = useState<{ show: boolean, languageName: string, langCode: Language } | null>(null);
 
   useEffect(() => {
     if (!isCameraOpen) {
@@ -117,6 +122,7 @@ function SparkPageComponent() {
     setFamilySize('');
     setPreference('Veg');
     setPriceMatchResult(null);
+    setLanguagePrompt(null);
     if (isCameraOpen) handleCloseCamera();
   }, [isCameraOpen, handleCloseCamera]);
 
@@ -184,6 +190,19 @@ function SparkPageComponent() {
 
     setParsedItems(result.items);
     setConfirmationText(result.confirmationText);
+    
+    // After processing, check language for switch prompt
+    if (result.detectedLanguage) {
+      const langCode = result.detectedLanguage.split('-')[0] as Language;
+      if (langCode !== language && translations[langCode]) {
+        setLanguagePrompt({
+          show: true,
+          languageName: languageNames[langCode] || langCode,
+          langCode: langCode,
+        });
+      }
+    }
+
     setIsGeneratingSpeech(true);
     
     try {
@@ -444,12 +463,24 @@ function SparkPageComponent() {
     setConfirmationAudio(null);
     setConfirmationText(null);
     setPriceMatchResult(null);
+    setLanguagePrompt(null);
   }
 
   const startOver = () => {
     resetViewStates();
     setPhotoDataUri(null);
   }
+
+  const handleLanguageSwitch = () => {
+    if (languagePrompt) {
+      setLanguage(languagePrompt.langCode);
+      toast({
+        title: t('language.switched.toast.title', { language: languagePrompt.languageName }),
+        description: t('language.switched.toast.description', { language: languagePrompt.languageName }),
+      });
+      setLanguagePrompt(null);
+    }
+  };
 
   const hasParsedListResult = parsedItems.length > 0;
   const hasPriceMatchResult = !!priceMatchResult;
@@ -515,6 +546,23 @@ function SparkPageComponent() {
                         <CardDescription>We've parsed your list. Please review and make any edits below before adding items to your cart.</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
+                        {languagePrompt?.show && (
+                            <Alert className="mb-4">
+                                <Globe className="h-4 w-4" />
+                                <AlertTitle>{t('language.switch.prompt.title')}</AlertTitle>
+                                <AlertDescription>
+                                    {t('language.switch.prompt.description', { language: languagePrompt.languageName })}
+                                </AlertDescription>
+                                <div className="flex gap-4 mt-4">
+                                    <Button onClick={handleLanguageSwitch}>
+                                        {t('language.switch.prompt.yes')}
+                                    </Button>
+                                    <Button variant="ghost" onClick={() => setLanguagePrompt(null)}>
+                                        {t('language.switch.prompt.no')}
+                                    </Button>
+                                </div>
+                            </Alert>
+                        )}
                         {confirmationText && (
                             <div className="flex items-center gap-4 p-3 bg-secondary rounded-lg">
                                 <Volume2 className="text-primary flex-shrink-0" />

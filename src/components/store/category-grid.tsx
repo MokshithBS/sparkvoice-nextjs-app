@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import { useLanguage } from '@/context/language-context';
 
 const categories = [
   { name: 'Vegetables & Fruits', discount: '70% OFF', image: 'https://storage.googleapis.com/aip-dev-images-public/vegetables.png', hint: 'fresh vegetables' },
@@ -16,9 +17,10 @@ const categories = [
 ];
 
 export function CategoryGrid({ onSelectCategory }: { onSelectCategory: (category: string) => void }) {
+  const { t } = useLanguage();
   return (
     <div className="my-6">
-      <h2 className="text-xl font-bold mb-4">Shop by Category</h2>
+      <h2 className="text-xl font-bold mb-4">{t('store.category_grid.title')}</h2>
       <div className="grid grid-cols-4 gap-x-4 gap-y-6 text-center text-[11px] leading-tight font-medium">
         {categories.map((category) => (
           <button onClick={() => onSelectCategory(category.name)} key={category.name} className="flex flex-col items-center space-y-2 group">
