@@ -5,3 +5,4 @@ import './flows/voice-list-parser-flow.ts';
 import './flows/text-list-parser-flow.ts';
 import './flows/tts-flow.ts';
 import './flows/product-suggester-flow.ts';
+import './flows/recipe-to-cart-flow.ts';

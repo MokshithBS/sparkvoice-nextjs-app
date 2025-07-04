@@ -9,14 +9,36 @@ import { ProductGrid } from '@/components/store/product-grid';
 import { products, type Product } from '@/lib/products';
 import { SparkVoiceCta } from '@/components/store/spark-voice-cta';
 import { suggestProducts } from '@/ai/flows/product-suggester-flow';
-import { Loader2, ArrowLeft } from 'lucide-react';
+import { Loader2, ArrowLeft, ChefHat } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { ShopByRecipe } from '@/components/store/shop-by-recipe';
+import { getIngredientsForDish } from '@/ai/flows/recipe-to-cart-flow';
+import type { ListParserOutputItem } from '@/ai/schemas/list-parser-schemas';
+import { useToast } from '@/hooks/use-toast';
+import { useCart } from '@/context/cart-context';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+
 
 export default function StorePage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [suggestedProducts, setSuggestedProducts] = useState<Product[]>([]);
   const [isSuggesting, setIsSuggesting] = useState(false);
+  const [isFetchingIngredients, setIsFetchingIngredients] = useState(false);
+  const [recipeIngredients, setRecipeIngredients] = useState<ListParserOutputItem[] | null>(null);
+  const [recipeDishName, setRecipeDishName] = useState('');
+
+  const { toast } = useToast();
+  const { addToCartBatch } = useCart();
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
@@ -91,6 +113,43 @@ export default function StorePage() {
     }
   }, [searchQuery, filteredProducts]);
 
+  const handleGetIngredients = async (dishName: string) => {
+    setIsFetchingIngredients(true);
+    setRecipeDishName(dishName);
+    try {
+        const result = await getIngredientsForDish({ dishName });
+        if (result.items.length > 0) {
+            setRecipeIngredients(result.items);
+        } else {
+            toast({
+                variant: 'destructive',
+                title: 'Could not find recipe',
+                description: `We could not find any ingredients for "${dishName}". Please try another dish.`,
+            });
+        }
+    } catch (error) {
+        console.error("Failed to get ingredients:", error);
+        toast({
+            variant: 'destructive',
+            title: 'Something went wrong',
+            description: 'We could not get ingredients at this time. Please try again later.',
+        });
+    } finally {
+        setIsFetchingIngredients(false);
+    }
+  };
+
+  const handleAddToCartFromRecipe = () => {
+    if (recipeIngredients) {
+      addToCartBatch(recipeIngredients);
+      toast({
+        title: 'Ingredients Added!',
+        description: `We've added the items for ${recipeDishName} to your cart.`,
+      });
+      setRecipeIngredients(null);
+      setRecipeDishName('');
+    }
+  };
 
   return (
     <div className="mx-auto max-w-md bg-background font-sans">
@@ -139,12 +198,37 @@ export default function StorePage() {
             <>
               <SparkVoiceCta />
               <DiwaliBanner />
+              <ShopByRecipe onSubmit={handleGetIngredients} isLoading={isFetchingIngredients} />
               <CategoryGrid onSelectCategory={handleCategorySelect} />
             </>
           )}
         </main>
         <ShoppingList />
       </div>
+
+       <AlertDialog open={!!recipeIngredients} onOpenChange={(isOpen) => !isOpen && setRecipeIngredients(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Ingredients for {recipeDishName}</AlertDialogTitle>
+            <AlertDialogDescription>
+              Here is a suggested list of ingredients. Add them all to your cart or cancel.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="max-h-60 overflow-y-auto pr-2 space-y-2 my-4">
+            {recipeIngredients?.map((item, index) => (
+              <div key={index} className="flex justify-between items-center bg-muted/50 p-2 rounded-md text-sm">
+                <span className="font-medium">{item.product}</span>
+                <span className="text-muted-foreground">{item.quantity}</span>
+              </div>
+            ))}
+          </div>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleAddToCartFromRecipe}>Add All to Cart</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
     </div>
   );
 }
