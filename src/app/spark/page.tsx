@@ -4,7 +4,7 @@ import { Suspense, useRef, useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { ArrowLeft, Camera, FileText, Loader2, Mic, Sparkles, StopCircle, Trash2, Video, Volume2 } from 'lucide-react';
+import { ArrowLeft, Camera, FileText, Loader2, Mic, Sparkles, StopCircle, Trash2, Video, Volume2, ScanSearch } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
@@ -12,6 +12,10 @@ import { parseList } from '@/ai/flows/list-parser-flow';
 import { parseVoiceList } from '@/ai/flows/voice-list-parser-flow';
 import { parseTextList } from '@/ai/flows/text-list-parser-flow';
 import { generateSpeech } from '@/ai/flows/tts-flow';
+import { checkPantry } from '@/ai/flows/pantry-checker-flow';
+import { products, type Product } from '@/lib/products';
+import { ProductGrid } from '@/components/store/product-grid';
+
 import { type ListParserOutput, type ListParserOutputItem } from '@/ai/schemas/list-parser-schemas';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -28,6 +32,7 @@ function SparkPageComponent() {
   const [photoDataUri, setPhotoDataUri] = useState<string | null>(null);
   const [textList, setTextList] = useState('');
   const [parsedItems, setParsedItems] = useState<ListParserOutput['items']>([]);
+  const [pantrySuggestions, setPantrySuggestions] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   const [isGeneratingSpeech, setIsGeneratingSpeech] = useState(false);
@@ -54,6 +59,7 @@ function SparkPageComponent() {
 
   const resetState = useCallback(() => {
     setParsedItems([]);
+    setPantrySuggestions([]);
     setPhotoDataUri(null);
     setTextList('');
     setIsLoading(false);
@@ -65,7 +71,7 @@ function SparkPageComponent() {
 
   useEffect(() => {
     const tabFromQuery = searchParams.get('tab');
-    if (tabFromQuery === 'scan' || tabFromQuery === 'speak' || tabFromQuery === 'type') {
+    if (tabFromQuery === 'scan' || tabFromQuery === 'speak' || tabFromQuery === 'type' || tabFromQuery === 'pantry') {
         setActiveTab(tabFromQuery);
         resetState();
     }
@@ -154,9 +160,7 @@ function SparkPageComponent() {
     }
 
     setIsLoading(true);
-    setParsedItems([]);
-    setConfirmationAudio(null);
-    setConfirmationText(null);
+    resetViewStates();
 
     try {
       const result = await parseList({ photoDataUri });
@@ -184,10 +188,7 @@ function SparkPageComponent() {
     }
 
     setIsLoading(true);
-    setParsedItems([]);
-    setConfirmationAudio(null);
-    setConfirmationText(null);
-
+    resetViewStates();
     try {
       const result = await parseTextList({ textList });
       await processAndConfirmList(result);
@@ -241,15 +242,48 @@ function SparkPageComponent() {
 
   const handleParseVoiceList = async (audioDataUri: string) => {
     setIsLoading(true);
-    setParsedItems([]);
-    setConfirmationAudio(null);
-    setConfirmationText(null);
+    resetViewStates();
     try {
       const result = await parseVoiceList({ audioDataUri });
       await processAndConfirmList(result);
     } catch (error) {
       console.error('Error parsing voice list:', error);
       toast({ variant: 'destructive', title: 'Parsing Failed', description: 'Could not understand the shopping list. Please try speaking clearly.' });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handlePantryCheck = async () => {
+    if (!photoDataUri) {
+      toast({
+        variant: 'destructive',
+        title: 'No Image Selected',
+        description: 'Please upload a photo of your pantry or fridge.',
+      });
+      return;
+    }
+    setIsLoading(true);
+    resetViewStates();
+    try {
+      const availableProductsForAI = products.map(({ id, name, category }) => ({ id, name, category }));
+      const result = await checkPantry({ photoDataUri, availableProducts: availableProductsForAI });
+      
+      if (result.suggestionIds && result.suggestionIds.length > 0) {
+        const suggestions = products.filter(p => result.suggestionIds.includes(p.id));
+        setPantrySuggestions(suggestions);
+        setConfirmationText(result.confirmationText);
+      } else {
+        setConfirmationText("I couldn't find anything that needs restocking, but feel free to browse the store!");
+        setPantrySuggestions([]);
+      }
+    } catch (error) {
+      console.error('Error checking pantry:', error);
+      toast({
+        variant: 'destructive',
+        title: 'Analysis Failed',
+        description: 'We could not analyze your pantry image. Please try a clearer photo.',
+      });
     } finally {
       setIsLoading(false);
     }
@@ -340,11 +374,18 @@ function SparkPageComponent() {
     setActiveTab(tab);
   };
 
-  const startOver = () => {
+  const resetViewStates = () => {
     setParsedItems([]);
     setConfirmationAudio(null);
     setConfirmationText(null);
+    setPantrySuggestions([]);
   }
+
+  const startOver = () => {
+    resetViewStates();
+  }
+
+  const hasResults = parsedItems.length > 0 || pantrySuggestions.length > 0 || (confirmationText && pantrySuggestions.length === 0);
 
   return (
     <div className="flex flex-col min-h-dvh bg-background">
@@ -366,32 +407,30 @@ function SparkPageComponent() {
 
       <main className="flex-1 py-8 px-4">
         <div className="container mx-auto max-w-2xl">
-          {!parsedItems || parsedItems.length === 0 ? (
+          {!hasResults ? (
             <Tabs value={activeTab} className="w-full" onValueChange={handleTabChange}>
-              <TabsList className="grid w-full grid-cols-3">
-                <TabsTrigger value="scan" className="gap-2"><Camera /> Scan List</TabsTrigger>
-                <TabsTrigger value="speak" className="gap-2"><Mic /> Speak List</TabsTrigger>
-                <TabsTrigger value="type" className="gap-2"><FileText /> Type List</TabsTrigger>
+              <TabsList className="grid w-full grid-cols-4">
+                <TabsTrigger value="scan" className="gap-2"><Camera /> Scan</TabsTrigger>
+                <TabsTrigger value="pantry" className="gap-2"><ScanSearch /> Pantry</TabsTrigger>
+                <TabsTrigger value="speak" className="gap-2"><Mic /> Speak</TabsTrigger>
+                <TabsTrigger value="type" className="gap-2"><FileText /> Type</TabsTrigger>
               </TabsList>
+              
               <TabsContent value="scan">
                 <Card>
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">Scan Your List</CardTitle>
-                    <CardDescription>Capture a photo of your list or upload an image to build your cart instantly.</CardDescription>
+                    <CardDescription>Capture a photo of your handwritten list or upload an image to build your cart instantly.</CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-6">
                   {isCameraOpen ? (
-                    <div className="space-y-4 text-center">
+                     <div className="space-y-4 text-center">
                       <div className="relative w-full aspect-video bg-muted rounded-lg overflow-hidden border">
                         <video ref={videoRef} className="w-full h-full object-cover" autoPlay playsInline muted />
                       </div>
                       <div className="flex justify-center gap-4">
-                        <Button onClick={handleCapture} size="lg">
-                          <Camera className="mr-2" /> Capture
-                        </Button>
-                        <Button onClick={handleCloseCamera} variant="outline" size="lg">
-                          Cancel
-                        </Button>
+                        <Button onClick={handleCapture} size="lg"><Camera className="mr-2" /> Capture</Button>
+                        <Button onClick={handleCloseCamera} variant="outline" size="lg">Cancel</Button>
                       </div>
                     </div>
                   ) : (
@@ -403,40 +442,66 @@ function SparkPageComponent() {
                         </div>
                         <div className="flex flex-col space-y-2">
                           <Label>Or Use Camera</Label>
-                          <Button onClick={handleOpenCamera} variant="outline" disabled={isLoading} className="w-full">
-                            <Video className="mr-2" /> Open Camera
-                          </Button>
+                          <Button onClick={handleOpenCamera} variant="outline" disabled={isLoading} className="w-full"><Video className="mr-2" /> Open Camera</Button>
                         </div>
                       </div>
                       
                       {photoDataUri ? (
-                        <div className="flex justify-center">
-                          <Image
-                            src={photoDataUri}
-                            alt="Shopping list preview"
-                            width={400}
-                            height={300}
-                            className="rounded-lg object-contain border"
-                          />
-                        </div>
-                      ) : (
-                         <div className="flex items-center justify-center h-48 bg-muted rounded-lg border-dashed border-2">
-                            <p className="text-muted-foreground">Image preview will appear here</p>
-                         </div>
-                      )}
+                        <div className="flex justify-center"><Image src={photoDataUri} alt="Shopping list preview" width={400} height={300} className="rounded-lg object-contain border"/></div>
+                      ) : ( <div className="flex items-center justify-center h-48 bg-muted rounded-lg border-dashed border-2"><p className="text-muted-foreground">Image preview will appear here</p></div>)}
 
                       <Button onClick={handleParseList} disabled={isLoading || !photoDataUri} className="w-full" size="lg">
-                        {isLoading ? (
-                          <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Parsing your list...</>
-                        ) : (
-                          <><Sparkles className="mr-2 h-4 w-4" /> Spark It!</>
-                        )}
+                        {isLoading ? ( <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Parsing your list...</> ) : ( <><Sparkles className="mr-2 h-4 w-4" /> Spark It!</> )}
                       </Button>
                     </div>
                   )}
                   </CardContent>
                 </Card>
               </TabsContent>
+
+              <TabsContent value="pantry">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">Check Your Pantry</CardTitle>
+                    <CardDescription>Take a picture of your pantry or fridge, and our AI will suggest what you're running low on.</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-6">
+                  {isCameraOpen ? (
+                     <div className="space-y-4 text-center">
+                      <div className="relative w-full aspect-video bg-muted rounded-lg overflow-hidden border">
+                        <video ref={videoRef} className="w-full h-full object-cover" autoPlay playsInline muted />
+                      </div>
+                      <div className="flex justify-center gap-4">
+                        <Button onClick={handleCapture} size="lg"><Camera className="mr-2" /> Capture</Button>
+                        <Button onClick={handleCloseCamera} variant="outline" size="lg">Cancel</Button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="space-y-6">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="pantry-photo">Upload from Device</Label>
+                          <Input id="pantry-photo" type="file" accept="image/*" onChange={handleFileChange} className="file:text-foreground" disabled={isLoading}/>
+                        </div>
+                        <div className="flex flex-col space-y-2">
+                          <Label>Or Use Camera</Label>
+                          <Button onClick={handleOpenCamera} variant="outline" disabled={isLoading} className="w-full"><Video className="mr-2" /> Open Camera</Button>
+                        </div>
+                      </div>
+                      
+                      {photoDataUri ? (
+                        <div className="flex justify-center"><Image src={photoDataUri} alt="Pantry preview" width={400} height={300} className="rounded-lg object-contain border"/></div>
+                      ) : ( <div className="flex items-center justify-center h-48 bg-muted rounded-lg border-dashed border-2"><p className="text-muted-foreground">Pantry image preview</p></div>)}
+
+                      <Button onClick={handlePantryCheck} disabled={isLoading || !photoDataUri} className="w-full" size="lg">
+                        {isLoading ? ( <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Analyzing your pantry...</> ) : ( <><Sparkles className="mr-2 h-4 w-4" /> Spark It!</> )}
+                      </Button>
+                    </div>
+                  )}
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
               <TabsContent value="speak">
                 <Card>
                   <CardHeader>
@@ -444,18 +509,8 @@ function SparkPageComponent() {
                     <CardDescription>Press record, speak your shopping list in any language, and we'll build your cart.</CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-6 flex flex-col items-center">
-                    <Button 
-                      onClick={isRecording ? handleStopRecording : handleStartRecording} 
-                      disabled={isLoading}
-                      className="w-48 h-16 text-lg"
-                      variant={isRecording ? 'destructive' : 'default'}
-                      size="lg"
-                    >
-                      {isRecording ? (
-                        <><StopCircle className="mr-2 h-6 w-6" /> Stop Recording</>
-                      ) : (
-                        <><Mic className="mr-2 h-6 w-6" /> Start Recording</>
-                      )}
+                    <Button onClick={isRecording ? handleStopRecording : handleStartRecording} disabled={isLoading} className="w-48 h-16 text-lg" variant={isRecording ? 'destructive' : 'default'} size="lg">
+                      {isRecording ? ( <><StopCircle className="mr-2 h-6 w-6" /> Stop</> ) : ( <><Mic className="mr-2 h-6 w-6" /> Record</> )}
                     </Button>
                     {isRecording && <p className="text-sm text-muted-foreground animate-pulse">Recording... speak now!</p>}
                     {isLoading && <p className="text-sm text-muted-foreground flex items-center gap-2"><Loader2 className="h-4 w-4 animate-spin" /> Processing your voice...</p>}
@@ -479,21 +534,10 @@ function SparkPageComponent() {
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="text-list">Type or Paste Your List</Label>
-                      <Textarea 
-                        id="text-list" 
-                        placeholder="e.g.&#10;2 kg Onions&#10;1 dozen Eggs&#10;Milk"
-                        value={textList}
-                        onChange={(e) => setTextList(e.target.value)}
-                        className="min-h-[150px]"
-                        disabled={isLoading}
-                      />
+                      <Textarea id="text-list" placeholder="e.g.&#10;2 kg Onions&#10;1 dozen Eggs&#10;Milk" value={textList} onChange={(e) => setTextList(e.target.value)} className="min-h-[150px]" disabled={isLoading}/>
                     </div>
                     <Button onClick={handleParseTextList} disabled={isLoading || !textList.trim()} className="w-full" size="lg">
-                      {isLoading ? (
-                        <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Parsing your list...</>
-                      ) : (
-                        <><Sparkles className="mr-2 h-4 w-4" /> Spark It!</>
-                      )}
+                       {isLoading ? ( <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Parsing...</> ) : ( <><Sparkles className="mr-2 h-4 w-4" /> Spark It!</> )}
                     </Button>
                   </CardContent>
                 </Card>
@@ -502,59 +546,78 @@ function SparkPageComponent() {
           ) : (
             <div>
               <Card>
-                <CardHeader>
-                    <CardTitle>Confirm Your List</CardTitle>
-                    <CardDescription>
-                        We've parsed your list. Please review and make any edits below before adding items to your cart.
-                    </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  {(confirmationAudio || confirmationText) && (
-                      <div className="flex items-center gap-4 p-3 bg-secondary rounded-lg">
-                          <Volume2 className="text-primary flex-shrink-0" />
-                          <p className="flex-1 text-sm text-secondary-foreground">{confirmationText}</p>
-                          {confirmationAudio && <audio ref={audioRef} src={confirmationAudio} controls className="h-8" />}
-                      </div>
-                  )}
-                  {isGeneratingSpeech && (
-                      <div className="flex items-center gap-2 text-muted-foreground">
-                          <Loader2 className="h-4 w-4 animate-spin" />
-                          <p>Generating audio confirmation...</p>
-                      </div>
-                  )}
+                {parsedItems.length > 0 && (
+                    <>
+                    <CardHeader>
+                        <CardTitle>Confirm Your List</CardTitle>
+                        <CardDescription>We've parsed your list. Please review and make any edits below before adding items to your cart.</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        {confirmationText && (
+                            <div className="flex items-center gap-4 p-3 bg-secondary rounded-lg">
+                                <Volume2 className="text-primary flex-shrink-0" />
+                                <p className="flex-1 text-sm text-secondary-foreground">{confirmationText}</p>
+                                {confirmationAudio && <audio ref={audioRef} src={confirmationAudio} controls className="h-8" />}
+                                {isGeneratingSpeech && (
+                                    <div className="flex items-center gap-2 text-muted-foreground text-sm">
+                                        <Loader2 className="h-4 w-4 animate-spin" />
+                                        <span>...</span>
+                                    </div>
+                                )}
+                            </div>
+                        )}
+                        <div className="space-y-3">
+                            <div className="grid grid-cols-[1fr_auto_auto] gap-2 items-center text-sm font-medium text-muted-foreground px-2">
+                                <span>Product</span>
+                                <span>Quantity</span>
+                                <span className="w-8"></span>
+                            </div>
+                            {parsedItems.map((item, index) => (
+                            <div key={index} className="grid grid-cols-[1fr_auto_auto] gap-2 items-center">
+                                <Input value={item.product} onChange={(e) => handleItemChange(index, 'product', e.target.value)} className="w-full" aria-label="Product" />
+                                <Input value={item.quantity} onChange={(e) => handleItemChange(index, 'quantity', e.target.value)} className="w-24" aria-label="Quantity" />
+                                <Button variant="ghost" size="icon" onClick={() => handleDeleteItem(index)} aria-label="Delete item"><Trash2 className="h-4 w-4 text-destructive" /></Button>
+                            </div>
+                            ))}
+                        </div>
+                        <div className="flex justify-between items-center pt-4">
+                            <Button variant="outline" onClick={startOver}>Start Over</Button>
+                            <Button onClick={handleConfirmList} size="lg">Confirm & Add to Cart</Button>
+                        </div>
+                    </CardContent>
+                    </>
+                )}
 
-                  <div className="space-y-3">
-                    <div className="grid grid-cols-[1fr_auto_auto] gap-2 items-center text-sm font-medium text-muted-foreground px-2">
-                        <span>Product</span>
-                        <span>Quantity</span>
-                        <span className="w-8"></span>
-                    </div>
-                    {parsedItems.map((item, index) => (
-                      <div key={index} className="grid grid-cols-[1fr_auto_auto] gap-2 items-center">
-                        <Input
-                          value={item.product}
-                          onChange={(e) => handleItemChange(index, 'product', e.target.value)}
-                          className="w-full"
-                          aria-label="Product"
-                        />
-                        <Input
-                          value={item.quantity}
-                          onChange={(e) => handleItemChange(index, 'quantity', e.target.value)}
-                          className="w-24"
-                          aria-label="Quantity"
-                        />
-                        <Button variant="ghost" size="icon" onClick={() => handleDeleteItem(index)} aria-label="Delete item">
-                            <Trash2 className="h-4 w-4 text-destructive" />
-                        </Button>
-                      </div>
-                    ))}
-                  </div>
+                {pantrySuggestions.length > 0 && (
+                  <>
+                    <CardHeader>
+                        <CardTitle>Pantry Suggestions</CardTitle>
+                        <CardDescription>{confirmationText}</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        <ProductGrid products={pantrySuggestions} />
+                         <div className="flex justify-between items-center pt-4 border-t">
+                            <Button variant="outline" onClick={startOver}>Start Over</Button>
+                            <Button onClick={() => router.push('/cart')} size="lg">Go to Cart</Button>
+                        </div>
+                    </CardContent>
+                  </>
+                )}
 
-                  <div className="flex justify-between items-center pt-4">
-                    <Button variant="outline" onClick={startOver}>Start Over</Button>
-                    <Button onClick={handleConfirmList} size="lg">Confirm & Add to Cart</Button>
-                  </div>
-                </CardContent>
+                {confirmationText && pantrySuggestions.length === 0 && parsedItems.length === 0 && (
+                    <>
+                    <CardHeader>
+                        <CardTitle>Pantry Check Complete</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4 text-center">
+                        <p className="text-muted-foreground">{confirmationText}</p>
+                        <div className="flex justify-center gap-4 pt-4">
+                            <Button variant="outline" onClick={startOver}>Start Over</Button>
+                            <Button onClick={() => router.push('/store')} size="lg">Continue Shopping</Button>
+                        </div>
+                    </CardContent>
+                  </>
+                )}
               </Card>
             </div>
           )}

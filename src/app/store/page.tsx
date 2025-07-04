@@ -8,6 +8,7 @@ import { ShoppingList } from '@/components/store/shopping-list';
 import { ProductGrid } from '@/components/store/product-grid';
 import { products, type Product } from '@/lib/products';
 import { SparkVoiceCta } from '@/components/store/spark-voice-cta';
+import { PantryCheckCta } from '@/components/store/pantry-check-cta';
 import { suggestProducts } from '@/ai/flows/product-suggester-flow';
 import { Loader2, ArrowLeft, ChefHat } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -222,6 +223,7 @@ export default function StorePage() {
           ) : (
             <>
               <SparkVoiceCta />
+              <PantryCheckCta />
               <DiwaliBanner />
               <ShopByRecipe onSubmit={handleGetIngredients} isLoading={isFetchingIngredients} />
               <CategoryGrid onSelectCategory={handleCategorySelect} />
