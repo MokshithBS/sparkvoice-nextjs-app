@@ -4,7 +4,7 @@ import { Suspense, useRef, useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { ArrowLeft, Camera, FileText, Loader2, Mic, Sparkles, StopCircle, Trash2, Video, Volume2, ScanSearch } from 'lucide-react';
+import { ArrowLeft, Camera, FileText, Loader2, Mic, PiggyBank, Sparkles, StopCircle, Trash2, Video, Volume2 } from 'lucide-react';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 
 import { Button } from '@/components/ui/button';
@@ -13,9 +13,8 @@ import { parseList } from '@/ai/flows/list-parser-flow';
 import { parseVoiceList } from '@/ai/flows/voice-list-parser-flow';
 import { parseTextList } from '@/ai/flows/text-list-parser-flow';
 import { generateSpeech } from '@/ai/flows/tts-flow';
-import { checkPantry } from '@/ai/flows/pantry-checker-flow';
-import { products, type Product } from '@/lib/products';
-import { ProductGrid } from '@/components/store/product-grid';
+import { generateSparkSaverCart } from '@/ai/flows/spark-saver-flow';
+import { products } from '@/lib/products';
 
 import { type ListParserOutput, type ListParserOutputItem } from '@/ai/schemas/list-parser-schemas';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -24,6 +23,9 @@ import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
 import { useCart } from '@/context/cart-context';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { ProductGrid } from '@/components/store/product-grid';
+
 
 function SparkPageComponent() {
   const searchParams = useSearchParams();
@@ -33,12 +35,16 @@ function SparkPageComponent() {
   const [photoDataUri, setPhotoDataUri] = useState<string | null>(null);
   const [textList, setTextList] = useState('');
   const [parsedItems, setParsedItems] = useState<ListParserOutput['items']>([]);
-  const [pantrySuggestions, setPantrySuggestions] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   const [isGeneratingSpeech, setIsGeneratingSpeech] = useState(false);
   const [confirmationAudio, setConfirmationAudio] = useState<string | null>(null);
   const [confirmationText, setConfirmationText] = useState<string | null>(null);
+
+  // SparkSaver state
+  const [budget, setBudget] = useState('');
+  const [familySize, setFamilySize] = useState('');
+  const [preference, setPreference] = useState<'Veg' | 'Non-Veg' | 'Jain'>('Veg');
   
   const { toast } = useToast();
   const { addToCartBatch } = useCart();
@@ -98,19 +104,21 @@ function SparkPageComponent() {
 
   const resetState = useCallback(() => {
     setParsedItems([]);
-    setPantrySuggestions([]);
     setPhotoDataUri(null);
     setTextList('');
     setIsLoading(false);
     setIsGeneratingSpeech(false);
     setConfirmationAudio(null);
     setConfirmationText(null);
+    setBudget('');
+    setFamilySize('');
+    setPreference('Veg');
     if (isCameraOpen) handleCloseCamera();
   }, [isCameraOpen, handleCloseCamera]);
 
   useEffect(() => {
     const tabFromQuery = searchParams.get('tab');
-    if (tabFromQuery === 'scan' || tabFromQuery === 'speak' || tabFromQuery === 'type' || tabFromQuery === 'pantry') {
+    if (tabFromQuery === 'scan' || tabFromQuery === 'speak' || tabFromQuery === 'type' || tabFromQuery === 'saver') {
         setActiveTab(tabFromQuery);
         resetState();
     }
@@ -294,40 +302,54 @@ function SparkPageComponent() {
     }
   };
 
-  const handlePantryCheck = async () => {
-    if (!photoDataUri) {
+  const handleSparkSaver = async () => {
+    if (!budget || !familySize) {
       toast({
         variant: 'destructive',
-        title: 'No Image Selected',
-        description: 'Please upload a photo of your pantry or fridge.',
+        title: 'Missing Information',
+        description: 'Please enter a budget and family size.',
       });
       return;
     }
     setIsLoading(true);
     resetViewStates();
     try {
-      const availableProductsForAI = products.map(({ id, name, category }) => ({ id, name, category }));
-      const result = await checkPantry({ photoDataUri, availableProducts: availableProductsForAI });
-      
-      if (result.suggestionIds && result.suggestionIds.length > 0) {
-        const suggestions = products.filter(p => result.suggestionIds.includes(p.id));
-        setPantrySuggestions(suggestions);
-        setConfirmationText(result.confirmationText);
-      } else {
-        setConfirmationText("I couldn't find anything that needs restocking, but feel free to browse the store!");
-        setPantrySuggestions([]);
+      const availableProductsForAI = products.map(({ id, name, category, price, quantity }) => ({ id, name, category, price, quantity }));
+      const result = await generateSparkSaverCart({
+        budget: Number(budget),
+        familySize: Number(familySize),
+        preference,
+        availableProducts: availableProductsForAI,
+      });
+
+      if (!result || result.items.length === 0) {
+        toast({
+          variant: 'destructive',
+          title: 'Could Not Generate Cart',
+          description: 'We could not generate a cart for your budget. Please try a different amount.',
+        });
+        setParsedItems([]);
+        return;
       }
+      
+      await processAndConfirmList({
+        items: result.items,
+        detectedLanguage: 'en-IN',
+        confirmationText: result.summaryText,
+      });
+
     } catch (error) {
-      console.error('Error checking pantry:', error);
+      console.error('Error generating SparkSaver cart:', error);
       toast({
         variant: 'destructive',
-        title: 'Analysis Failed',
-        description: 'We could not analyze your pantry image. Please try a clearer photo.',
+        title: 'Generation Failed',
+        description: 'We could not build your budget cart at this time. Please try again.',
       });
     } finally {
       setIsLoading(false);
     }
   };
+
 
   const handleOpenCamera = () => {
     setIsCameraOpen(true);
@@ -388,7 +410,6 @@ function SparkPageComponent() {
     setParsedItems([]);
     setConfirmationAudio(null);
     setConfirmationText(null);
-    setPantrySuggestions([]);
   }
 
   const startOver = () => {
@@ -396,7 +417,7 @@ function SparkPageComponent() {
     setPhotoDataUri(null);
   }
 
-  const hasResults = parsedItems.length > 0 || pantrySuggestions.length > 0 || (confirmationText && pantrySuggestions.length === 0);
+  const hasResults = parsedItems.length > 0;
 
   const CameraView = ({ onCapture, onClose }: { onCapture: () => void, onClose: () => void }) => (
     <div className="space-y-4 text-center">
@@ -452,7 +473,7 @@ function SparkPageComponent() {
             <Tabs value={activeTab} className="w-full" onValueChange={handleTabChange}>
               <TabsList className="grid w-full grid-cols-4">
                 <TabsTrigger value="scan" className="gap-2"><Camera /> Scan</TabsTrigger>
-                <TabsTrigger value="pantry" className="gap-2"><ScanSearch /> Pantry</TabsTrigger>
+                <TabsTrigger value="saver" className="gap-2"><PiggyBank /> SparkSaver</TabsTrigger>
                 <TabsTrigger value="speak" className="gap-2"><Mic /> Speak</TabsTrigger>
                 <TabsTrigger value="type" className="gap-2"><FileText /> Type</TabsTrigger>
               </TabsList>
@@ -492,37 +513,43 @@ function SparkPageComponent() {
                 </Card>
               </TabsContent>
 
-              <TabsContent value="pantry">
+              <TabsContent value="saver">
                 <Card>
                   <CardHeader>
-                    <CardTitle className="flex items-center gap-2">Check Your Pantry</CardTitle>
-                    <CardDescription>Take a picture of your pantry or fridge, and our AI will suggest what you're running low on.</CardDescription>
+                    <CardTitle className="flex items-center gap-2">SparkSaver</CardTitle>
+                    <CardDescription>Let AI build the cheapest &amp; healthiest grocery cart for your weekly needs within your budget.</CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-6">
-                  {isCameraOpen ? (
-                     <CameraView onCapture={handleCapture} onClose={handleCloseCamera} />
-                  ) : (
-                    <div className="space-y-6">
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                          <Label htmlFor="pantry-photo">Upload from Device</Label>
-                          <Input id="pantry-photo" type="file" accept="image/*" onChange={handleFileChange} className="file:text-foreground" disabled={isLoading}/>
-                        </div>
-                        <div className="flex flex-col space-y-2">
-                          <Label>Or Use Camera</Label>
-                          <Button onClick={handleOpenCamera} variant="outline" disabled={isLoading} className="w-full"><Video className="mr-2" /> Open Camera</Button>
-                        </div>
+                    <div className="space-y-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="budget">Your Weekly Budget (₹)</Label>
+                        <Input id="budget" type="number" placeholder="e.g., 1500" value={budget} onChange={(e) => setBudget(e.target.value)} disabled={isLoading} />
                       </div>
-                      
-                      {photoDataUri ? (
-                        <div className="flex justify-center"><Image src={photoDataUri} alt="Pantry preview" width={400} height={300} className="rounded-lg object-contain border"/></div>
-                      ) : ( <div className="flex items-center justify-center h-48 bg-muted rounded-lg border-dashed border-2"><p className="text-muted-foreground">Pantry image preview</p></div>)}
-
-                      <Button onClick={handlePantryCheck} disabled={isLoading || !photoDataUri} className="w-full" size="lg">
-                        {isLoading ? ( <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Analyzing your pantry...</> ) : ( <><Sparkles className="mr-2 h-4 w-4" /> Spark It!</> )}
-                      </Button>
+                      <div className="space-y-2">
+                        <Label htmlFor="family-size">Family Size</Label>
+                        <Input id="family-size" type="number" placeholder="e.g., 4" value={familySize} onChange={(e) => setFamilySize(e.target.value)} disabled={isLoading} />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Dietary Preference</Label>
+                        <RadioGroup value={preference} onValueChange={(value: any) => setPreference(value)} className="flex gap-4 pt-1">
+                          <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="Veg" id="veg" />
+                            <Label htmlFor="veg">Veg</Label>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="Non-Veg" id="non-veg" />
+                            <Label htmlFor="non-veg">Non-Veg</Label>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="Jain" id="jain" />
+                            <Label htmlFor="jain">Jain</Label>
+                          </div>
+                        </RadioGroup>
+                      </div>
                     </div>
-                  )}
+                    <Button onClick={handleSparkSaver} disabled={isLoading || !budget || !familySize} className="w-full" size="lg">
+                      {isLoading ? (<><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Building your cart...</>) : (<><Sparkles className="mr-2 h-4 w-4" /> Spark It!</>)}
+                    </Button>
                   </CardContent>
                 </Card>
               </TabsContent>
@@ -611,37 +638,6 @@ function SparkPageComponent() {
                         </div>
                     </CardContent>
                     </>
-                )}
-
-                {pantrySuggestions.length > 0 && (
-                  <>
-                    <CardHeader>
-                        <CardTitle>Pantry Suggestions</CardTitle>
-                        <CardDescription>{confirmationText}</CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                        <ProductGrid products={pantrySuggestions} />
-                         <div className="flex justify-between items-center pt-4 border-t">
-                            <Button variant="outline" onClick={startOver}>Start Over</Button>
-                            <Button onClick={() => router.push('/cart')} size="lg">Go to Cart</Button>
-                        </div>
-                    </CardContent>
-                  </>
-                )}
-
-                {confirmationText && pantrySuggestions.length === 0 && parsedItems.length === 0 && (
-                    <>
-                    <CardHeader>
-                        <CardTitle>Pantry Check Complete</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4 text-center">
-                        <p className="text-muted-foreground">{confirmationText}</p>
-                        <div className="flex justify-center gap-4 pt-4">
-                            <Button variant="outline" onClick={startOver}>Start Over</Button>
-                            <Button onClick={() => router.push('/store')} size="lg">Continue Shopping</Button>
-                        </div>
-                    </CardContent>
-                  </>
                 )}
               </Card>
             </div>

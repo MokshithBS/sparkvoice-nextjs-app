@@ -1,7 +1,7 @@
 'use server';
 /**
  * @fileOverview An AI flow to suggest products based on a pantry photo.
- *
+ * DEPRECATED: This flow has been replaced by spark-saver-flow.ts
  * - checkPantry - A function that suggests products based on a pantry photo.
  */
 
