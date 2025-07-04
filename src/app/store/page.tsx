@@ -29,6 +29,7 @@ import {
 } from '@/components/ui/dialog';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
+import { CommunityCta } from '@/components/store/community-cta';
 
 
 export default function StorePage() {
@@ -226,6 +227,7 @@ export default function StorePage() {
               <SparkVoiceCta />
               <SparkSaverCta />
               <RefillReminderCta />
+              <CommunityCta />
               <DiwaliBanner />
               <ShopByRecipe onSubmit={handleGetIngredients} isLoading={isFetchingIngredients} />
               <CategoryGrid onSelectCategory={handleCategorySelect} />
