@@ -9,22 +9,46 @@ import { ProductGrid } from '@/components/store/product-grid';
 import { products, type Product } from '@/lib/products';
 import { SparkVoiceCta } from '@/components/store/spark-voice-cta';
 import { suggestProducts } from '@/ai/flows/product-suggester-flow';
-import { Loader2 } from 'lucide-react';
+import { Loader2, ArrowLeft } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 export default function StorePage() {
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [suggestedProducts, setSuggestedProducts] = useState<Product[]>([]);
   const [isSuggesting, setIsSuggesting] = useState(false);
 
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value);
+    setSelectedCategory(null);
+  };
+  
+  const handleClearSearch = () => {
+    setSearchQuery('');
+  };
+
+  const handleCategorySelect = (category: string) => {
+    setSelectedCategory(category);
+    setSearchQuery('');
+  }
+
+  const clearFilters = () => {
+    setSelectedCategory(null);
+    setSearchQuery('');
+  }
+
   const filteredProducts = useMemo(() => {
-    if (!searchQuery) {
-      return [];
+    if (searchQuery) {
+        return products.filter(product => 
+          product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          product.category.toLowerCase().includes(searchQuery.toLowerCase())
+        );
     }
-    return products.filter(product => 
-      product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      product.category.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-  }, [searchQuery]);
+    if (selectedCategory) {
+        return products.filter(p => p.category === selectedCategory);
+    }
+    return [];
+  }, [searchQuery, selectedCategory]);
   
   useEffect(() => {
     if (!searchQuery) {
@@ -75,12 +99,20 @@ export default function StorePage() {
         <main className="px-4 pb-44">
           <SearchBar 
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            onClear={() => setSearchQuery('')}
+            onChange={handleSearchChange}
+            onClear={handleClearSearch}
           />
-          {searchQuery ? (
+          {searchQuery || selectedCategory ? (
              <>
-             {filteredProducts.length > 0 ? (
+              {selectedCategory && (
+                <div className="flex items-center gap-2 mb-4">
+                  <Button variant="ghost" size="icon" className="-ml-2" onClick={clearFilters}>
+                    <ArrowLeft />
+                  </Button>
+                  <h2 className="text-xl font-bold">{selectedCategory}</h2>
+                </div>
+              )}
+              {filteredProducts.length > 0 ? (
                 <ProductGrid products={filteredProducts} />
              ) : (
                <div className="text-center py-10">
@@ -107,7 +139,7 @@ export default function StorePage() {
             <>
               <SparkVoiceCta />
               <DiwaliBanner />
-              <CategoryGrid />
+              <CategoryGrid onSelectCategory={handleCategorySelect} />
             </>
           )}
         </main>

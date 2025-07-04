@@ -11,18 +11,18 @@ const categories = [
   { name: 'Instant & Frozen Food', discount: '80% OFF', image: 'https://storage.googleapis.com/aip-dev-images-public/frozen-food.png', hint: 'instant noodles' },
 ];
 
-export function CategoryGrid() {
+export function CategoryGrid({ onSelectCategory }: { onSelectCategory: (category: string) => void }) {
   return (
     <div className="my-6">
       <div className="grid grid-cols-4 gap-x-4 gap-y-6 text-center text-[11px] leading-tight font-medium">
         {categories.map((category) => (
-          <a href="#" key={category.name} className="flex flex-col items-center space-y-2 group">
+          <button onClick={() => onSelectCategory(category.name)} key={category.name} className="flex flex-col items-center space-y-2 group">
             <div className="relative w-full aspect-square rounded-xl overflow-hidden bg-card/80">
               <Image src={category.image} alt={category.name} fill className="object-cover group-hover:scale-105 transition-transform" data-ai-hint={category.hint} />
               <div className="absolute top-0 left-0 m-1 text-[9px] font-bold px-1.5 py-0.5 rounded-md bg-primary/80 text-primary-foreground backdrop-blur-sm">UP TO {category.discount}</div>
             </div>
             <span className="text-foreground">{category.name}</span>
-          </a>
+          </button>
         ))}
       </div>
     </div>
