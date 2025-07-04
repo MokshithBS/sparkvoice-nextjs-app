@@ -9,6 +9,7 @@ const categories = [
   { name: 'Cleaning Essentials', discount: '50% OFF', image: 'https://storage.googleapis.com/aip-dev-images-public/cleaning.png', hint: 'cleaning supplies' },
   { name: 'Personal Care', discount: '70% OFF', image: 'https://storage.googleapis.com/aip-dev-images-public/personal-care.png', hint: 'shampoo bottle' },
   { name: 'Instant & Frozen Food', discount: '80% OFF', image: 'https://storage.googleapis.com/aip-dev-images-public/frozen-food.png', hint: 'instant noodles' },
+  { name: 'Baby Care', discount: '40% OFF', image: 'https://storage.googleapis.com/aip-dev-images-public/baby-care.png', hint: 'baby products' },
 ];
 
 export function CategoryGrid({ onSelectCategory }: { onSelectCategory: (category: string) => void }) {

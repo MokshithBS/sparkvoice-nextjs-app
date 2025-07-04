@@ -17,15 +17,16 @@ import type { ListParserOutputItem } from '@/ai/schemas/list-parser-schemas';
 import { useToast } from '@/hooks/use-toast';
 import { useCart } from '@/context/cart-context';
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+  DialogClose,
+} from '@/components/ui/dialog';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
 
 
 export default function StorePage() {
@@ -36,6 +37,7 @@ export default function StorePage() {
   const [isFetchingIngredients, setIsFetchingIngredients] = useState(false);
   const [recipeIngredients, setRecipeIngredients] = useState<ListParserOutputItem[] | null>(null);
   const [recipeDishName, setRecipeDishName] = useState('');
+  const [selectedRecipeItems, setSelectedRecipeItems] = useState<ListParserOutputItem[]>([]);
 
   const { toast } = useToast();
   const { addToCartBatch } = useCart();
@@ -120,6 +122,7 @@ export default function StorePage() {
         const result = await getIngredientsForDish({ dishName });
         if (result.items.length > 0) {
             setRecipeIngredients(result.items);
+            setSelectedRecipeItems(result.items); // Select all by default
         } else {
             toast({
                 variant: 'destructive',
@@ -138,18 +141,40 @@ export default function StorePage() {
         setIsFetchingIngredients(false);
     }
   };
+  
+  const handleRecipeItemToggle = (item: ListParserOutputItem) => {
+    setSelectedRecipeItems(prev =>
+      prev.some(i => i.product === item.product)
+        ? prev.filter(i => i.product !== item.product)
+        : [...prev, item]
+    );
+  };
+
+  const handleSelectAllRecipeItems = (checked: boolean) => {
+    if (checked) {
+      setSelectedRecipeItems(recipeIngredients || []);
+    } else {
+      setSelectedRecipeItems([]);
+    }
+  };
 
   const handleAddToCartFromRecipe = () => {
-    if (recipeIngredients) {
-      addToCartBatch(recipeIngredients);
+    if (selectedRecipeItems.length > 0) {
+      addToCartBatch(selectedRecipeItems);
       toast({
         title: 'Ingredients Added!',
-        description: `We've added the items for ${recipeDishName} to your cart.`,
+        description: `We've added ${selectedRecipeItems.length} items for ${recipeDishName} to your cart.`,
       });
       setRecipeIngredients(null);
+      setSelectedRecipeItems([]);
       setRecipeDishName('');
     }
   };
+
+  const closeRecipeDialog = () => {
+      setRecipeIngredients(null);
+      setSelectedRecipeItems([]);
+  }
 
   return (
     <div className="mx-auto max-w-md bg-background font-sans">
@@ -206,28 +231,51 @@ export default function StorePage() {
         <ShoppingList />
       </div>
 
-       <AlertDialog open={!!recipeIngredients} onOpenChange={(isOpen) => !isOpen && setRecipeIngredients(null)}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Ingredients for {recipeDishName}</AlertDialogTitle>
-            <AlertDialogDescription>
-              Here is a suggested list of ingredients. Add them all to your cart or cancel.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <div className="max-h-60 overflow-y-auto pr-2 space-y-2 my-4">
-            {recipeIngredients?.map((item, index) => (
-              <div key={index} className="flex justify-between items-center bg-muted/50 p-2 rounded-md text-sm">
-                <span className="font-medium">{item.product}</span>
-                <span className="text-muted-foreground">{item.quantity}</span>
-              </div>
-            ))}
+       <Dialog open={!!recipeIngredients} onOpenChange={(isOpen) => !isOpen && closeRecipeDialog()}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Ingredients for {recipeDishName}</DialogTitle>
+            <DialogDescription>
+              Select the ingredients you need and add them to your cart.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3 pr-2 my-4">
+             <div className="flex items-center space-x-3 border-b pb-2 mb-2">
+                <Checkbox
+                    id="select-all"
+                    checked={recipeIngredients?.length === selectedRecipeItems.length && selectedRecipeItems.length > 0}
+                    onCheckedChange={(checked) => handleSelectAllRecipeItems(!!checked)}
+                />
+                <Label htmlFor="select-all" className="font-medium text-sm">
+                    Select All
+                </Label>
+            </div>
+            <div className="max-h-60 overflow-y-auto space-y-3">
+                {recipeIngredients?.map((item, index) => (
+                <div key={index} className="flex items-center space-x-3">
+                    <Checkbox 
+                        id={`item-${index}`} 
+                        checked={selectedRecipeItems.some(selected => selected.product === item.product)}
+                        onCheckedChange={() => handleRecipeItemToggle(item)}
+                    />
+                    <Label htmlFor={`item-${index}`} className="flex justify-between w-full text-sm font-normal cursor-pointer">
+                        <span>{item.product}</span>
+                        <span className="text-muted-foreground">{item.quantity}</span>
+                    </Label>
+                </div>
+                ))}
+            </div>
           </div>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleAddToCartFromRecipe}>Add All to Cart</AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+          <DialogFooter>
+            <DialogClose asChild>
+              <Button variant="outline">Cancel</Button>
+            </DialogClose>
+            <Button onClick={handleAddToCartFromRecipe} disabled={selectedRecipeItems.length === 0}>
+                Add {selectedRecipeItems.length} {selectedRecipeItems.length === 1 ? 'Item' : 'Items'} to Cart
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
     </div>
   );
