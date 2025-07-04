@@ -33,12 +33,24 @@ export function ProductGrid({ products }: { products: Product[] }) {
                     className="object-cover"
                     data-ai-hint={product.hint}
                 />
+                 {product.salePrice && (
+                    <div className="absolute top-2 right-2 bg-accent text-accent-foreground text-xs font-bold px-2 py-1 rounded-md shadow-lg transform rotate-6">
+                        SALE
+                    </div>
+                )}
                 </div>
                 <div className="p-2 space-y-2 flex flex-col h-28 justify-between">
                     <h3 className="text-sm font-medium truncate">{product.name}</h3>
                     <div className="flex justify-between items-center">
                         <p className="text-xs text-muted-foreground">{product.quantity}</p>
-                        <p className="font-bold text-sm">₹{product.price}</p>
+                        {product.salePrice ? (
+                            <div className="flex items-baseline gap-1.5">
+                                <del className="text-xs text-muted-foreground">₹{product.price.toFixed(2)}</del>
+                                <p className="font-bold text-base text-primary">₹{product.salePrice.toFixed(2)}</p>
+                            </div>
+                        ) : (
+                            <p className="font-bold text-sm">₹{product.price.toFixed(2)}</p>
+                        )}
                     </div>
                     {cartItem ? (
                         <div className="flex items-center justify-center gap-2">

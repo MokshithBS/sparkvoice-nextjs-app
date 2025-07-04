@@ -34,7 +34,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
           item.id === product.id ? { ...item, cartQuantity: item.cartQuantity + 1 } : item
         );
       }
-      return [...prevItems, { ...product, cartQuantity: 1 }];
+      // When adding a new item, use the sale price if it exists.
+      const cartPrice = product.salePrice ?? product.price;
+      return [...prevItems, { ...product, price: cartPrice, cartQuantity: 1 }];
     });
     toast({
       title: 'Added to Cart',
