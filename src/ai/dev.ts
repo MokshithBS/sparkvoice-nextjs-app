@@ -7,3 +7,4 @@ import './flows/tts-flow.ts';
 import './flows/product-suggester-flow.ts';
 import './flows/recipe-to-cart-flow.ts';
 import './flows/spark-saver-flow.ts';
+import './flows/price-match-flow.ts';
