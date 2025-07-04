@@ -10,11 +10,15 @@ const categories = [
   { name: 'Personal Care', discount: '70% OFF', image: 'https://storage.googleapis.com/aip-dev-images-public/personal-care.png', hint: 'shampoo bottle' },
   { name: 'Instant & Frozen Food', discount: '80% OFF', image: 'https://storage.googleapis.com/aip-dev-images-public/frozen-food.png', hint: 'instant noodles' },
   { name: 'Baby Care', discount: '40% OFF', image: 'https://storage.googleapis.com/aip-dev-images-public/baby-care.png', hint: 'baby products' },
+  { name: 'Home & Kitchen', discount: '40% OFF', image: 'https://storage.googleapis.com/aip-dev-images-public/kitchen-utensils.png', hint: 'kitchen utensils' },
+  { name: 'Pooja Needs', discount: '30% OFF', image: 'https://storage.googleapis.com/aip-dev-images-public/pooja-items.png', hint: 'incense sticks' },
+  { name: 'Party Supplies', discount: '50% OFF', image: 'https://storage.googleapis.com/aip-dev-images-public/party-supplies.png', hint: 'party balloons' },
 ];
 
 export function CategoryGrid({ onSelectCategory }: { onSelectCategory: (category: string) => void }) {
   return (
     <div className="my-6">
+      <h2 className="text-xl font-bold mb-4">Shop by Category</h2>
       <div className="grid grid-cols-4 gap-x-4 gap-y-6 text-center text-[11px] leading-tight font-medium">
         {categories.map((category) => (
           <button onClick={() => onSelectCategory(category.name)} key={category.name} className="flex flex-col items-center space-y-2 group">

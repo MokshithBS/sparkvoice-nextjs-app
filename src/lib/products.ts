@@ -16,7 +16,9 @@ export interface Product {
     { id: 14, name: 'Tata Sampann Toor Dal', price: 150, quantity: '1 kg', image: 'https://storage.googleapis.com/aip-dev-images-public/product-toor-dal.png', category: 'Atta, Rice & Dals', hint: 'lentils package' },
     { id: 15, name: 'Organic Moong Dal', price: 165, quantity: '1 kg', image: 'https://storage.googleapis.com/aip-dev-images-public/product-moong-dal.png', category: 'Atta, Rice & Dals', hint: 'lentils package' },
     { id: 52, name: 'Fortune Besan', price: 80, quantity: '1 kg', image: 'https://storage.googleapis.com/aip-dev-images-public/product-besan.png', category: 'Atta, Rice & Dals', hint: 'flour pack' },
-
+    { id: 59, name: 'Sona Masoori Rice', price: 550, quantity: '5 kg', image: 'https://storage.googleapis.com/aip-dev-images-public/product-sona-masoori.png', category: 'Atta, Rice & Dals', hint: 'rice bag' },
+    { id: 60, name: 'Tata Sampann Chana Dal', price: 140, quantity: '1 kg', image: 'https://storage.googleapis.com/aip-dev-images-public/product-chana-dal.png', category: 'Atta, Rice & Dals', hint: 'lentils package' },
+    { id: 61, name: 'MTR Rava/Sooji', price: 45, quantity: '500 g', image: 'https://storage.googleapis.com/aip-dev-images-public/product-sooji.png', category: 'Atta, Rice & Dals', hint: 'semolina pack' },
 
     // Masala & Oils
     { id: 2, name: 'Tata Salt', price: 25, quantity: '1 kg', image: 'https://storage.googleapis.com/aip-dev-images-public/product-salt.png', category: 'Masala & Oils', hint: 'salt package' },
@@ -26,6 +28,9 @@ export interface Product {
     { id: 18, name: 'MDH Deggi Mirch', price: 70, quantity: '100 g', image: 'https://storage.googleapis.com/aip-dev-images-public/product-chilli-powder.png', category: 'Masala & Oils', hint: 'spice powder' },
     { id: 42, name: 'Fortune Mustard Oil', price: 175, quantity: '1 L', image: 'https://storage.googleapis.com/aip-dev-images-public/product-mustard-oil.png', category: 'Masala & Oils', hint: 'oil bottle' },
     { id: 43, name: 'Catch Garam Masala', price: 80, quantity: '100 g', image: 'https://storage.googleapis.com/aip-dev-images-public/product-garam-masala.png', category: 'Masala & Oils', hint: 'spice box' },
+    { id: 62, name: 'Parachute Coconut Oil', price: 150, quantity: '500 ml', image: 'https://storage.googleapis.com/aip-dev-images-public/product-coconut-oil.png', category: 'Masala & Oils', hint: 'oil bottle' },
+    { id: 63, name: 'Figaro Olive Oil', price: 450, quantity: '500 ml', image: 'https://storage.googleapis.com/aip-dev-images-public/product-olive-oil.png', category: 'Masala & Oils', hint: 'oil bottle' },
+    { id: 64, name: 'Tata Sampann Cumin Seeds', price: 60, quantity: '100 g', image: 'https://storage.googleapis.com/aip-dev-images-public/product-cumin.png', category: 'Masala & Oils', hint: 'spices bowl' },
 
     // Dairy, Bread & Eggs
     { id: 3, name: 'Amul Milk Taaza', price: 28, quantity: '500 ml', image: 'https://storage.googleapis.com/aip-dev-images-public/product-milk.png', category: 'Dairy, Bread & Eggs', hint: 'milk carton' },
@@ -35,6 +40,8 @@ export interface Product {
     { id: 21, name: 'Nestle a+ Dahi', price: 40, quantity: '400 g', image: 'https://storage.googleapis.com/aip-dev-images-public/product-yogurt.png', category: 'Dairy, Bread & Eggs', hint: 'yogurt cup' },
     { id: 40, name: 'Amul Cheese Slices', price: 120, salePrice: 105, quantity: '200 g', image: 'https://storage.googleapis.com/aip-dev-images-public/product-cheese.png', category: 'Dairy, Bread & Eggs', hint: 'cheese slices' },
     { id: 41, name: 'Fresh Paneer', price: 90, quantity: '200 g', image: 'https://storage.googleapis.com/aip-dev-images-public/product-paneer.png', category: 'Dairy, Bread & Eggs', hint: 'paneer block' },
+    { id: 65, name: 'Amul Gold Milk', price: 33, quantity: '500 ml', image: 'https://storage.googleapis.com/aip-dev-images-public/product-amul-gold.png', category: 'Dairy, Bread & Eggs', hint: 'milk packet' },
+    { id: 66, name: 'Mother Dairy Ghee', price: 550, quantity: '1 L', image: 'https://storage.googleapis.com/aip-dev-images-public/product-ghee.png', category: 'Dairy, Bread & Eggs', hint: 'ghee jar' },
 
     // Vegetables & Fruits
     { id: 7, name: 'Fresh Onions', price: 40, quantity: '1 kg', image: 'https://storage.googleapis.com/aip-dev-images-public/product-onions.png', category: 'Vegetables & Fruits', hint: 'onions' },
@@ -45,6 +52,8 @@ export interface Product {
     { id: 44, name: 'Fresh Coriander', price: 10, quantity: '1 bunch', image: 'https://storage.googleapis.com/aip-dev-images-public/product-coriander.png', category: 'Vegetables & Fruits', hint: 'coriander leaves' },
     { id: 45, name: 'Fresh Ginger', price: 20, quantity: '100 g', image: 'https://storage.googleapis.com/aip-dev-images-public/product-ginger.png', category: 'Vegetables & Fruits', hint: 'ginger root' },
     { id: 46, name: 'Fresh Garlic', price: 25, quantity: '100 g', image: 'https://storage.googleapis.com/aip-dev-images-public/product-garlic.png', category: 'Vegetables & Fruits', hint: 'garlic bulb' },
+    { id: 67, name: 'Fresh Cabbage', price: 30, quantity: '1 pc', image: 'https://storage.googleapis.com/aip-dev-images-public/product-cabbage.png', category: 'Vegetables & Fruits', hint: 'cabbage head' },
+    { id: 68, name: 'Fresh Cauliflower', price: 40, quantity: '1 pc', image: 'https://storage.googleapis.com/aip-dev-images-public/product-cauliflower.png', category: 'Vegetables & Fruits', hint: 'cauliflower head' },
 
     // Snacks & Beverages
     { id: 4, name: 'Parle-G Biscuits', price: 10, quantity: '1 pack', image: 'https://storage.googleapis.com/aip-dev-images-public/product-biscuit.png', category: 'Snacks & Beverages', hint: 'biscuit packet' },
@@ -56,6 +65,8 @@ export interface Product {
     { id: 37, name: 'Haldiram\'s Aloo Bhujia', price: 50, quantity: '200 g', image: 'https://storage.googleapis.com/aip-dev-images-public/product-bhujia.png', category: 'Snacks & Beverages', hint: 'indian snacks' },
     { id: 38, name: 'Tropicana Orange Juice', price: 120, quantity: '1 L', image: 'https://storage.googleapis.com/aip-dev-images-public/product-juice.png', category: 'Snacks & Beverages', hint: 'juice carton' },
     { id: 39, name: 'Bru Instant Coffee', price: 250, salePrice: 220, quantity: '100 g', image: 'https://storage.googleapis.com/aip-dev-images-public/product-bru-coffee.png', category: 'Snacks & Beverages', hint: 'coffee jar' },
+    { id: 69, name: 'Britannia Good Day', price: 35, quantity: '1 pack', image: 'https://storage.googleapis.com/aip-dev-images-public/product-good-day.png', category: 'Snacks & Beverages', hint: 'biscuit packet' },
+    { id: 70, name: 'Kissan Mixed Fruit Jam', price: 150, quantity: '500 g', image: 'https://storage.googleapis.com/aip-dev-images-public/product-jam.png', category: 'Snacks & Beverages', hint: 'jam jar' },
 
     // Instant & Frozen Food
     { id: 9, name: 'Maggi 2-Min Noodles', price: 14, salePrice: 12, quantity: '1 pack', image: 'https://storage.googleapis.com/aip-dev-images-public/product-maggi.png', category: 'Instant & Frozen Food', hint: 'instant noodles' },
@@ -63,6 +74,8 @@ export interface Product {
     { id: 29, name: 'McCain French Fries', price: 99, quantity: '420 g', image: 'https://storage.googleapis.com/aip-dev-images-public/frozen-food.png', category: 'Instant & Frozen Food', hint: 'frozen fries' },
     { id: 53, name: 'Quaker Oats', price: 190, quantity: '1 kg', image: 'https://storage.googleapis.com/aip-dev-images-public/product-oats.png', category: 'Instant & Frozen Food', hint: 'oats box' },
     { id: 54, name: 'Safal Frozen Peas', price: 55, quantity: '500 g', image: 'https://storage.googleapis.com/aip-dev-images-public/product-frozen-peas.png', category: 'Instant & Frozen Food', hint: 'frozen peas' },
+    { id: 71, name: 'MTR Ready to Eat Poha', price: 75, quantity: '160 g', image: 'https://storage.googleapis.com/aip-dev-images-public/product-poha.png', category: 'Instant & Frozen Food', hint: 'ready meal' },
+    { id: 72, name: 'Gits Gulab Jamun Mix', price: 120, quantity: '200 g', image: 'https://storage.googleapis.com/aip-dev-images-public/product-gulab-jamun-mix.png', category: 'Instant & Frozen Food', hint: 'dessert mix' },
 
     // Cleaning Essentials
     { id: 10, name: 'Surf Excel Detergent', price: 120, salePrice: 99, quantity: '1 kg', image: 'https://storage.googleapis.com/aip-dev-images-public/product-detergent.png', category: 'Cleaning Essentials', hint: 'detergent box' },
@@ -71,6 +84,8 @@ export interface Product {
     { id: 32, name: 'Lizol Floor Cleaner', price: 190, quantity: '975 ml', image: 'https://storage.googleapis.com/aip-dev-images-public/cleaning.png', category: 'Cleaning Essentials', hint: 'cleaning supplies' },
     { id: 50, name: 'Good Knight Refill', price: 85, quantity: '45 ml', image: 'https://storage.googleapis.com/aip-dev-images-public/product-good-knight.png', category: 'Cleaning Essentials', hint: 'mosquito repellent' },
     { id: 51, name: 'Colin Glass Cleaner', price: 90, salePrice: 75, quantity: '500 ml', image: 'https://storage.googleapis.com/aip-dev-images-public/product-colin.png', category: 'Cleaning Essentials', hint: 'spray bottle' },
+    { id: 73, name: 'Scotch-Brite Scrub Pad', price: 25, quantity: '1 pc', image: 'https://storage.googleapis.com/aip-dev-images-public/product-scrub-pad.png', category: 'Cleaning Essentials', hint: 'scouring pad' },
+    { id: 74, name: 'All Out Refill', price: 80, quantity: '45 ml', image: 'https://storage.googleapis.com/aip-dev-images-public/product-all-out.png', category: 'Cleaning Essentials', hint: 'mosquito repellent' },
 
     // Personal Care
     { id: 11, name: 'Dove Shampoo', price: 250, salePrice: 210, quantity: '340 ml', image: 'https://storage.googleapis.com/aip-dev-images-public/product-shampoo.png', category: 'Personal Care', hint: 'shampoo bottle' },
@@ -80,10 +95,32 @@ export interface Product {
     { id: 47, name: 'Himalaya Face Wash', price: 150, quantity: '150 ml', image: 'https://storage.googleapis.com/aip-dev-images-public/product-face-wash.png', category: 'Personal Care', hint: 'face wash' },
     { id: 48, name: 'Nivea Body Lotion', price: 300, quantity: '400 ml', image: 'https://storage.googleapis.com/aip-dev-images-public/product-body-lotion.png', category: 'Personal Care', hint: 'lotion bottle' },
     { id: 49, name: 'Dettol Handwash', price: 99, salePrice: 85, quantity: '200 ml', image: 'https://storage.googleapis.com/aip-dev-images-public/product-handwash.png', category: 'Personal Care', hint: 'hand soap' },
+    { id: 75, name: 'Medimix Ayurvedic Soap', price: 40, quantity: '125 g', image: 'https://storage.googleapis.com/aip-dev-images-public/product-medimix.png', category: 'Personal Care', hint: 'soap bar' },
+    { id: 76, name: 'Parachute Advansed Hair Oil', price: 180, quantity: '300 ml', image: 'https://storage.googleapis.com/aip-dev-images-public/product-hair-oil.png', category: 'Personal Care', hint: 'oil bottle' },
 
     // Baby Care
     { id: 55, name: 'Pampers Diapers', price: 500, salePrice: 450, quantity: 'M size 50 pack', image: 'https://storage.googleapis.com/aip-dev-images-public/product-diapers.png', category: 'Baby Care', hint: 'diapers pack' },
     { id: 56, name: 'Cerelac Baby Food', price: 250, quantity: '300 g', image: 'https://storage.googleapis.com/aip-dev-images-public/product-baby-food.png', category: 'Baby Care', hint: 'baby food' },
     { id: 57, name: 'Johnson\'s Baby Powder', price: 150, quantity: '200 g', image: 'https://storage.googleapis.com/aip-dev-images-public/product-baby-powder.png', category: 'Baby Care', hint: 'baby powder' },
     { id: 58, name: 'Himalaya Baby Wipes', price: 180, quantity: '72 count', image: 'https://storage.googleapis.com/aip-dev-images-public/product-baby-wipes.png', category: 'Baby Care', hint: 'baby wipes' },
+    { id: 77, name: 'Johnson\'s Baby Soap', price: 80, quantity: '100 g', image: 'https://storage.googleapis.com/aip-dev-images-public/product-baby-soap.png', category: 'Baby Care', hint: 'baby soap' },
+    { id: 78, name: 'Himalaya Baby Oil', price: 220, quantity: '200 ml', image: 'https://storage.googleapis.com/aip-dev-images-public/product-baby-oil.png', category: 'Baby Care', hint: 'baby oil' },
+
+    // Home & Kitchen
+    { id: 79, name: 'Prestige Pressure Cooker', price: 1500, quantity: '3 L', image: 'https://storage.googleapis.com/aip-dev-images-public/product-pressure-cooker.png', category: 'Home & Kitchen', hint: 'pressure cooker' },
+    { id: 80, name: 'Milton Water Bottle', price: 350, salePrice: 300, quantity: '1 L', image: 'https://storage.googleapis.com/aip-dev-images-public/product-water-bottle.png', category: 'Home & Kitchen', hint: 'water bottle' },
+    { id: 81, name: 'Cello Storage Containers', price: 500, quantity: 'Set of 3', image: 'https://storage.googleapis.com/aip-dev-images-public/product-containers.png', category: 'Home & Kitchen', hint: 'storage containers' },
+    { id: 82, name: 'Steel Tiffin Box', price: 450, quantity: '3-tier', image: 'https://storage.googleapis.com/aip-dev-images-public/product-tiffin-box.png', category: 'Home & Kitchen', hint: 'tiffin box' },
+
+    // Pooja Needs
+    { id: 83, name: 'Cycle Agarbatti', price: 70, quantity: '100 sticks', image: 'https://storage.googleapis.com/aip-dev-images-public/product-agarbatti.png', category: 'Pooja Needs', hint: 'incense sticks' },
+    { id: 84, name: 'Mangaldeep Camphor', price: 50, quantity: '50 g', image: 'https://storage.googleapis.com/aip-dev-images-public/product-camphor.png', category: 'Pooja Needs', hint: 'camphor tablets' },
+    { id: 85, name: 'Diya Pooja Oil', price: 120, quantity: '500 ml', image: 'https://storage.googleapis.com/aip-dev-images-public/product-pooja-oil.png', category: 'Pooja Needs', hint: 'oil lamp' },
+    { id: 86, name: 'Cotton Wicks (Batti)', price: 30, quantity: '100 pcs', image: 'https://storage.googleapis.com/aip-dev-images-public/product-cotton-wicks.png', category: 'Pooja Needs', hint: 'cotton wicks' },
+    
+    // Party Supplies
+    { id: 87, name: 'Birthday Candles', price: 40, quantity: 'Pack of 12', image: 'https://storage.googleapis.com/aip-dev-images-public/product-candles.png', category: 'Party Supplies', hint: 'birthday candles' },
+    { id: 88, name: 'Paper Plates', price: 100, quantity: 'Pack of 50', image: 'https://storage.googleapis.com/aip-dev-images-public/product-paper-plates.png', category: 'Party Supplies', hint: 'paper plates' },
+    { id: 89, name: 'Party Balloons', price: 150, salePrice: 120, quantity: 'Pack of 50', image: 'https://storage.googleapis.com/aip-dev-images-public/product-balloons.png', category: 'Party Supplies', hint: 'balloons' },
+    { id: 90, name: 'Disposable Cups', price: 80, quantity: 'Pack of 100', image: 'https://storage.googleapis.com/aip-dev-images-public/product-disposable-cups.png', category: 'Party Supplies', hint: 'paper cups' },
   ];
