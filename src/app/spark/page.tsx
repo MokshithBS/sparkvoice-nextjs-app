@@ -733,8 +733,17 @@ function SparkPageComponent() {
               <TabsContent value="speak">
                 <Card>
                   <CardHeader>
-                    <CardTitle className="flex items-center gap-2">Speak Your List</CardTitle>
-                    <CardDescription>Press record, speak your shopping list in any language, and we'll build your cart.</CardDescription>
+                    {context === 'recipe' ? (
+                        <>
+                            <CardTitle className="flex items-center gap-2">Speak Your Recipe</CardTitle>
+                            <CardDescription>Press record, speak the name of the dish you want to cook, and we'll find the ingredients.</CardDescription>
+                        </>
+                    ) : (
+                        <>
+                            <CardTitle className="flex items-center gap-2">Speak Your List</CardTitle>
+                            <CardDescription>Press record, speak your shopping list in any language, and we'll build your cart.</CardDescription>
+                        </>
+                    )}
                   </CardHeader>
                   <CardContent className="space-y-6 flex flex-col items-center">
                     <Button onClick={isRecording ? handleStopRecording : handleStartRecording} disabled={isLoading} className="w-48 h-16 text-lg" variant={isRecording ? 'destructive' : 'default'} size="lg">

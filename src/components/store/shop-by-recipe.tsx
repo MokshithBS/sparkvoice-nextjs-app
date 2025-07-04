@@ -45,7 +45,7 @@ export function ShopByRecipe({ onSubmit, isLoading }: ShopByRecipeProps) {
             />
             <div className="flex items-center gap-1 pr-2">
                 <Button asChild variant="ghost" size="icon" className="h-8 w-8 flex-shrink-0 rounded-full" disabled={isLoading}>
-                    <Link href="/spark?tab=speak">
+                    <Link href="/spark?tab=speak&context=recipe">
                         <Mic className="h-4 w-4" />
                         <span className="sr-only">Speak dish name</span>
                     </Link>
