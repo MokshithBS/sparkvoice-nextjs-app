@@ -1,6 +1,7 @@
 import Image from "next/image"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
+import { WhatsAppIcon } from "../icons/whatsapp-icon"
 
 export function Hero() {
   return (
@@ -18,9 +19,10 @@ export function Hero() {
               <Link href="/store" prefetch={false}>
                 <Button size="lg" style={{ backgroundColor: "hsl(var(--accent))", color: "hsl(var(--accent-foreground))" }}>Get Started for Free</Button>
               </Link>
-              <Link href="#" prefetch={false}>
+              <Link href="https://wa.me/910000000000?text=Hi%2C%20I'd%20like%20to%20place%20an%20order%20with%20SparkVoice" target="_blank" prefetch={false}>
                 <Button variant="outline" size="lg">
-                  Request a Demo
+                  <WhatsAppIcon className="w-5 h-5" />
+                  Order on WhatsApp
                 </Button>
               </Link>
             </div>
