@@ -29,8 +29,8 @@ const features = [
   },
   {
     icon: <Network className="w-8 h-8 text-accent" />,
-    title: "Powered by Flipkart",
-    description: "Kiranas get real-time order receipt, stock updates, and restocking powered by Flipkart Wholesale’s backend network.",
+    title: "Seamless Kirana Integration",
+    description: "Kiranas get real-time order receipt, stock updates, and easy restocking, all powered by our robust backend network.",
   },
 ]
 
