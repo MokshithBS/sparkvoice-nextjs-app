@@ -7,6 +7,7 @@ import { CategoryGrid } from '@/components/store/category-grid';
 import { ShoppingList } from '@/components/store/shopping-list';
 import { ProductGrid } from '@/components/store/product-grid';
 import { products } from '@/lib/products';
+import { SparkVoiceCta } from '@/components/store/spark-voice-cta';
 
 export default function StorePage() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -35,6 +36,7 @@ export default function StorePage() {
             <ProductGrid products={filteredProducts} />
           ) : (
             <>
+              <SparkVoiceCta />
               <DiwaliBanner />
               <CategoryGrid />
             </>
