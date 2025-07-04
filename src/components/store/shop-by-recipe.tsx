@@ -51,7 +51,7 @@ export function ShopByRecipe({ onSubmit, isLoading }: ShopByRecipeProps) {
                     </Link>
                 </Button>
                 <Button asChild variant="ghost" size="icon" className="h-8 w-8 flex-shrink-0 rounded-full" disabled={isLoading}>
-                    <Link href="/spark?tab=scan">
+                    <Link href="/spark?tab=scan&context=recipe">
                         <Camera className="h-4 w-4" />
                         <span className="sr-only">Scan recipe list</span>
                     </Link>

@@ -32,6 +32,7 @@ function SparkPageComponent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const initialTab = searchParams.get('tab') || 'scan';
+  const context = searchParams.get('context');
 
   const [photoDataUri, setPhotoDataUri] = useState<string | null>(null);
   const [textList, setTextList] = useState('');
@@ -612,8 +613,17 @@ function SparkPageComponent() {
               <TabsContent value="scan">
                 <Card>
                   <CardHeader>
-                    <CardTitle className="flex items-center gap-2">Scan Your List</CardTitle>
-                    <CardDescription>Capture a photo of your handwritten list or upload an image to build your cart instantly.</CardDescription>
+                    {context === 'recipe' ? (
+                        <>
+                            <CardTitle className="flex items-center gap-2">Scan Your Recipe</CardTitle>
+                            <CardDescription>Capture a photo of a recipe from a cookbook or website to get all the ingredients.</CardDescription>
+                        </>
+                    ) : (
+                        <>
+                            <CardTitle className="flex items-center gap-2">Scan Your List</CardTitle>
+                            <CardDescription>Capture a photo of your handwritten list or upload an image to build your cart instantly.</CardDescription>
+                        </>
+                    )}
                   </CardHeader>
                   <CardContent className="space-y-6">
                   {isCameraOpen ? (
