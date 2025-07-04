@@ -35,5 +35,15 @@ export type ListParserOutputItem = z.infer<typeof ListParserOutputItemSchema>;
 
 export const ListParserOutputSchema = z.object({
   items: z.array(ListParserOutputItemSchema).describe("The list of items extracted from the shopping list."),
+  detectedLanguage: z
+    .string()
+    .describe(
+      "The BCP-47 language code of the input list, e.g., 'en-IN' for Indian English, 'hi' for Hindi."
+    ),
+  confirmationText: z
+    .string()
+    .describe(
+      "A complete, natural language confirmation message in the detected language that summarizes the items found. Example: 'I found 3 items: 1 kg Onions, 2 dozen Eggs, and Milk.'"
+    ),
 });
 export type ListParserOutput = z.infer<typeof ListParserOutputSchema>;

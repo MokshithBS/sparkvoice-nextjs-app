@@ -20,13 +20,14 @@ const voiceListParserPrompt = ai.definePrompt({
   name: 'voiceListParserPrompt',
   input: {schema: VoiceListParserInputSchema},
   output: {schema: ListParserOutputSchema},
-  prompt: `You are an expert shopping assistant for an Indian e-commerce platform. Your task is to accurately transcribe the provided audio recording of a shopping list and convert it into a structured list of products and quantities.
+  prompt: `You are an expert shopping assistant for an Indian e-commerce platform. Your task is to accurately transcribe the provided audio recording of a shopping list, identify the language, and convert it into a structured list of products and quantities.
 
 - Analyze the audio provided: {{media url=audioDataUri}}
 - The list is from an Indian user, so be aware of common grocery items, units (like kg, g, l, dozen), and local terms or languages (like Hindi or Hinglish).
-- Transcribe the spoken list.
-- Extract each item and its corresponding quantity from the transcription. If no quantity is specified, assume "1".
-- Structure the output as a JSON object matching the provided schema. Do not return anything else.`,
+- **Language Detection & Transcription**: First, transcribe the spoken list. As you do, determine the primary language being spoken. Set the \`detectedLanguage\` field in your output to the appropriate BCP-47 code (e.g., 'hi', 'en-IN', 'ta').
+- **Item Extraction**: From the transcription, extract each item and its corresponding quantity. If no quantity is specified, assume "1".
+- **Confirmation Message**: Generate a natural, friendly confirmation message in the detected language that summarizes the items you found. Set this in the \`confirmationText\` field.
+- Structure the entire output as a single JSON object matching the provided schema. Do not return anything else.`,
 });
 
 const voiceListParserFlow = ai.defineFlow(
@@ -37,6 +38,9 @@ const voiceListParserFlow = ai.defineFlow(
   },
   async (input) => {
     const {output} = await voiceListParserPrompt(input);
-    return output || { items: [] };
+    if (!output) {
+        throw new Error("The AI failed to generate a valid response.");
+    }
+    return output;
   }
 );

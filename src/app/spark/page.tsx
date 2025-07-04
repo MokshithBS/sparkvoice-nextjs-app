@@ -32,6 +32,7 @@ function SparkPageComponent() {
   const [isRecording, setIsRecording] = useState(false);
   const [isGeneratingSpeech, setIsGeneratingSpeech] = useState(false);
   const [confirmationAudio, setConfirmationAudio] = useState<string | null>(null);
+  const [confirmationText, setConfirmationText] = useState<string | null>(null);
   
   const { toast } = useToast();
   const { addToCartBatch } = useCart();
@@ -58,6 +59,7 @@ function SparkPageComponent() {
     setIsLoading(false);
     setIsGeneratingSpeech(false);
     setConfirmationAudio(null);
+    setConfirmationText(null);
     if (isCameraOpen) handleCloseCamera();
   }, [isCameraOpen, handleCloseCamera]);
 
@@ -112,7 +114,7 @@ function SparkPageComponent() {
   };
 
   const processAndConfirmList = async (result: ListParserOutput) => {
-    if (result.items.length === 0) {
+    if (!result || result.items.length === 0) {
         toast({
             variant: 'destructive',
             title: 'No items found',
@@ -123,10 +125,11 @@ function SparkPageComponent() {
     }
 
     setParsedItems(result.items);
+    setConfirmationText(result.confirmationText);
     setIsGeneratingSpeech(true);
-    const confirmationText = `I found ${result.items.length} items. They are: ${result.items.map(i => `${i.quantity} ${i.product}`).join(', ')}. Please review the list below and make any changes.`;
+    
     try {
-      const audioUri = await generateSpeech(confirmationText);
+      const audioUri = await generateSpeech(result.confirmationText);
       setConfirmationAudio(audioUri);
     } catch (error) {
       console.error('Error generating speech:', error);
@@ -153,6 +156,7 @@ function SparkPageComponent() {
     setIsLoading(true);
     setParsedItems([]);
     setConfirmationAudio(null);
+    setConfirmationText(null);
 
     try {
       const result = await parseList({ photoDataUri });
@@ -182,6 +186,7 @@ function SparkPageComponent() {
     setIsLoading(true);
     setParsedItems([]);
     setConfirmationAudio(null);
+    setConfirmationText(null);
 
     try {
       const result = await parseTextList({ textList });
@@ -238,6 +243,7 @@ function SparkPageComponent() {
     setIsLoading(true);
     setParsedItems([]);
     setConfirmationAudio(null);
+    setConfirmationText(null);
     try {
       const result = await parseVoiceList({ audioDataUri });
       await processAndConfirmList(result);
@@ -337,6 +343,7 @@ function SparkPageComponent() {
   const startOver = () => {
     setParsedItems([]);
     setConfirmationAudio(null);
+    setConfirmationText(null);
   }
 
   return (
@@ -502,11 +509,11 @@ function SparkPageComponent() {
                     </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  {confirmationAudio && (
+                  {(confirmationAudio || confirmationText) && (
                       <div className="flex items-center gap-4 p-3 bg-secondary rounded-lg">
-                          <Volume2 className="text-primary" />
-                          <p className="flex-1 text-sm text-secondary-foreground">Listen to your list for confirmation.</p>
-                          <audio ref={audioRef} src={confirmationAudio} controls className="h-8" />
+                          <Volume2 className="text-primary flex-shrink-0" />
+                          <p className="flex-1 text-sm text-secondary-foreground">{confirmationText}</p>
+                          {confirmationAudio && <audio ref={audioRef} src={confirmationAudio} controls className="h-8" />}
                       </div>
                   )}
                   {isGeneratingSpeech && (
