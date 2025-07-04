@@ -27,10 +27,13 @@ export const TextListParserInputSchema = z.object({
 });
 export type TextListParserInput = z.infer<typeof TextListParserInputSchema>;
 
+export const ListParserOutputItemSchema = z.object({
+  product: z.string().describe('The name of the product identified, e.g., "Milk" or "Basmati Rice".'),
+  quantity: z.string().describe('The quantity of the product, e.g., "1L" or "2 kg".'),
+});
+export type ListParserOutputItem = z.infer<typeof ListParserOutputItemSchema>;
+
 export const ListParserOutputSchema = z.object({
-  items: z.array(z.object({
-    product: z.string().describe('The name of the product identified, e.g., "Milk" or "Basmati Rice".'),
-    quantity: z.string().describe('The quantity of the product, e.g., "1L" or "2 kg".'),
-  })).describe("The list of items extracted from the shopping list."),
+  items: z.array(ListParserOutputItemSchema).describe("The list of items extracted from the shopping list."),
 });
 export type ListParserOutput = z.infer<typeof ListParserOutputSchema>;
