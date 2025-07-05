@@ -27,6 +27,7 @@ import {
   DialogFooter,
   DialogClose,
 } from '@/components/ui/dialog';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { CommunityCta } from '@/components/store/community-cta';
@@ -46,7 +47,7 @@ export default function StorePage() {
 
   const [recipeResult, setRecipeResult] = useState<RecipeToCartOutput | null>(null);
   const [recipeDishName, setRecipeDishName] = useState('');
-  const [selectedRecipeItems, setSelectedRecipeItems] = useState<RecipeToCartOutput['items']>([]);
+  const [selectedRecipeItems, setSelectedRecipeItems] = useState<RecipeToCartOutput['shoppableItems']>([]);
   const [recipeInput, setRecipeInput] = useState<RecipeInput>({
     dishName: '',
     servingSize: '4',
@@ -145,9 +146,9 @@ export default function StorePage() {
             specialRequests: recipeInput.specialRequests,
             availableProducts: availableProductsForAI,
         });
-        if (result.items.length > 0) {
+        if (result.shoppableItems.length > 0) {
             setRecipeResult(result);
-            setSelectedRecipeItems(result.items); // Select all by default
+            setSelectedRecipeItems(result.shoppableItems); // Select all by default
         } else {
             toast({
                 variant: 'destructive',
@@ -167,7 +168,7 @@ export default function StorePage() {
     }
   };
   
-  const handleRecipeItemToggle = (item: RecipeToCartOutput['items'][0]) => {
+  const handleRecipeItemToggle = (item: RecipeToCartOutput['shoppableItems'][0]) => {
     setSelectedRecipeItems(prev =>
       prev.some(i => i.product === item.product)
         ? prev.filter(i => i.product !== item.product)
@@ -177,7 +178,7 @@ export default function StorePage() {
 
   const handleSelectAllRecipeItems = (checked: boolean) => {
     if (checked) {
-      setSelectedRecipeItems(recipeResult?.items || []);
+      setSelectedRecipeItems(recipeResult?.shoppableItems || []);
     } else {
       setSelectedRecipeItems([]);
     }
@@ -264,41 +265,69 @@ export default function StorePage() {
       </div>
 
        <Dialog open={!!recipeResult} onOpenChange={(isOpen) => !isOpen && closeRecipeDialog()}>
-        <DialogContent>
+        <DialogContent className="max-w-lg">
           <DialogHeader>
-            <DialogTitle>Ingredients for {recipeDishName}</DialogTitle>
+            <DialogTitle>Recipe for {recipeDishName}</DialogTitle>
             <DialogDescription>
-              Select the ingredients you need. We also found a video to help you cook!
+              Review your shopping list and the recipe instructions below.
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-3 pr-2 my-4">
-             <div className="flex items-center space-x-3 border-b pb-2 mb-2">
-                <Checkbox
-                    id="select-all"
-                    checked={!!recipeResult && recipeResult.items.length === selectedRecipeItems.length && selectedRecipeItems.length > 0}
-                    onCheckedChange={(checked) => handleSelectAllRecipeItems(!!checked)}
-                />
-                <Label htmlFor="select-all" className="font-medium text-sm">
-                    Select All
-                </Label>
-            </div>
-            <div className="max-h-60 overflow-y-auto space-y-3">
-                {recipeResult?.items.map((item, index) => (
-                <div key={index} className="flex items-center space-x-3">
-                    <Checkbox 
-                        id={`item-${index}`} 
-                        checked={selectedRecipeItems.some(selected => selected.product === item.product)}
-                        onCheckedChange={() => handleRecipeItemToggle(item)}
+
+          <Tabs defaultValue="shopping-list" className="w-full">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="shopping-list">Shopping List ({selectedRecipeItems.length})</TabsTrigger>
+              <TabsTrigger value="recipe">Recipe</TabsTrigger>
+            </TabsList>
+            <TabsContent value="shopping-list" className="mt-4">
+              <div className="space-y-3 pr-2 my-4">
+                <div className="flex items-center space-x-3 border-b pb-2 mb-2">
+                    <Checkbox
+                        id="select-all"
+                        checked={!!recipeResult && recipeResult.shoppableItems.length === selectedRecipeItems.length && selectedRecipeItems.length > 0}
+                        onCheckedChange={(checked) => handleSelectAllRecipeItems(!!checked)}
                     />
-                    <Label htmlFor={`item-${index}`} className="flex justify-between w-full text-sm font-normal cursor-pointer">
-                        <span>{item.product}</span>
-                        <span className="text-muted-foreground">{item.quantity}</span>
+                    <Label htmlFor="select-all" className="font-medium text-sm">
+                        Select All
                     </Label>
                 </div>
-                ))}
-            </div>
-          </div>
-          <DialogFooter className="sm:justify-between gap-2">
+                <div className="max-h-60 overflow-y-auto space-y-3">
+                    {recipeResult?.shoppableItems.map((item, index) => (
+                    <div key={index} className="flex items-center space-x-3">
+                        <Checkbox 
+                            id={`item-${index}`} 
+                            checked={selectedRecipeItems.some(selected => selected.product === item.product)}
+                            onCheckedChange={() => handleRecipeItemToggle(item)}
+                        />
+                        <Label htmlFor={`item-${index}`} className="flex justify-between w-full text-sm font-normal cursor-pointer">
+                            <span>{item.product}</span>
+                            <span className="text-muted-foreground">{item.quantity}</span>
+                        </Label>
+                    </div>
+                    ))}
+                </div>
+              </div>
+            </TabsContent>
+            <TabsContent value="recipe" className="mt-4">
+                <div className="max-h-[22rem] overflow-y-auto space-y-4 pr-4 text-sm">
+                    <div>
+                        <h4 className="font-semibold mb-2 text-base">Ingredients</h4>
+                        <ul className="list-disc list-inside text-muted-foreground space-y-1">
+                            {recipeResult?.ingredients.map((item, index) => (
+                            <li key={index}><span className="font-medium text-foreground">{item.quantity}</span> {item.name}</li>
+                            ))}
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 className="font-semibold mb-2 text-base">Instructions</h4>
+                        <div className="text-muted-foreground whitespace-pre-wrap prose prose-sm">
+                          {recipeResult?.recipeInstructions.split('\n').map((line, index) => <p key={index}>{line}</p>)}
+                        </div>
+                    </div>
+                </div>
+            </TabsContent>
+          </Tabs>
+
+          <DialogFooter className="sm:justify-between gap-2 border-t pt-4">
             <div>
               {recipeResult?.youtubeVideoUrl && (
                 <Button asChild variant="secondary">

@@ -37,8 +37,15 @@ const RecipeToCartInputSchema = z.object({
 });
 export type RecipeToCartInput = z.infer<typeof RecipeToCartInputSchema>;
 
+const RecipeIngredientSchema = z.object({
+    name: z.string().describe("The name of the ingredient, e.g., 'All-Purpose Flour'."),
+    quantity: z.string().describe("The quantity from the recipe, e.g., '2 cups' or '1 tsp'."),
+});
+
 const RecipeToCartOutputSchema = z.object({
-    items: z.array(ListParserOutputItemSchema).describe("The list of items extracted from the shopping list."),
+    shoppableItems: z.array(ListParserOutputItemSchema).describe("The practical, shoppable list of products and their purchasable quantities."),
+    ingredients: z.array(RecipeIngredientSchema).describe("The detailed list of ingredients as they would appear in a recipe book."),
+    recipeInstructions: z.string().describe("The step-by-step cooking instructions for the recipe."),
     detectedLanguage: z
         .string()
         .describe(
@@ -66,21 +73,22 @@ const recipeToCartPrompt = ai.definePrompt({
   output: {schema: RecipeToCartOutputSchema},
   prompt: `You are an expert Indian chef and shopping assistant. A user wants to cook '{{dishName}}'.
 
-Your primary goal is to create a **practical, shoppable grocery list**, not just a recipe's ingredient list.
+Your goal is to provide a complete cooking and shopping experience.
 
 You will be given:
 1.  The dish name: '{{dishName}}'
 2.  The number of servings: {{servingSize}}
-3.  A list of all available products in the store with their standard purchasable sizes.
+3.  A complete list of all products available in the store with their standard purchasable sizes.
 
 Your tasks are:
-1.  **Determine Ingredients**: First, figure out all the ingredients needed for the recipe, adjusted for {{servingSize}} servings.
-2.  **Exclude Pantry Staples**: **Do not** include items that are typically already in a home kitchen pantry. This includes: salt, sugar, water, turmeric powder, chili powder, and basic cooking oil (like sunflower oil), unless a very specific type is required for the dish (e.g., 'mustard oil' for a specific curry).
-3.  **Match to Products**: For each required ingredient, look at the provided list of available products and find the best match.
-4.  **Suggest Purchasable Quantities**: Your final output list must consist of product names and their standard purchasable quantities from the store list (e.g., "Aashirvaad Atta" and "1 kg", NOT "2 cups atta"). For fresh produce like onions or tomatoes that are sold loose, suggest a reasonable standard weight like "500 g" or "1 kg".
-5.  **Generate Confirmation**: Create a friendly confirmation message in English summarizing the list for '{{dishName}}'.
-6.  **Find a Recipe Video**: Search for a popular, highly-rated YouTube video that shows how to cook '{{dishName}}'. The video should be from a reputable Indian cooking channel if possible. Set the full URL in the 'youtubeVideoUrl' field.
-7.  **Return JSON**: Structure the entire output as a single JSON object matching the provided schema.
+1.  **Generate Recipe**: First, create a clear, step-by-step recipe for '{{dishName}}' adjusted for {{servingSize}} servings. This includes a detailed ingredient list (like '2 cups atta', '1 tsp salt') and cooking instructions. Set these in the 'ingredients' and 'recipeInstructions' fields.
+2.  **Create Shoppable List**: From the recipe ingredients, create a practical, **shoppable grocery list** ('shoppableItems').
+3.  **Exclude Pantry Staples from Shopping List**: From the **shoppable list only**, **do not** include items that are typically already in a home kitchen pantry. This includes: salt, sugar, water, turmeric powder, chili powder, and basic cooking oil (like sunflower oil), unless a very specific type is required for the dish (e.g., 'mustard oil'). The main recipe ingredient list ('ingredients') should still include them for completeness.
+4.  **Match to Products**: For each required item on the shoppable list, find the best matching product from the provided list of available store products.
+5.  **Suggest Purchasable Quantities**: Your final shoppable list must consist of product names and their standard purchasable quantities from the store list (e.g., "Aashirvaad Atta" and "1 kg", NOT "2 cups atta"). For fresh produce like onions or tomatoes that are sold loose, suggest a reasonable standard weight like "500 g" or "1 kg".
+6.  **Generate Confirmation**: Create a friendly confirmation message in English summarizing the shoppable list.
+7.  **Find a Recipe Video**: Search for a popular, highly-rated YouTube video that shows how to cook '{{dishName}}'. The video should be from a reputable Indian cooking channel if possible. Set the full URL in the 'youtubeVideoUrl' field.
+8.  **Return JSON**: Structure the entire output as a single JSON object matching the provided schema.
 
 {{#if specialRequests}}
 Please modify the recipe according to the following special requests: {{{specialRequests}}}.
