@@ -96,19 +96,19 @@ export default function SalePage() {
   
   return (
     <>
-      <div className="flex flex-col min-h-dvh bg-gradient-to-br from-gray-900 via-red-900 to-yellow-800 text-white">
-        <header className="sticky top-0 z-50 w-full border-b border-white/10 bg-black/30 backdrop-blur-lg">
+      <div className="flex flex-col min-h-dvh bg-background text-foreground">
+        <header className="sticky top-0 z-50 w-full border-b border-border bg-background/30 backdrop-blur-lg">
           <div className="container mx-auto flex h-16 max-w-4xl items-center justify-between px-4 md:px-6">
-            <Button variant="ghost" size="icon" asChild className="hover:bg-white/10">
+            <Button variant="ghost" size="icon" asChild>
               <Link href="/store">
                 <ArrowLeft />
                 <span className="sr-only">Back to Store</span>
               </Link>
             </Button>
-            <h1 className="text-xl font-bold font-headline flex items-center gap-2 text-yellow-300">
-              <Sparkles className="w-6 h-6 text-yellow-300" />
+            <h1 className="text-xl font-bold font-headline flex items-center gap-2 text-accent">
+              <Sparkles className="w-6 h-6 text-accent" />
               <span>Grand Sparkathon Sale</span>
-              <Sparkles className="w-6 h-6 text-yellow-300" />
+              <Sparkles className="w-6 h-6 text-accent" />
             </h1>
             <div className="w-8"></div>
           </div>
@@ -117,15 +117,15 @@ export default function SalePage() {
         <main className="flex-1 py-8 px-4">
           <div className="container mx-auto max-w-4xl">
             <div className="text-center mb-8">
-                <h2 className="text-3xl font-extrabold tracking-tight text-white drop-shadow-md">Unbeatable Diwali Deals!</h2>
-                <p className="mt-2 text-lg text-yellow-200/80">Grab them before they're gone. Up to 50% OFF on your favorite brands.</p>
+                <h2 className="text-3xl font-extrabold tracking-tight text-foreground drop-shadow-md">Unbeatable Deals!</h2>
+                <p className="mt-2 text-lg text-muted-foreground">Grab them before they're gone. Up to 50% OFF on your favorite brands.</p>
             </div>
 
             {summaryText && (
-                <Alert className="mb-8 bg-yellow-300/10 border-yellow-300/50 text-yellow-200">
-                  <Award className="h-5 w-5 text-yellow-300" />
-                  <AlertTitle className="font-bold text-yellow-200">Deals Curated For You!</AlertTitle>
-                  <AlertDescription className="text-yellow-200/90">
+                <Alert className="mb-8">
+                  <Award className="h-5 w-5 text-primary" />
+                  <AlertTitle className="font-bold">Deals Curated For You!</AlertTitle>
+                  <AlertDescription>
                     {summaryText}
                   </AlertDescription>
                 </Alert>
@@ -133,10 +133,10 @@ export default function SalePage() {
             
             {personalizedSuggestions.length > 0 && (
                 <>
-                    <h3 className="text-2xl font-bold mb-4 text-white">Your Personalized Deals</h3>
+                    <h3 className="text-2xl font-bold mb-4">Your Personalized Deals</h3>
                     <ProductGrid products={personalizedSuggestions} />
-                    <Separator className="my-8 bg-white/20" />
-                    <h3 className="text-2xl font-bold mb-4 text-white">All Sale Items</h3>
+                    <Separator className="my-8 bg-border" />
+                    <h3 className="text-2xl font-bold mb-4">All Sale Items</h3>
                 </>
             )}
             
