@@ -31,6 +31,7 @@ import { useCart } from '@/context/cart-context';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useLanguage } from '@/context/language-context';
 import type { Language } from '@/lib/translations';
+import { translations } from '@/lib/translations';
 import { cn } from '@/lib/utils';
 
 
