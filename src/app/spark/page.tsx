@@ -13,11 +13,11 @@ import { useToast } from '@/hooks/use-toast';
 import { parseList } from '@/ai/flows/list-parser-flow';
 import { parseVoiceList } from '@/ai/flows/voice-list-parser-flow';
 import { parseTextList } from '@/ai/flows/text-list-parser-flow';
-import { generateSpeech } from '@/ai/flows/tts-flow';
-import { generateSparkSaverCart } from '@/ai/flows/spark-saver-flow';
-import { compareBill } from '@/ai/flows/price-match-flow';
+// import { generateSpeech } from '@/ai/flows/tts-flow.ts';
+import { generateSparkSaverCart } from '@/ai/flows/spark-saver-flow.ts';
+import { compareBill } from '@/ai/flows/price-match-flow.ts';
 import { products } from '@/lib/products';
-import { getIngredientsForDish } from '@/ai/flows/recipe-to-cart-flow';
+import { getIngredientsForDish } from '@/ai/flows/recipe-to-cart-flow.ts';
 
 import { type ListParserOutput, type ListParserOutputItem } from '@/ai/schemas/list-parser-schemas';
 import { type PriceMatchOutput } from '@/ai/schemas/price-match-schemas';
@@ -76,8 +76,8 @@ function SparkPageComponent() {
   const [parsedItems, setParsedItems] = useState<ListParserOutput['items']>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
-  const [isGeneratingSpeech, setIsGeneratingSpeech] = useState(false);
-  const [confirmationAudio, setConfirmationAudio] = useState<string | null>(null);
+  // const [isGeneratingSpeech, setIsGeneratingSpeech] = useState(false);
+  // const [confirmationAudio, setConfirmationAudio] = useState<string | null>(null);
   const [confirmationText, setConfirmationText] = useState<string | null>(null);
   const [priceMatchResult, setPriceMatchResult] = useState<PriceMatchOutput | null>(null);
   const [recipeResult, setRecipeResult] = useState<RecipeToCartOutput | null>(null);
@@ -162,8 +162,8 @@ function SparkPageComponent() {
     setPhotoDataUri(null);
     setTextList('');
     setIsLoading(false);
-    setIsGeneratingSpeech(false);
-    setConfirmationAudio(null);
+    // setIsGeneratingSpeech(false);
+    // setConfirmationAudio(null);
     setConfirmationText(null);
     setBudget('');
     setFamilySize('');
@@ -182,14 +182,14 @@ function SparkPageComponent() {
     }
   }, [searchParams, resetState]);
 
-  useEffect(() => {
-    if (confirmationAudio && audioRef.current) {
-      audioRef.current.play().catch(e => console.error("Audio playback failed", e));
-    }
-  }, [confirmationAudio]);
+  // useEffect(() => {
+  //   if (confirmationAudio && audioRef.current) {
+  //     audioRef.current.play().catch(e => console.error("Audio playback failed", e));
+  //   }
+  // }, [confirmationAudio]);
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
-  const audioRef = useRef<HTMLAudioElement>(null);
+  // const audioRef = useRef<HTMLAudioElement>(null);
   const audioChunksRef = useRef<Blob[]>([]);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -251,21 +251,21 @@ function SparkPageComponent() {
       }
     }
 
-    setIsGeneratingSpeech(true);
+    // setIsGeneratingSpeech(true);
     
-    try {
-      const audioUri = await generateSpeech(result.confirmationText);
-      setConfirmationAudio(audioUri);
-    } catch (error) {
-      console.error('Error generating speech:', error);
-      toast({
-        variant: 'destructive',
-        title: 'Audio Confirmation Failed',
-        description: 'We could not generate the audio confirmation for your list.',
-      });
-    } finally {
-      setIsGeneratingSpeech(false);
-    }
+    // try {
+    //   const audioUri = await generateSpeech(result.confirmationText);
+    //   setConfirmationAudio(audioUri);
+    // } catch (error) {
+    //   console.error('Error generating speech:', error);
+    //   toast({
+    //     variant: 'destructive',
+    //     title: 'Audio Confirmation Failed',
+    //     description: 'We could not generate the audio confirmation for your list.',
+    //   });
+    // } finally {
+    //   setIsGeneratingSpeech(false);
+    // }
   };
 
   const handleParseList = async () => {
@@ -550,7 +550,7 @@ function SparkPageComponent() {
 
   const resetViewStates = () => {
     setParsedItems([]);
-    setConfirmationAudio(null);
+    // setConfirmationAudio(null);
     setConfirmationText(null);
     setPriceMatchResult(null);
     setRecipeResult(null);
@@ -629,13 +629,13 @@ function SparkPageComponent() {
                             <div className="flex items-center gap-4 p-3 bg-secondary/20 rounded-lg">
                                 <Volume2 className="text-primary flex-shrink-0" />
                                 <p className="flex-1 text-sm text-secondary-foreground">{confirmationText}</p>
-                                {confirmationAudio && <audio ref={audioRef} src={confirmationAudio} controls className="h-8" />}
+                                {/* {confirmationAudio && <audio ref={audioRef} src={confirmationAudio} controls className="h-8" />}
                                 {isGeneratingSpeech && (
                                     <div className="flex items-center gap-2 text-muted-foreground text-sm">
                                         <Loader2 className="h-4 w-4 animate-spin" />
                                         <span>...</span>
                                     </div>
-                                )}
+                                )} */}
                             </div>
                         )}
                         <div className="space-y-3">
@@ -724,13 +724,13 @@ function SparkPageComponent() {
                              <div className="flex items-center gap-4 p-3 bg-secondary/20 rounded-lg">
                                 <Volume2 className="text-primary flex-shrink-0" />
                                 <p className="flex-1 text-sm text-secondary-foreground">{recipeResult.confirmationText}</p>
-                                {confirmationAudio && <audio ref={audioRef} src={confirmationAudio} controls className="h-8" />}
+                                {/* {confirmationAudio && <audio ref={audioRef} src={confirmationAudio} controls className="h-8" />}
                                 {isGeneratingSpeech && (
                                     <div className="flex items-center gap-2 text-muted-foreground text-sm">
                                         <Loader2 className="h-4 w-4 animate-spin" />
                                         <span>...</span>
                                     </div>
-                                )}
+                                )} */}
                             </div>
                             <div className="space-y-3 mt-4">
                                 <div className="grid grid-cols-[1fr_auto_auto] gap-2 items-center text-sm font-medium text-muted-foreground px-2">
