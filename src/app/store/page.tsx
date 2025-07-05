@@ -31,6 +31,11 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { CommunityCta } from '@/components/store/community-cta';
 
+interface RecipeInput {
+  dishName: string;
+  servingSize: string;
+  specialRequests: string;
+}
 
 export default function StorePage() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -41,6 +46,12 @@ export default function StorePage() {
   const [recipeIngredients, setRecipeIngredients] = useState<ListParserOutputItem[] | null>(null);
   const [recipeDishName, setRecipeDishName] = useState('');
   const [selectedRecipeItems, setSelectedRecipeItems] = useState<ListParserOutputItem[]>([]);
+  const [recipeInput, setRecipeInput] = useState<RecipeInput>({
+    dishName: '',
+    servingSize: '4',
+    specialRequests: '',
+  });
+
 
   const { toast } = useToast();
   const { addToCartBatch } = useCart();
@@ -118,11 +129,19 @@ export default function StorePage() {
     }
   }, [searchQuery, filteredProducts]);
 
-  const handleGetIngredients = async (dishName: string) => {
+  const handleRecipeInputChange = (field: keyof RecipeInput, value: string) => {
+    setRecipeInput(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleGetIngredients = async () => {
     setIsFetchingIngredients(true);
-    setRecipeDishName(dishName);
+    setRecipeDishName(recipeInput.dishName);
     try {
-        const result = await getIngredientsForDish({ dishName });
+        const result = await getIngredientsForDish({
+            dishName: recipeInput.dishName,
+            servingSize: Number(recipeInput.servingSize) || 4,
+            specialRequests: recipeInput.specialRequests,
+        });
         if (result.items.length > 0) {
             setRecipeIngredients(result.items);
             setSelectedRecipeItems(result.items); // Select all by default
@@ -130,7 +149,7 @@ export default function StorePage() {
             toast({
                 variant: 'destructive',
                 title: 'Could not find recipe',
-                description: `We could not find any ingredients for "${dishName}". Please try another dish.`,
+                description: `We could not find any ingredients for "${recipeInput.dishName}". Please try another dish.`,
             });
         }
     } catch (error) {
@@ -229,7 +248,12 @@ export default function StorePage() {
               <RefillReminderCta />
               <CommunityCta />
               <DiwaliBanner />
-              <ShopByRecipe onSubmit={handleGetIngredients} isLoading={isFetchingIngredients} />
+              <ShopByRecipe 
+                recipeInput={recipeInput}
+                onRecipeInputChange={handleRecipeInputChange}
+                onSubmit={handleGetIngredients} 
+                isLoading={isFetchingIngredients} 
+              />
               <CategoryGrid onSelectCategory={handleCategorySelect} />
             </>
           )}
