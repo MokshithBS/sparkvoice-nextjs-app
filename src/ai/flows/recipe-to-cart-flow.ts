@@ -49,7 +49,7 @@ const RecipeToCartOutputSchema = z.object({
         .describe(
         "A complete, natural language confirmation message in the detected language that summarizes the items found."
         ),
-    youtubeVideoUrl: z.string().url().optional().describe("A URL to a popular, relevant YouTube video for the recipe."),
+    youtubeVideoUrl: z.string().optional().describe("A URL to a popular, relevant YouTube video for the recipe."),
 });
 export type RecipeToCartOutput = z.infer<typeof RecipeToCartOutputSchema>;
 
