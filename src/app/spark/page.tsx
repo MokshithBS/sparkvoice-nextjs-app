@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Suspense, useRef, useState, useEffect, useCallback } from 'react';
@@ -16,9 +17,11 @@ import { generateSpeech } from '@/ai/flows/tts-flow';
 import { generateSparkSaverCart } from '@/ai/flows/spark-saver-flow';
 import { compareBill } from '@/ai/flows/price-match-flow';
 import { products } from '@/lib/products';
+import { getIngredientsForDish } from '@/ai/flows/recipe-to-cart-flow';
 
 import { type ListParserOutput, type ListParserOutputItem } from '@/ai/schemas/list-parser-schemas';
 import { type PriceMatchOutput } from '@/ai/schemas/price-match-schemas';
+import { type RecipeToCartOutput } from '@/ai/flows/recipe-to-cart-flow';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -28,7 +31,6 @@ import { useCart } from '@/context/cart-context';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useLanguage } from '@/context/language-context';
 import type { Language } from '@/lib/translations';
-import { translations } from '@/lib/translations';
 
 
 function SparkPageComponent() {
@@ -46,6 +48,8 @@ function SparkPageComponent() {
   const [confirmationAudio, setConfirmationAudio] = useState<string | null>(null);
   const [confirmationText, setConfirmationText] = useState<string | null>(null);
   const [priceMatchResult, setPriceMatchResult] = useState<PriceMatchOutput | null>(null);
+  const [recipeResult, setRecipeResult] = useState<RecipeToCartOutput | null>(null);
+
 
   // SparkSaver state
   const [budget, setBudget] = useState('');
@@ -61,49 +65,57 @@ function SparkPageComponent() {
   const [isCameraOpen, setIsCameraOpen] = useState(false);
   const [hasCameraPermission, setHasCameraPermission] = useState<boolean | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const mediaStreamRef = useRef<MediaStream | null>(null);
   const [languagePrompt, setLanguagePrompt] = useState<{ show: boolean, languageName: string, langCode: Language } | null>(null);
 
   useEffect(() => {
+    // Stop any existing stream when the camera is not supposed to be open.
+    const cleanupStream = () => {
+        if (mediaStreamRef.current) {
+            mediaStreamRef.current.getTracks().forEach((track) => track.stop());
+            mediaStreamRef.current = null;
+        }
+    };
+
     if (!isCameraOpen) {
-        return;
+      cleanupStream();
+      return;
     }
 
-    let mediaStream: MediaStream;
-
     const getCameraPermission = async () => {
-        setHasCameraPermission(null);
-        if (!navigator.mediaDevices?.getUserMedia) {
-            console.error("Camera API not supported in this browser.");
-            toast({ variant: "destructive", title: "Not Supported", description: "Your browser does not support camera access." });
-            setHasCameraPermission(false);
-            return;
-        }
+      setHasCameraPermission(null); // Reset permission state
+      if (!navigator.mediaDevices?.getUserMedia) {
+        console.error("Camera API not supported in this browser.");
+        toast({ variant: "destructive", title: "Not Supported", description: "Your browser does not support camera access." });
+        setHasCameraPermission(false);
+        return;
+      }
 
-        try {
-            mediaStream = await navigator.mediaDevices.getUserMedia({ video: true });
-            if (videoRef.current) {
-                videoRef.current.srcObject = mediaStream;
-            }
-            setHasCameraPermission(true);
-        } catch (error) {
-            console.error("Error accessing camera:", error);
-            setHasCameraPermission(false);
-            toast({
-                variant: 'destructive',
-                title: 'Camera Access Denied',
-                description: 'Please enable camera permissions in your browser settings to use this app.',
-            });
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        mediaStreamRef.current = stream;
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
         }
+        setHasCameraPermission(true);
+      } catch (error) {
+        console.error("Error accessing camera:", error);
+        setHasCameraPermission(false);
+        toast({
+          variant: 'destructive',
+          title: 'Camera Access Denied',
+          description: 'Please enable camera permissions in your browser settings to use this app.',
+        });
+      }
     };
 
     getCameraPermission();
 
+    // The main cleanup function for this effect.
     return () => {
-        if (mediaStream) {
-            mediaStream.getTracks().forEach((track) => track.stop());
-        }
+        cleanupStream();
     };
-}, [isCameraOpen, toast]);
+  }, [isCameraOpen, toast]);
 
 
   const handleCloseCamera = useCallback(() => {
@@ -122,6 +134,7 @@ function SparkPageComponent() {
     setFamilySize('');
     setPreference('Veg');
     setPriceMatchResult(null);
+    setRecipeResult(null);
     setLanguagePrompt(null);
     if (isCameraOpen) handleCloseCamera();
   }, [isCameraOpen, handleCloseCamera]);
@@ -234,8 +247,19 @@ function SparkPageComponent() {
     resetViewStates();
 
     try {
-      const result = await parseList({ photoDataUri });
-      await processAndConfirmList(result);
+      if (context === 'recipe') {
+        const availableProductsForAI = products.map(({ id, name, category, quantity }) => ({ id, name, category, quantity }));
+        const result = await getIngredientsForDish({
+          dishName: `the dish in this image: ${photoDataUri}`, // A bit of a hack for image-based recipe
+          servingSize: 4,
+          specialRequests: '',
+          availableProducts: availableProductsForAI,
+        });
+        setRecipeResult(result);
+      } else {
+        const result = await parseList({ photoDataUri });
+        await processAndConfirmList(result);
+      }
     } catch (error) {
       console.error('Error parsing list:', error);
       toast({
@@ -288,9 +312,40 @@ function SparkPageComponent() {
           const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
           const reader = new FileReader();
           reader.readAsDataURL(audioBlob);
-          reader.onloadend = () => {
+          reader.onloadend = async () => {
             const base64data = reader.result as string;
-            handleParseVoiceList(base64data);
+            if (context === 'recipe') {
+                setIsLoading(true);
+                resetViewStates();
+                try {
+                    const availableProductsForAI = products.map(({ id, name, category, quantity }) => ({ id, name, category, quantity }));
+                    // To "speak" a recipe, we'll first transcribe the audio to text, then pass that text to the recipe flow.
+                    // This is a simplified approach. A more advanced one would have a dedicated voice recipe flow.
+                    const voiceTextResult = await parseVoiceList({ audioDataUri: base64data });
+                    const dishName = voiceTextResult.items.map(i => `${i.product} ${i.quantity}`).join(' ');
+
+                    if (!dishName) {
+                        toast({ variant: 'destructive', title: 'Could not understand dish name', description: 'Please try speaking the name of the dish again.' });
+                        setIsLoading(false);
+                        return;
+                    }
+
+                    const result = await getIngredientsForDish({
+                        dishName: dishName,
+                        servingSize: 4,
+                        specialRequests: '',
+                        availableProducts: availableProductsForAI,
+                    });
+                    setRecipeResult(result);
+                } catch (error) {
+                    console.error("Error getting recipe from voice:", error);
+                    toast({ variant: 'destructive', title: 'Recipe Not Found', description: 'We could not find a recipe for what you said.' });
+                } finally {
+                    setIsLoading(false);
+                }
+            } else {
+                handleParseVoiceList(base64data);
+            }
           };
           audioChunksRef.current = [];
           stream.getTracks().forEach(track => track.stop());
@@ -463,6 +518,7 @@ function SparkPageComponent() {
     setConfirmationAudio(null);
     setConfirmationText(null);
     setPriceMatchResult(null);
+    setRecipeResult(null);
     setLanguagePrompt(null);
   }
 
@@ -475,8 +531,8 @@ function SparkPageComponent() {
     if (languagePrompt) {
       setLanguage(languagePrompt.langCode);
       toast({
-        title: t('language.switched.toast.title', { language: languagePrompt.languageName }),
-        description: t('language.switched.toast.description', { language: languagePrompt.languageName }),
+        title: "Language Switched!",
+        description: `The app is now in ${languagePrompt.languageName}.`,
       });
       setLanguagePrompt(null);
     }
@@ -484,7 +540,8 @@ function SparkPageComponent() {
 
   const hasParsedListResult = parsedItems.length > 0;
   const hasPriceMatchResult = !!priceMatchResult;
-  const showResultPage = hasParsedListResult || hasPriceMatchResult;
+  const hasRecipeResult = !!recipeResult;
+  const showResultPage = hasParsedListResult || hasPriceMatchResult || hasRecipeResult;
 
   const CameraView = ({ onCapture, onClose }: { onCapture: () => void, onClose: () => void }) => (
     <div className="space-y-4 text-center">
@@ -564,7 +621,7 @@ function SparkPageComponent() {
                             </Alert>
                         )}
                         {confirmationText && (
-                            <div className="flex items-center gap-4 p-3 bg-secondary rounded-lg">
+                            <div className="flex items-center gap-4 p-3 bg-secondary/20 rounded-lg">
                                 <Volume2 className="text-primary flex-shrink-0" />
                                 <p className="flex-1 text-sm text-secondary-foreground">{confirmationText}</p>
                                 {confirmationAudio && <audio ref={audioRef} src={confirmationAudio} controls className="h-8" />}
@@ -646,6 +703,52 @@ function SparkPageComponent() {
                     </CardContent>
                     </>
                 )}
+                 {hasRecipeResult && recipeResult && (
+                    <>
+                        <CardHeader>
+                            <CardTitle>Your Recipe & Shopping List</CardTitle>
+                            <CardDescription>
+                                We've generated your recipe and a practical shopping list. Review and add to cart!
+                            </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                             {/* The full recipe result view would go here, which can be complex.
+                                 For now, let's just show the shoppable items and confirmation.
+                                 This can be built out with tabs as requested in other steps.
+                             */}
+                             <div className="flex items-center gap-4 p-3 bg-secondary/20 rounded-lg">
+                                <Volume2 className="text-primary flex-shrink-0" />
+                                <p className="flex-1 text-sm text-secondary-foreground">{recipeResult.confirmationText}</p>
+                                {confirmationAudio && <audio ref={audioRef} src={confirmationAudio} controls className="h-8" />}
+                                {isGeneratingSpeech && (
+                                    <div className="flex items-center gap-2 text-muted-foreground text-sm">
+                                        <Loader2 className="h-4 w-4 animate-spin" />
+                                        <span>...</span>
+                                    </div>
+                                )}
+                            </div>
+                            <div className="space-y-3 mt-4">
+                                <div className="grid grid-cols-[1fr_auto_auto] gap-2 items-center text-sm font-medium text-muted-foreground px-2">
+                                    <span>Product</span>
+                                    <span>Quantity</span>
+                                    <span className="w-8"></span>
+                                </div>
+                                {recipeResult.shoppableItems.map((item, index) => (
+                                <div key={index} className="grid grid-cols-[1fr_auto_auto] gap-2 items-center">
+                                    <Input defaultValue={item.product} className="w-full" aria-label="Product" />
+                                    <Input defaultValue={item.quantity} className="w-24" aria-label="Quantity" />
+                                    <Button variant="ghost" size="icon" onClick={() => handleDeleteItem(index)} aria-label="Delete item"><Trash2 className="h-4 w-4 text-destructive" /></Button>
+                                </div>
+                                ))}
+                            </div>
+                            <div className="flex justify-between items-center pt-4 mt-4 border-t">
+                                <Button variant="outline" onClick={startOver}>Start Over</Button>
+                                <Button onClick={() => handleConfirmList()} size="lg">Add to Cart</Button>
+                            </div>
+                        </CardContent>
+                    </>
+                 )}
+
               </Card>
             </div>
           ) : (
@@ -842,3 +945,5 @@ export default function SparkPage() {
     </Suspense>
   )
 }
+
+    
