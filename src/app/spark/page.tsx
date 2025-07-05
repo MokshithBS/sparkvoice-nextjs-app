@@ -31,7 +31,38 @@ import { useCart } from '@/context/cart-context';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useLanguage } from '@/context/language-context';
 import type { Language } from '@/lib/translations';
+import { cn } from '@/lib/utils';
 
+
+const CameraView = ({ onCapture, onClose, videoRef, hasCameraPermission }: { onCapture: () => void, onClose: () => void, videoRef: React.RefObject<HTMLVideoElement>, hasCameraPermission: boolean | null }) => (
+    <div className="space-y-4 text-center">
+      <div className="relative w-full aspect-video bg-muted rounded-lg overflow-hidden border">
+        <video ref={videoRef} className="w-full h-full object-cover" autoPlay playsInline muted />
+        {hasCameraPermission === false && (
+          <div className="absolute inset-0 flex items-center justify-center p-4 bg-background/80">
+            <Alert variant="destructive">
+              <Camera className="h-4 w-4" />
+              <AlertTitle>Camera Access Denied</AlertTitle>
+              <AlertDescription>
+                Please enable camera access in your browser settings to use this feature.
+              </AlertDescription>
+            </Alert>
+          </div>
+        )}
+        {hasCameraPermission === null && (
+          <div className="absolute inset-0 flex items-center justify-center bg-background/80">
+            <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+          </div>
+        )}
+      </div>
+      <div className="flex justify-center gap-4">
+        <Button onClick={onCapture} size="lg" disabled={!hasCameraPermission}>
+          <Camera className="mr-2" /> Capture
+        </Button>
+        <Button onClick={onClose} variant="outline" size="lg">Cancel</Button>
+      </div>
+    </div>
+  );
 
 function SparkPageComponent() {
   const searchParams = useSearchParams();
@@ -69,52 +100,55 @@ function SparkPageComponent() {
   const [languagePrompt, setLanguagePrompt] = useState<{ show: boolean, languageName: string, langCode: Language } | null>(null);
 
   useEffect(() => {
-    // Stop any existing stream when the camera is not supposed to be open.
     const cleanupStream = () => {
-        if (mediaStreamRef.current) {
-            mediaStreamRef.current.getTracks().forEach((track) => track.stop());
-            mediaStreamRef.current = null;
-        }
+      if (mediaStreamRef.current) {
+        mediaStreamRef.current.getTracks().forEach((track) => track.stop());
+        mediaStreamRef.current = null;
+        if(videoRef.current) videoRef.current.srcObject = null;
+      }
     };
 
-    if (!isCameraOpen) {
-      cleanupStream();
-      return;
-    }
-
-    const getCameraPermission = async () => {
-      setHasCameraPermission(null); // Reset permission state
+    if (isCameraOpen) {
+      setHasCameraPermission(null);
       if (!navigator.mediaDevices?.getUserMedia) {
-        console.error("Camera API not supported in this browser.");
-        toast({ variant: "destructive", title: "Not Supported", description: "Your browser does not support camera access." });
+        console.error('Camera API not supported in this browser.');
+        toast({ variant: 'destructive', title: 'Not Supported', description: 'Your browser does not support camera access.' });
         setHasCameraPermission(false);
         return;
       }
-
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-        mediaStreamRef.current = stream;
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream;
-        }
-        setHasCameraPermission(true);
-      } catch (error) {
-        console.error("Error accessing camera:", error);
-        setHasCameraPermission(false);
-        toast({
-          variant: 'destructive',
-          title: 'Camera Access Denied',
-          description: 'Please enable camera permissions in your browser settings to use this app.',
+      
+      let isCancelled = false;
+      
+      navigator.mediaDevices.getUserMedia({ video: true })
+        .then(stream => {
+          if (isCancelled) {
+            stream.getTracks().forEach(track => track.stop());
+            return;
+          }
+          mediaStreamRef.current = stream;
+          if (videoRef.current) {
+            videoRef.current.srcObject = stream;
+          }
+          setHasCameraPermission(true);
+        })
+        .catch(error => {
+          if (isCancelled) return;
+          console.error('Error accessing camera:', error);
+          setHasCameraPermission(false);
+          toast({
+            variant: 'destructive',
+            title: 'Camera Access Denied',
+            description: 'Please enable camera permissions in your browser settings to use this feature.',
+          });
         });
-      }
-    };
 
-    getCameraPermission();
-
-    // The main cleanup function for this effect.
-    return () => {
+      return () => {
+        isCancelled = true;
         cleanupStream();
-    };
+      };
+    } else {
+        cleanupStream();
+    }
   }, [isCameraOpen, toast]);
 
 
@@ -543,36 +577,6 @@ function SparkPageComponent() {
   const hasRecipeResult = !!recipeResult;
   const showResultPage = hasParsedListResult || hasPriceMatchResult || hasRecipeResult;
 
-  const CameraView = ({ onCapture, onClose }: { onCapture: () => void, onClose: () => void }) => (
-    <div className="space-y-4 text-center">
-      <div className="relative w-full aspect-video bg-muted rounded-lg overflow-hidden border">
-        <video ref={videoRef} className="w-full h-full object-cover" autoPlay playsInline muted />
-        {hasCameraPermission === false && (
-          <div className="absolute inset-0 flex items-center justify-center p-4 bg-background/80">
-            <Alert variant="destructive">
-              <Camera className="h-4 w-4" />
-              <AlertTitle>Camera Access Denied</AlertTitle>
-              <AlertDescription>
-                Please enable camera access in your browser settings to use this feature.
-              </AlertDescription>
-            </Alert>
-          </div>
-        )}
-        {hasCameraPermission === null && (
-          <div className="absolute inset-0 flex items-center justify-center bg-background/80">
-            <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-          </div>
-        )}
-      </div>
-      <div className="flex justify-center gap-4">
-        <Button onClick={onCapture} size="lg" disabled={!hasCameraPermission}>
-          <Camera className="mr-2" /> Capture
-        </Button>
-        <Button onClick={onClose} variant="outline" size="lg">Cancel</Button>
-      </div>
-    </div>
-  );
-
   return (
     <div className="flex flex-col min-h-dvh bg-background">
        <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -777,10 +781,10 @@ function SparkPageComponent() {
                     )}
                   </CardHeader>
                   <CardContent className="space-y-6">
-                  {isCameraOpen ? (
-                     <CameraView onCapture={handleCapture} onClose={handleCloseCamera} />
-                  ) : (
-                    <div className="space-y-6">
+                    <div className={cn(!isCameraOpen && "hidden")}>
+                        <CameraView onCapture={handleCapture} onClose={handleCloseCamera} videoRef={videoRef} hasCameraPermission={hasCameraPermission}/>
+                    </div>
+                    <div className={cn(isCameraOpen && "hidden", "space-y-6")}>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div className="space-y-2">
                           <Label htmlFor="list-photo">Upload from Device</Label>
@@ -800,7 +804,6 @@ function SparkPageComponent() {
                         {isLoading ? ( <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Parsing your list...</> ) : ( <><Sparkles className="mr-2 h-4 w-4" /> Spark It!</> )}
                       </Button>
                     </div>
-                  )}
                   </CardContent>
                 </Card>
               </TabsContent>
@@ -812,10 +815,10 @@ function SparkPageComponent() {
                     <CardDescription>Upload a photo of a recent grocery bill to see if you could have saved money with us.</CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-6">
-                  {isCameraOpen ? (
-                      <CameraView onCapture={handleCapture} onClose={handleCloseCamera} />
-                  ) : (
-                    <div className="space-y-6">
+                    <div className={cn(!isCameraOpen && "hidden")}>
+                        <CameraView onCapture={handleCapture} onClose={handleCloseCamera} videoRef={videoRef} hasCameraPermission={hasCameraPermission}/>
+                    </div>
+                    <div className={cn(isCameraOpen && "hidden", "space-y-6")}>
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div className="space-y-2">
                           <Label htmlFor="bill-photo">Upload Bill Photo</Label>
@@ -835,7 +838,6 @@ function SparkPageComponent() {
                         {isLoading ? ( <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Analyzing your bill...</> ) : ( <><Sparkles className="mr-2 h-4 w-4" /> Compare Prices</> )}
                       </Button>
                     </div>
-                  )}
                   </CardContent>
                 </Card>
               </TabsContent>
@@ -945,5 +947,3 @@ export default function SparkPage() {
     </Suspense>
   )
 }
-
-    
