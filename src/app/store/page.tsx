@@ -1,5 +1,6 @@
 'use client';
 import { useState, useMemo, useEffect } from 'react';
+import Link from 'next/link';
 import { DiwaliBanner } from '@/components/store/diwali-banner';
 import { LocationHeader } from '@/components/store/location-header';
 import { SearchBar } from '@/components/store/search-bar';
@@ -11,11 +12,10 @@ import { SparkVoiceCta } from '@/components/store/spark-voice-cta';
 import { SparkSaverCta } from '@/components/store/spark-saver-cta';
 import { RefillReminderCta } from '@/components/store/refill-reminder-cta';
 import { suggestProducts } from '@/ai/flows/product-suggester-flow';
-import { Loader2, ArrowLeft, ChefHat } from 'lucide-react';
+import { Loader2, ArrowLeft, ChefHat, Youtube } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ShopByRecipe } from '@/components/store/shop-by-recipe';
-import { getIngredientsForDish } from '@/ai/flows/recipe-to-cart-flow';
-import type { ListParserOutputItem } from '@/ai/schemas/list-parser-schemas';
+import { getIngredientsForDish, type RecipeToCartOutput } from '@/ai/flows/recipe-to-cart-flow';
 import { useToast } from '@/hooks/use-toast';
 import { useCart } from '@/context/cart-context';
 import {
@@ -43,9 +43,10 @@ export default function StorePage() {
   const [suggestedProducts, setSuggestedProducts] = useState<Product[]>([]);
   const [isSuggesting, setIsSuggesting] = useState(false);
   const [isFetchingIngredients, setIsFetchingIngredients] = useState(false);
-  const [recipeIngredients, setRecipeIngredients] = useState<ListParserOutputItem[] | null>(null);
+
+  const [recipeResult, setRecipeResult] = useState<RecipeToCartOutput | null>(null);
   const [recipeDishName, setRecipeDishName] = useState('');
-  const [selectedRecipeItems, setSelectedRecipeItems] = useState<ListParserOutputItem[]>([]);
+  const [selectedRecipeItems, setSelectedRecipeItems] = useState<RecipeToCartOutput['items']>([]);
   const [recipeInput, setRecipeInput] = useState<RecipeInput>({
     dishName: '',
     servingSize: '4',
@@ -145,7 +146,7 @@ export default function StorePage() {
             availableProducts: availableProductsForAI,
         });
         if (result.items.length > 0) {
-            setRecipeIngredients(result.items);
+            setRecipeResult(result);
             setSelectedRecipeItems(result.items); // Select all by default
         } else {
             toast({
@@ -166,7 +167,7 @@ export default function StorePage() {
     }
   };
   
-  const handleRecipeItemToggle = (item: ListParserOutputItem) => {
+  const handleRecipeItemToggle = (item: RecipeToCartOutput['items'][0]) => {
     setSelectedRecipeItems(prev =>
       prev.some(i => i.product === item.product)
         ? prev.filter(i => i.product !== item.product)
@@ -176,7 +177,7 @@ export default function StorePage() {
 
   const handleSelectAllRecipeItems = (checked: boolean) => {
     if (checked) {
-      setSelectedRecipeItems(recipeIngredients || []);
+      setSelectedRecipeItems(recipeResult?.items || []);
     } else {
       setSelectedRecipeItems([]);
     }
@@ -189,15 +190,14 @@ export default function StorePage() {
         title: 'Ingredients Added!',
         description: `We've added ${selectedRecipeItems.length} items for ${recipeDishName} to your cart.`,
       });
-      setRecipeIngredients(null);
-      setSelectedRecipeItems([]);
-      setRecipeDishName('');
+      closeRecipeDialog();
     }
   };
 
   const closeRecipeDialog = () => {
-      setRecipeIngredients(null);
+      setRecipeResult(null);
       setSelectedRecipeItems([]);
+      setRecipeDishName('');
   }
 
   return (
@@ -263,19 +263,19 @@ export default function StorePage() {
         <ShoppingList />
       </div>
 
-       <Dialog open={!!recipeIngredients} onOpenChange={(isOpen) => !isOpen && closeRecipeDialog()}>
+       <Dialog open={!!recipeResult} onOpenChange={(isOpen) => !isOpen && closeRecipeDialog()}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Ingredients for {recipeDishName}</DialogTitle>
             <DialogDescription>
-              Select the ingredients you need and add them to your cart.
+              Select the ingredients you need. We also found a video to help you cook!
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-3 pr-2 my-4">
              <div className="flex items-center space-x-3 border-b pb-2 mb-2">
                 <Checkbox
                     id="select-all"
-                    checked={recipeIngredients?.length === selectedRecipeItems.length && selectedRecipeItems.length > 0}
+                    checked={!!recipeResult && recipeResult.items.length === selectedRecipeItems.length && selectedRecipeItems.length > 0}
                     onCheckedChange={(checked) => handleSelectAllRecipeItems(!!checked)}
                 />
                 <Label htmlFor="select-all" className="font-medium text-sm">
@@ -283,7 +283,7 @@ export default function StorePage() {
                 </Label>
             </div>
             <div className="max-h-60 overflow-y-auto space-y-3">
-                {recipeIngredients?.map((item, index) => (
+                {recipeResult?.items.map((item, index) => (
                 <div key={index} className="flex items-center space-x-3">
                     <Checkbox 
                         id={`item-${index}`} 
@@ -298,13 +298,25 @@ export default function StorePage() {
                 ))}
             </div>
           </div>
-          <DialogFooter>
-            <DialogClose asChild>
-              <Button variant="outline">Cancel</Button>
-            </DialogClose>
-            <Button onClick={handleAddToCartFromRecipe} disabled={selectedRecipeItems.length === 0}>
-                Add {selectedRecipeItems.length} {selectedRecipeItems.length === 1 ? 'Item' : 'Items'} to Cart
-            </Button>
+          <DialogFooter className="sm:justify-between gap-2">
+            <div>
+              {recipeResult?.youtubeVideoUrl && (
+                <Button asChild variant="secondary">
+                  <Link href={recipeResult.youtubeVideoUrl} target="_blank" rel="noopener noreferrer">
+                    <Youtube className="mr-2" />
+                    Watch Recipe Video
+                  </Link>
+                </Button>
+              )}
+            </div>
+            <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2">
+                <DialogClose asChild>
+                  <Button variant="outline">Cancel</Button>
+                </DialogClose>
+                <Button onClick={handleAddToCartFromRecipe} disabled={selectedRecipeItems.length === 0}>
+                    Add {selectedRecipeItems.length} {selectedRecipeItems.length === 1 ? 'Item' : 'Items'} to Cart
+                </Button>
+            </div>
           </DialogFooter>
         </DialogContent>
       </Dialog>

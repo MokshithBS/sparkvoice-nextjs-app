@@ -6,8 +6,7 @@
 
 import {ai} from '@/ai/genkit';
 import {
-  type ListParserOutput,
-  ListParserOutputSchema,
+  ListParserOutputItemSchema,
 } from '@/ai/schemas/list-parser-schemas';
 import {z} from 'genkit';
 
@@ -38,16 +37,33 @@ const RecipeToCartInputSchema = z.object({
 });
 export type RecipeToCartInput = z.infer<typeof RecipeToCartInputSchema>;
 
+const RecipeToCartOutputSchema = z.object({
+    items: z.array(ListParserOutputItemSchema).describe("The list of items extracted from the shopping list."),
+    detectedLanguage: z
+        .string()
+        .describe(
+        "The BCP-47 language code of the input list, e.g., 'en-IN' for Indian English, 'hi' for Hindi."
+        ),
+    confirmationText: z
+        .string()
+        .describe(
+        "A complete, natural language confirmation message in the detected language that summarizes the items found."
+        ),
+    youtubeVideoUrl: z.string().url().optional().describe("A URL to a popular, relevant YouTube video for the recipe."),
+});
+export type RecipeToCartOutput = z.infer<typeof RecipeToCartOutputSchema>;
+
+
 export async function getIngredientsForDish(
   input: RecipeToCartInput
-): Promise<ListParserOutput> {
+): Promise<RecipeToCartOutput> {
   return recipeToCartFlow(input);
 }
 
 const recipeToCartPrompt = ai.definePrompt({
   name: 'recipeToCartPrompt',
   input: {schema: RecipeToCartInputSchema},
-  output: {schema: ListParserOutputSchema},
+  output: {schema: RecipeToCartOutputSchema},
   prompt: `You are an expert Indian chef and shopping assistant. A user wants to cook '{{dishName}}'.
 
 Your primary goal is to create a **practical, shoppable grocery list**, not just a recipe's ingredient list.
@@ -63,7 +79,8 @@ Your tasks are:
 3.  **Match to Products**: For each required ingredient, look at the provided list of available products and find the best match.
 4.  **Suggest Purchasable Quantities**: Your final output list must consist of product names and their standard purchasable quantities from the store list (e.g., "Aashirvaad Atta" and "1 kg", NOT "2 cups atta"). For fresh produce like onions or tomatoes that are sold loose, suggest a reasonable standard weight like "500 g" or "1 kg".
 5.  **Generate Confirmation**: Create a friendly confirmation message in English summarizing the list for '{{dishName}}'.
-6.  **Return JSON**: Structure the entire output as a single JSON object matching the provided schema.
+6.  **Find a Recipe Video**: Search for a popular, highly-rated YouTube video that shows how to cook '{{dishName}}'. The video should be from a reputable Indian cooking channel if possible. Set the full URL in the 'youtubeVideoUrl' field.
+7.  **Return JSON**: Structure the entire output as a single JSON object matching the provided schema.
 
 {{#if specialRequests}}
 Please modify the recipe according to the following special requests: {{{specialRequests}}}.
@@ -78,7 +95,7 @@ const recipeToCartFlow = ai.defineFlow(
   {
     name: 'recipeToCartFlow',
     inputSchema: RecipeToCartInputSchema,
-    outputSchema: ListParserOutputSchema,
+    outputSchema: RecipeToCartOutputSchema,
   },
   async (input) => {
     const {output} = await recipeToCartPrompt(input);
