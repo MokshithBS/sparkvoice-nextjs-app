@@ -137,10 +137,12 @@ export default function StorePage() {
     setIsFetchingIngredients(true);
     setRecipeDishName(recipeInput.dishName);
     try {
+        const availableProductsForAI = products.map(({ id, name, category, quantity }) => ({ id, name, category, quantity }));
         const result = await getIngredientsForDish({
             dishName: recipeInput.dishName,
             servingSize: Number(recipeInput.servingSize) || 4,
             specialRequests: recipeInput.specialRequests,
+            availableProducts: availableProductsForAI,
         });
         if (result.items.length > 0) {
             setRecipeIngredients(result.items);

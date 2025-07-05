@@ -11,6 +11,13 @@ import {
 } from '@/ai/schemas/list-parser-schemas';
 import {z} from 'genkit';
 
+const ProductSchemaForAI = z.object({
+  id: z.number(),
+  name: z.string(),
+  category: z.string(),
+  quantity: z.string(),
+});
+
 const RecipeToCartInputSchema = z.object({
   dishName: z
     .string()
@@ -25,6 +32,9 @@ const RecipeToCartInputSchema = z.object({
     .describe(
       "Any special requests for the recipe, like 'make it Jain', 'less spicy', or 'for a diabetic person'."
     ),
+  availableProducts: z
+    .array(ProductSchemaForAI)
+    .describe('A list of all products available in the store with their standard purchasable quantities (e.g., 1kg, 500ml).'),
 });
 export type RecipeToCartInput = z.infer<typeof RecipeToCartInputSchema>;
 
@@ -40,19 +50,28 @@ const recipeToCartPrompt = ai.definePrompt({
   output: {schema: ListParserOutputSchema},
   prompt: `You are an expert Indian chef and shopping assistant. A user wants to cook '{{dishName}}'.
 
-Your task is to provide a structured list of all the necessary ingredients and their likely quantities for a recipe that serves {{servingSize}} people.
+Your primary goal is to create a **practical, shoppable grocery list**, not just a recipe's ingredient list.
+
+You will be given:
+1.  The dish name: '{{dishName}}'
+2.  The number of servings: {{servingSize}}
+3.  A list of all available products in the store with their standard purchasable sizes.
+
+Your tasks are:
+1.  **Determine Ingredients**: First, figure out all the ingredients needed for the recipe, adjusted for {{servingSize}} servings.
+2.  **Exclude Pantry Staples**: **Do not** include items that are typically already in a home kitchen pantry. This includes: salt, sugar, water, turmeric powder, chili powder, and basic cooking oil (like sunflower oil), unless a very specific type is required for the dish (e.g., 'mustard oil' for a specific curry).
+3.  **Match to Products**: For each required ingredient, look at the provided list of available products and find the best match.
+4.  **Suggest Purchasable Quantities**: Your final output list must consist of product names and their standard purchasable quantities from the store list (e.g., "Aashirvaad Atta" and "1 kg", NOT "2 cups atta"). For fresh produce like onions or tomatoes that are sold loose, suggest a reasonable standard weight like "500 g" or "1 kg".
+5.  **Generate Confirmation**: Create a friendly confirmation message in English summarizing the list for '{{dishName}}'.
+6.  **Return JSON**: Structure the entire output as a single JSON object matching the provided schema.
 
 {{#if specialRequests}}
 Please modify the recipe according to the following special requests: {{{specialRequests}}}.
-For example, if the request is 'Jain', remove all root vegetables like onions and garlic. If it's 'diabetic-friendly', suggest healthier alternatives.
+For example, if the request is 'Jain', remove all root vegetables like onions and garlic.
 {{/if}}
 
-- Be mindful of common Indian cooking practices.
-- Do not include items that are typically already in a home kitchen pantry, such as salt, sugar, water, or basic cooking oil unless a specific type is required (e.g., 'mustard oil' for a specific dish).
-- For each ingredient, provide a product name and a quantity appropriate for {{servingSize}} servings.
-- Generate a friendly confirmation message in English that says "Here are the ingredients for {{dishName}} (serves {{servingSize}})."
-- Set the detectedLanguage to 'en-IN'.
-- Structure the entire output as a single JSON object matching the provided schema. Do not return anything else.`,
+Available Products (JSON format):
+{{{json availableProducts}}}`,
 });
 
 const recipeToCartFlow = ai.defineFlow(
