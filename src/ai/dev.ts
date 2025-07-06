@@ -9,3 +9,4 @@ import './flows/recipe-to-cart-flow.ts';
 import './flows/spark-saver-flow.ts';
 import './flows/price-match-flow.ts';
 import './flows/personalized-sale-flow.ts';
+import './flows/pantry-checker-flow.ts';

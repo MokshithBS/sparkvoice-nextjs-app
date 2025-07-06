@@ -31,6 +31,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { CommunityCta } from '@/components/store/community-cta';
+import { PantryScanCta } from '@/components/store/pantry-scan-cta';
 
 interface RecipeInput {
   dishName: string;
@@ -247,6 +248,7 @@ export default function StorePage() {
           ) : (
             <>
               <SparkVoiceCta />
+              <PantryScanCta />
               <SparkSaverCta />
               <RefillReminderCta />
               <CommunityCta />

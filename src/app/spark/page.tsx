@@ -5,7 +5,7 @@ import { Suspense, useRef, useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { ArrowLeft, Camera, FileText, Loader2, Mic, PiggyBank, Sparkles, StopCircle, Trash2, Video, Volume2, Receipt, AlertCircle, Globe } from 'lucide-react';
+import { ArrowLeft, Camera, FileText, Loader2, Mic, PiggyBank, Sparkles, StopCircle, Trash2, Video, Volume2, Receipt, AlertCircle, Globe, ScanSearch } from 'lucide-react';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 
 import { Button } from '@/components/ui/button';
@@ -16,7 +16,8 @@ import { parseTextList } from '@/ai/flows/text-list-parser-flow';
 // import { generateSpeech } from '@/ai/flows/tts-flow.ts';
 import { generateSparkSaverCart } from '@/ai/flows/spark-saver-flow.ts';
 import { compareBill } from '@/ai/flows/price-match-flow.ts';
-import { products } from '@/lib/products';
+import { checkPantry } from '@/ai/flows/pantry-checker-flow.ts';
+import { products, type Product } from '@/lib/products';
 import { getIngredientsForDish } from '@/ai/flows/recipe-to-cart-flow.ts';
 
 import { type ListParserOutput, type ListParserOutputItem } from '@/ai/schemas/list-parser-schemas';
@@ -33,6 +34,7 @@ import { useLanguage } from '@/context/language-context';
 import type { Language } from '@/lib/translations';
 import { translations } from '@/lib/translations';
 import { cn } from '@/lib/utils';
+import { ProductGrid } from '@/components/store/product-grid';
 
 
 const CameraView = ({ onCapture, onClose, videoRef, hasCameraPermission }: { onCapture: () => void, onClose: () => void, videoRef: React.RefObject<HTMLVideoElement>, hasCameraPermission: boolean | null }) => (
@@ -81,6 +83,8 @@ function SparkPageComponent() {
   const [confirmationText, setConfirmationText] = useState<string | null>(null);
   const [priceMatchResult, setPriceMatchResult] = useState<PriceMatchOutput | null>(null);
   const [recipeResult, setRecipeResult] = useState<RecipeToCartOutput | null>(null);
+  const [pantrySuggestions, setPantrySuggestions] = useState<Product[] | null>(null);
+  const [pantryConfirmation, setPantryConfirmation] = useState<string | null>(null);
 
 
   // SparkSaver state
@@ -170,6 +174,8 @@ function SparkPageComponent() {
     setPreference('Veg');
     setPriceMatchResult(null);
     setRecipeResult(null);
+    setPantrySuggestions(null);
+    setPantryConfirmation(null);
     setLanguagePrompt(null);
     if (isCameraOpen) handleCloseCamera();
   }, [isCameraOpen, handleCloseCamera]);
@@ -492,6 +498,37 @@ function SparkPageComponent() {
     }
   };
 
+  const handlePantryCheck = async () => {
+    if (!photoDataUri) {
+        toast({ variant: 'destructive', title: 'No Pantry Photo', description: 'Please upload or capture a photo of your pantry first.' });
+        return;
+    }
+    setIsLoading(true);
+    resetViewStates();
+    try {
+        const availableProductsForAI = products.map(({ id, name, category }) => ({ id, name, category }));
+        const result = await checkPantry({
+            photoDataUri: photoDataUri,
+            availableProducts: availableProductsForAI
+        });
+        
+        if (!result || !result.suggestionIds || result.suggestionIds.length === 0) {
+            toast({ variant: 'destructive', title: 'Analysis Complete', description: "Looks like you're all stocked up! We couldn't find any low-stock items." });
+            return;
+        }
+
+        const suggested = products.filter(p => result.suggestionIds.includes(p.id));
+        setPantrySuggestions(suggested);
+        setPantryConfirmation(result.confirmationText);
+
+    } catch (error) {
+        console.error("Error checking pantry:", error);
+        toast({ variant: 'destructive', title: 'Analysis Failed', description: 'An error occurred while analyzing your pantry. Please try again.' });
+    } finally {
+        setIsLoading(false);
+    }
+  };
+
 
   const handleOpenCamera = () => {
     setIsCameraOpen(true);
@@ -554,6 +591,8 @@ function SparkPageComponent() {
     setConfirmationText(null);
     setPriceMatchResult(null);
     setRecipeResult(null);
+    setPantrySuggestions(null);
+    setPantryConfirmation(null);
     setLanguagePrompt(null);
   }
 
@@ -576,7 +615,8 @@ function SparkPageComponent() {
   const hasParsedListResult = parsedItems.length > 0;
   const hasPriceMatchResult = !!priceMatchResult;
   const hasRecipeResult = !!recipeResult;
-  const showResultPage = hasParsedListResult || hasPriceMatchResult || hasRecipeResult;
+  const hasPantryResult = !!pantrySuggestions;
+  const showResultPage = hasParsedListResult || hasPriceMatchResult || hasRecipeResult || hasPantryResult;
 
   return (
     <div className="flex flex-col min-h-dvh bg-background">
@@ -753,15 +793,40 @@ function SparkPageComponent() {
                         </CardContent>
                     </>
                  )}
+                {hasPantryResult && pantrySuggestions && (
+                    <>
+                        <CardHeader>
+                            <CardTitle>Pantry Scan Results</CardTitle>
+                            <CardDescription>
+                                We scanned your pantry and suggest restocking these items.
+                            </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            {pantryConfirmation && (
+                                <Alert className="mb-4">
+                                    <AlertCircle className="h-4 w-4" />
+                                    <AlertTitle>AI Suggestion</AlertTitle>
+                                    <AlertDescription>{pantryConfirmation}</AlertDescription>
+                                </Alert>
+                            )}
+                            <ProductGrid products={pantrySuggestions} />
+                             <div className="flex justify-between items-center pt-6 mt-4 border-t">
+                                <Button variant="outline" onClick={startOver}>Scan Again</Button>
+                                <Button onClick={() => router.push('/cart')} size="lg">Go to Cart</Button>
+                            </div>
+                        </CardContent>
+                    </>
+                )}
 
               </Card>
             </div>
           ) : (
             <Tabs value={activeTab} className="w-full" onValueChange={handleTabChange}>
-              <TabsList className="grid w-full grid-cols-5">
+              <TabsList className="grid w-full grid-cols-6">
                 <TabsTrigger value="scan" className="gap-2"><Camera /> Scan</TabsTrigger>
                 <TabsTrigger value="saver" className="gap-2"><PiggyBank /> SparkSaver</TabsTrigger>
                 <TabsTrigger value="match" className="gap-2"><Receipt /> Price Match</TabsTrigger>
+                <TabsTrigger value="pantry" className="gap-2"><ScanSearch /> Pantry</TabsTrigger>
                 <TabsTrigger value="speak" className="gap-2"><Mic /> Speak</TabsTrigger>
                 <TabsTrigger value="type" className="gap-2"><FileText /> Type</TabsTrigger>
               </TabsList>
@@ -782,29 +847,72 @@ function SparkPageComponent() {
                     )}
                   </CardHeader>
                   <CardContent className="space-y-6">
-                    <div className={cn(!isCameraOpen && "hidden")}>
-                        <CameraView onCapture={handleCapture} onClose={handleCloseCamera} videoRef={videoRef} hasCameraPermission={hasCameraPermission}/>
+                    <div className={cn("space-y-6", isCameraOpen && "hidden")}>
+                        <div className="relative aspect-video w-full flex items-center justify-center bg-muted rounded-lg border-2 border-dashed">
+                        {photoDataUri ? (
+                            <Image src={photoDataUri} alt="Preview" fill className="object-contain rounded-lg" />
+                        ) : (
+                            <p className="text-muted-foreground">Image preview will appear here</p>
+                        )}
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <Label htmlFor="list-photo" className="sr-only">Upload from Device</Label>
+                            <Button asChild variant="outline" className="w-full">
+                                <label htmlFor="list-photo-scan" className="cursor-pointer">
+                                    <FileText className="mr-2" /> Upload Photo
+                                </label>
+                            </Button>
+                            <Input id="list-photo-scan" type="file" accept="image/*" className="sr-only" onChange={handleFileChange} disabled={isLoading}/>
+                        </div>
+                        <Button onClick={handleOpenCamera} variant="outline" disabled={isLoading}>
+                            <Camera className="mr-2" /> Open Camera
+                        </Button>
+                        </div>
+                        <Button onClick={handleParseList} disabled={isLoading || !photoDataUri} className="w-full" size="lg">
+                            {isLoading ? ( <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Parsing your list...</> ) : ( <><Sparkles className="mr-2 h-4 w-4" /> Spark It!</> )}
+                        </Button>
                     </div>
-                    <div className={cn(isCameraOpen && "hidden", "space-y-6")}>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                          <Label htmlFor="list-photo">Upload from Device</Label>
-                          <Input id="list-photo" type="file" accept="image/*" onChange={handleFileChange} className="file:text-foreground" disabled={isLoading}/>
-                        </div>
-                        <div className="flex flex-col space-y-2">
-                          <Label>Or Use Camera</Label>
-                          <Button onClick={handleOpenCamera} variant="outline" disabled={isLoading} className="w-full"><Video className="mr-2" /> Open Camera</Button>
-                        </div>
-                      </div>
-                      
-                      {photoDataUri ? (
-                        <div className="flex justify-center"><Image src={photoDataUri} alt="Shopping list preview" width={400} height={300} className="rounded-lg object-contain border"/></div>
-                      ) : ( <div className="flex items-center justify-center h-48 bg-muted rounded-lg border-dashed border-2"><p className="text-muted-foreground">Image preview will appear here</p></div>)}
 
-                      <Button onClick={handleParseList} disabled={isLoading || !photoDataUri} className="w-full" size="lg">
-                        {isLoading ? ( <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Parsing your list...</> ) : ( <><Sparkles className="mr-2 h-4 w-4" /> Spark It!</> )}
-                      </Button>
+                    {isCameraOpen && <CameraView onCapture={handleCapture} onClose={handleCloseCamera} videoRef={videoRef} hasCameraPermission={hasCameraPermission} />}
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="pantry">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">Scan Your Pantry</CardTitle>
+                    <CardDescription>Take a picture of your pantry or fridge, and our AI will suggest what you need to restock.</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-6">
+                    <div className={cn("space-y-6", isCameraOpen && "hidden")}>
+                        <div className="relative aspect-video w-full flex items-center justify-center bg-muted rounded-lg border-2 border-dashed">
+                        {photoDataUri ? (
+                            <Image src={photoDataUri} alt="Pantry preview" fill className="object-contain rounded-lg" />
+                        ) : (
+                            <p className="text-muted-foreground">Image preview will appear here</p>
+                        )}
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <Label htmlFor="pantry-photo" className="sr-only">Upload from Device</Label>
+                             <Button asChild variant="outline" className="w-full">
+                                <label htmlFor="pantry-photo-upload" className="cursor-pointer">
+                                    <FileText className="mr-2" /> Upload Photo
+                                </label>
+                            </Button>
+                            <Input id="pantry-photo-upload" type="file" accept="image/*" className="sr-only" onChange={handleFileChange} disabled={isLoading}/>
+                        </div>
+                        <Button onClick={handleOpenCamera} variant="outline" disabled={isLoading}>
+                            <Camera className="mr-2" /> Open Camera
+                        </Button>
+                        </div>
+                        <Button onClick={handlePantryCheck} disabled={isLoading || !photoDataUri} className="w-full" size="lg">
+                            {isLoading ? ( <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Analyzing your pantry...</> ) : ( <><Sparkles className="mr-2 h-4 w-4" /> Check Pantry</> )}
+                        </Button>
                     </div>
+                     {isCameraOpen && <CameraView onCapture={handleCapture} onClose={handleCloseCamera} videoRef={videoRef} hasCameraPermission={hasCameraPermission} />}
                   </CardContent>
                 </Card>
               </TabsContent>
@@ -816,29 +924,33 @@ function SparkPageComponent() {
                     <CardDescription>Upload a photo of a recent grocery bill to see if you could have saved money with us.</CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-6">
-                    <div className={cn(!isCameraOpen && "hidden")}>
-                        <CameraView onCapture={handleCapture} onClose={handleCloseCamera} videoRef={videoRef} hasCameraPermission={hasCameraPermission}/>
-                    </div>
-                    <div className={cn(isCameraOpen && "hidden", "space-y-6")}>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                          <Label htmlFor="bill-photo">Upload Bill Photo</Label>
-                          <Input id="bill-photo" type="file" accept="image/*" onChange={handleFileChange} className="file:text-foreground" disabled={isLoading}/>
+                    <div className={cn("space-y-6", isCameraOpen && "hidden")}>
+                        <div className="relative aspect-video w-full flex items-center justify-center bg-muted rounded-lg border-2 border-dashed">
+                        {photoDataUri ? (
+                            <Image src={photoDataUri} alt="Bill preview" fill className="object-contain rounded-lg" />
+                        ) : (
+                            <p className="text-muted-foreground">Bill preview will appear here</p>
+                        )}
                         </div>
-                        <div className="flex flex-col space-y-2">
-                          <Label>Or Use Camera</Label>
-                          <Button onClick={handleOpenCamera} variant="outline" disabled={isLoading} className="w-full"><Video className="mr-2" /> Open Camera</Button>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                             <Label htmlFor="bill-photo" className="sr-only">Upload Bill Photo</Label>
+                            <Button asChild variant="outline" className="w-full">
+                                <label htmlFor="bill-photo-upload" className="cursor-pointer">
+                                    <FileText className="mr-2" /> Upload Photo
+                                </label>
+                            </Button>
+                            <Input id="bill-photo-upload" type="file" accept="image/*" className="sr-only" onChange={handleFileChange} disabled={isLoading}/>
                         </div>
-                      </div>
-                      
-                      {photoDataUri ? (
-                        <div className="flex justify-center"><Image src={photoDataUri} alt="Bill preview" width={400} height={300} className="rounded-lg object-contain border"/></div>
-                      ) : ( <div className="flex items-center justify-center h-48 bg-muted rounded-lg border-dashed border-2"><p className="text-muted-foreground">Bill preview will appear here</p></div>)}
-
-                      <Button onClick={handlePriceMatch} disabled={isLoading || !photoDataUri} className="w-full" size="lg">
-                        {isLoading ? ( <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Analyzing your bill...</> ) : ( <><Sparkles className="mr-2 h-4 w-4" /> Compare Prices</> )}
-                      </Button>
+                        <Button onClick={handleOpenCamera} variant="outline" disabled={isLoading}>
+                            <Camera className="mr-2" /> Open Camera
+                        </Button>
+                        </div>
+                        <Button onClick={handlePriceMatch} disabled={isLoading || !photoDataUri} className="w-full" size="lg">
+                            {isLoading ? ( <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Analyzing your bill...</> ) : ( <><Sparkles className="mr-2 h-4 w-4" /> Compare Prices</> )}
+                        </Button>
                     </div>
+                     {isCameraOpen && <CameraView onCapture={handleCapture} onClose={handleCloseCamera} videoRef={videoRef} hasCameraPermission={hasCameraPermission} />}
                   </CardContent>
                 </Card>
               </TabsContent>
