@@ -2,7 +2,7 @@
 
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Users } from 'lucide-react';
+import { Sparkles, Users } from 'lucide-react';
 import Link from 'next/link';
 
 export function CommunityCta() {
@@ -10,9 +10,11 @@ export function CommunityCta() {
     <Card className="my-6">
       <CardContent className="p-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
-            <Users className="w-8 h-8 text-primary" />
+            <div className="p-2 bg-primary/10 rounded-lg">
+                <Sparkles className="w-6 h-6 text-primary" />
+            </div>
             <div>
-                <h3 className="font-bold font-headline text-foreground">Community Buys</h3>
+                <h3 className="font-bold font-headline text-foreground">SparkHives</h3>
                 <p className="text-sm text-muted-foreground">
                     Shop together with neighbours, save more!
                 </p>
@@ -20,7 +22,7 @@ export function CommunityCta() {
         </div>
         <Button asChild>
           <Link href="/community">
-            Start a Group
+            Explore Hives
           </Link>
         </Button>
       </CardContent>
