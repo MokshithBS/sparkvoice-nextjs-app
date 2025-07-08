@@ -69,21 +69,38 @@ export function CartProvider({ children }: { children: ReactNode }) {
     const notFoundItems: string[] = [];
 
     items.forEach(parsedItem => {
-        // Use the English translation for searching, but the original for display if not found.
-        const searchName = parsedItem.englishProduct || parsedItem.product;
-        const foundProduct = products.find(p => p.name.toLowerCase().includes(searchName.toLowerCase()));
+        const searchName = (parsedItem.englishProduct || parsedItem.product).toLowerCase();
+        const searchQuantity = parsedItem.quantity.toLowerCase();
+
+        // Attempt to find the best matching product from the available list by matching name and quantity/size.
+        let foundProduct = products.find(p => 
+            p.name.toLowerCase().includes(searchName) && p.quantity.toLowerCase() === searchQuantity
+        );
+
+        // If no exact match, try a more fuzzy match on the name that might include the quantity.
+        if (!foundProduct) {
+            foundProduct = products.find(p => p.name.toLowerCase().includes(searchName) && p.name.toLowerCase().includes(searchQuantity));
+        }
+
+        // If still not found, fall back to matching just the name. This is less accurate but better than nothing.
+        if (!foundProduct) {
+            foundProduct = products.find(p => p.name.toLowerCase().includes(searchName));
+        }
         
         if (foundProduct) {
-            const quantity = parseInt(parsedItem.quantity.match(/\d+/)?.[0] || '1', 10);
-            
-            const existingProductInBatch = productsToAdd.find(p => p.id === foundProduct.id);
-             if (existingProductInBatch) {
-                existingProductInBatch.cartQuantity += quantity;
+            // Each line item from the AI corresponds to ONE unit of that product.
+            const quantityToAdd = 1;
+
+            const existingProductInBatch = productsToAdd.find(p => p.id === foundProduct!.id);
+            if (existingProductInBatch) {
+                existingProductInBatch.cartQuantity += quantityToAdd;
             } else {
-                 productsToAdd.push({ ...foundProduct, cartQuantity: quantity });
+                // When adding a new item, use the sale price if it exists.
+                const cartPrice = foundProduct.salePrice ?? foundProduct.price;
+                productsToAdd.push({ ...foundProduct, price: cartPrice, cartQuantity: quantityToAdd });
             }
         } else {
-            notFoundItems.push(parsedItem.product); // Show original product name in error message
+            notFoundItems.push(`${parsedItem.product} ${parsedItem.quantity}`);
         }
     });
 
