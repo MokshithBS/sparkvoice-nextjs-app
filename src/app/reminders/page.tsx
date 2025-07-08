@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -28,13 +29,13 @@ export default function RemindersPage() {
     }
     
     setIsSubmitting(true);
-    // Simulate API call
+    // Simulate API call to set up essentials list and reminders
     setTimeout(() => {
         setIsSubmitting(false);
         setIsSubmitted(true);
         toast({
             title: 'Reminders Enabled!',
-            description: "We'll send smart refill reminders to your WhatsApp.",
+            description: "We'll send smart refill reminders for your essential items to your WhatsApp.",
         });
     }, 1500);
   };
@@ -51,7 +52,7 @@ export default function RemindersPage() {
                 </Button>
                 <h1 className="text-xl font-bold font-headline flex items-center gap-2">
                     <BellRing className="w-6 h-6 text-primary" />
-                    <span>Refill Reminders</span>
+                    <span>My Essentials Reminders</span>
                 </h1>
                 <div className="w-8"></div>
             </div>
@@ -63,7 +64,7 @@ export default function RemindersPage() {
                     <CardHeader>
                         <CardTitle>Smart Refill Reminders</CardTitle>
                         <CardDescription>
-                            Based on your past purchases, we'll send you a friendly reminder on WhatsApp before you run out of essentials like rice, oil, or atta. Never forget an item again!
+                            Never run out of your must-have items again. Based on your past purchases, we'll track your essentials like atta, oil, or milk and send a friendly reminder to your WhatsApp just before you're about to run out.
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
@@ -103,7 +104,7 @@ export default function RemindersPage() {
                                     ) : (
                                         <>
                                             <WhatsAppIcon className="mr-2 h-5 w-5" />
-                                            Enable Reminders
+                                            Enable Smart Reminders
                                         </>
                                     )}
                                 </Button>

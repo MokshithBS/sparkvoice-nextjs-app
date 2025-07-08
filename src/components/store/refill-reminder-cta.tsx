@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Card, CardContent } from '@/components/ui/card';
@@ -12,9 +13,9 @@ export function RefillReminderCta() {
         <div className="flex items-center gap-3">
             <BellRing className="w-8 h-8 text-primary" />
             <div>
-                <h3 className="font-bold font-headline text-foreground">Never Run Out Again!</h3>
+                <h3 className="font-bold font-headline text-foreground">My Essentials List</h3>
                 <p className="text-sm text-muted-foreground">
-                    Get smart refill reminders on WhatsApp.
+                    Get smart reminders for your key items.
                 </p>
             </div>
         </div>

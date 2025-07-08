@@ -5,7 +5,7 @@ import { Suspense, useRef, useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { ArrowLeft, Camera, FileText, Loader2, Mic, PiggyBank, Sparkles, StopCircle, Trash2, Video, Volume2, Receipt, AlertCircle, Globe, ScanSearch } from 'lucide-react';
+import { ArrowLeft, Camera, FileText, Loader2, Mic, PiggyBank, Sparkles, StopCircle, Trash2, Video, Volume2, Receipt, AlertCircle, Globe } from 'lucide-react';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 
 import { Button } from '@/components/ui/button';
@@ -13,16 +13,13 @@ import { useToast } from '@/hooks/use-toast';
 import { parseList } from '@/ai/flows/list-parser-flow';
 import { parseVoiceList } from '@/ai/flows/voice-list-parser-flow';
 import { parseTextList } from '@/ai/flows/text-list-parser-flow';
-// import { generateSpeech } from '@/ai/flows/tts-flow.ts';
 import { generateSparkSaverCart } from '@/ai/flows/spark-saver-flow.ts';
 import { compareBill } from '@/ai/flows/price-match-flow.ts';
-import { checkPantry } from '@/ai/flows/pantry-checker-flow.ts';
-import { products, type Product } from '@/lib/products';
-import { getIngredientsForDish } from '@/ai/flows/recipe-to-cart-flow.ts';
+import { products } from '@/lib/products';
+import { getIngredientsForDish, type RecipeToCartOutput } from '@/ai/flows/recipe-to-cart-flow.ts';
 
 import { type ListParserOutput, type ListParserOutputItem } from '@/ai/schemas/list-parser-schemas';
 import { type PriceMatchOutput } from '@/ai/schemas/price-match-schemas';
-import { type RecipeToCartOutput } from '@/ai/flows/recipe-to-cart-flow';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -78,14 +75,9 @@ function SparkPageComponent() {
   const [parsedItems, setParsedItems] = useState<ListParserOutput['items']>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
-  // const [isGeneratingSpeech, setIsGeneratingSpeech] = useState(false);
-  // const [confirmationAudio, setConfirmationAudio] = useState<string | null>(null);
   const [confirmationText, setConfirmationText] = useState<string | null>(null);
   const [priceMatchResult, setPriceMatchResult] = useState<PriceMatchOutput | null>(null);
   const [recipeResult, setRecipeResult] = useState<RecipeToCartOutput | null>(null);
-  const [pantrySuggestions, setPantrySuggestions] = useState<Product[] | null>(null);
-  const [pantryConfirmation, setPantryConfirmation] = useState<string | null>(null);
-
 
   // SparkSaver state
   const [budget, setBudget] = useState('');
@@ -166,16 +158,12 @@ function SparkPageComponent() {
     setPhotoDataUri(null);
     setTextList('');
     setIsLoading(false);
-    // setIsGeneratingSpeech(false);
-    // setConfirmationAudio(null);
     setConfirmationText(null);
     setBudget('');
     setFamilySize('');
     setPreference('Veg');
     setPriceMatchResult(null);
     setRecipeResult(null);
-    setPantrySuggestions(null);
-    setPantryConfirmation(null);
     setLanguagePrompt(null);
     if (isCameraOpen) handleCloseCamera();
   }, [isCameraOpen, handleCloseCamera]);
@@ -188,14 +176,7 @@ function SparkPageComponent() {
     }
   }, [searchParams, resetState]);
 
-  // useEffect(() => {
-  //   if (confirmationAudio && audioRef.current) {
-  //     audioRef.current.play().catch(e => console.error("Audio playback failed", e));
-  //   }
-  // }, [confirmationAudio]);
-
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
-  // const audioRef = useRef<HTMLAudioElement>(null);
   const audioChunksRef = useRef<Blob[]>([]);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -245,7 +226,6 @@ function SparkPageComponent() {
     setParsedItems(result.items);
     setConfirmationText(result.confirmationText);
     
-    // After processing, check language for switch prompt
     if (result.detectedLanguage) {
       const langCode = result.detectedLanguage.split('-')[0] as Language;
       if (langCode !== language && translations[langCode]) {
@@ -256,22 +236,6 @@ function SparkPageComponent() {
         });
       }
     }
-
-    // setIsGeneratingSpeech(true);
-    
-    // try {
-    //   const audioUri = await generateSpeech(result.confirmationText);
-    //   setConfirmationAudio(audioUri);
-    // } catch (error) {
-    //   console.error('Error generating speech:', error);
-    //   toast({
-    //     variant: 'destructive',
-    //     title: 'Audio Confirmation Failed',
-    //     description: 'We could not generate the audio confirmation for your list.',
-    //   });
-    // } finally {
-    //   setIsGeneratingSpeech(false);
-    // }
   };
 
   const handleParseList = async () => {
@@ -291,7 +255,7 @@ function SparkPageComponent() {
       if (context === 'recipe') {
         const availableProductsForAI = products.map(({ id, name, category, quantity }) => ({ id, name, category, quantity }));
         const result = await getIngredientsForDish({
-          dishName: `the dish in this image: ${photoDataUri}`, // A bit of a hack for image-based recipe
+          dishName: `the dish in this image: ${photoDataUri}`,
           servingSize: 4,
           specialRequests: '',
           availableProducts: availableProductsForAI,
@@ -360,8 +324,6 @@ function SparkPageComponent() {
                 resetViewStates();
                 try {
                     const availableProductsForAI = products.map(({ id, name, category, quantity }) => ({ id, name, category, quantity }));
-                    // To "speak" a recipe, we'll first transcribe the audio to text, then pass that text to the recipe flow.
-                    // This is a simplified approach. A more advanced one would have a dedicated voice recipe flow.
                     const voiceTextResult = await parseVoiceList({ audioDataUri: base64data });
                     const dishName = voiceTextResult.items.map(i => `${i.product} ${i.quantity}`).join(' ');
 
@@ -498,38 +460,6 @@ function SparkPageComponent() {
     }
   };
 
-  const handlePantryCheck = async () => {
-    if (!photoDataUri) {
-        toast({ variant: 'destructive', title: 'No Pantry Photo', description: 'Please upload or capture a photo of your pantry first.' });
-        return;
-    }
-    setIsLoading(true);
-    resetViewStates();
-    try {
-        const availableProductsForAI = products.map(({ id, name, category }) => ({ id, name, category }));
-        const result = await checkPantry({
-            photoDataUri: photoDataUri,
-            availableProducts: availableProductsForAI
-        });
-        
-        if (!result || !result.suggestionIds || result.suggestionIds.length === 0) {
-            toast({ variant: 'destructive', title: 'Analysis Complete', description: "Looks like you're all stocked up! We couldn't find any low-stock items." });
-            return;
-        }
-
-        const suggested = products.filter(p => result.suggestionIds.includes(p.id));
-        setPantrySuggestions(suggested);
-        setPantryConfirmation(result.confirmationText);
-
-    } catch (error) {
-        console.error("Error checking pantry:", error);
-        toast({ variant: 'destructive', title: 'Analysis Failed', description: 'An error occurred while analyzing your pantry. Please try again.' });
-    } finally {
-        setIsLoading(false);
-    }
-  };
-
-
   const handleOpenCamera = () => {
     setIsCameraOpen(true);
     setPhotoDataUri(null);
@@ -587,12 +517,9 @@ function SparkPageComponent() {
 
   const resetViewStates = () => {
     setParsedItems([]);
-    // setConfirmationAudio(null);
     setConfirmationText(null);
     setPriceMatchResult(null);
     setRecipeResult(null);
-    setPantrySuggestions(null);
-    setPantryConfirmation(null);
     setLanguagePrompt(null);
   }
 
@@ -615,8 +542,7 @@ function SparkPageComponent() {
   const hasParsedListResult = parsedItems.length > 0;
   const hasPriceMatchResult = !!priceMatchResult;
   const hasRecipeResult = !!recipeResult;
-  const hasPantryResult = !!pantrySuggestions;
-  const showResultPage = hasParsedListResult || hasPriceMatchResult || hasRecipeResult || hasPantryResult;
+  const showResultPage = hasParsedListResult || hasPriceMatchResult || hasRecipeResult;
 
   return (
     <div className="flex flex-col min-h-dvh bg-background">
@@ -669,13 +595,6 @@ function SparkPageComponent() {
                             <div className="flex items-center gap-4 p-3 bg-secondary/20 rounded-lg">
                                 <Volume2 className="text-primary flex-shrink-0" />
                                 <p className="flex-1 text-sm text-secondary-foreground">{confirmationText}</p>
-                                {/* {confirmationAudio && <audio ref={audioRef} src={confirmationAudio} controls className="h-8" />}
-                                {isGeneratingSpeech && (
-                                    <div className="flex items-center gap-2 text-muted-foreground text-sm">
-                                        <Loader2 className="h-4 w-4 animate-spin" />
-                                        <span>...</span>
-                                    </div>
-                                )} */}
                             </div>
                         )}
                         <div className="space-y-3">
@@ -757,20 +676,9 @@ function SparkPageComponent() {
                             </CardDescription>
                         </CardHeader>
                         <CardContent>
-                             {/* The full recipe result view would go here, which can be complex.
-                                 For now, let's just show the shoppable items and confirmation.
-                                 This can be built out with tabs as requested in other steps.
-                             */}
                              <div className="flex items-center gap-4 p-3 bg-secondary/20 rounded-lg">
                                 <Volume2 className="text-primary flex-shrink-0" />
                                 <p className="flex-1 text-sm text-secondary-foreground">{recipeResult.confirmationText}</p>
-                                {/* {confirmationAudio && <audio ref={audioRef} src={confirmationAudio} controls className="h-8" />}
-                                {isGeneratingSpeech && (
-                                    <div className="flex items-center gap-2 text-muted-foreground text-sm">
-                                        <Loader2 className="h-4 w-4 animate-spin" />
-                                        <span>...</span>
-                                    </div>
-                                )} */}
                             </div>
                             <div className="space-y-3 mt-4">
                                 <div className="grid grid-cols-[1fr_auto_auto] gap-2 items-center text-sm font-medium text-muted-foreground px-2">
@@ -793,40 +701,14 @@ function SparkPageComponent() {
                         </CardContent>
                     </>
                  )}
-                {hasPantryResult && pantrySuggestions && (
-                    <>
-                        <CardHeader>
-                            <CardTitle>Pantry Scan Results</CardTitle>
-                            <CardDescription>
-                                We scanned your pantry and suggest restocking these items.
-                            </CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            {pantryConfirmation && (
-                                <Alert className="mb-4">
-                                    <AlertCircle className="h-4 w-4" />
-                                    <AlertTitle>AI Suggestion</AlertTitle>
-                                    <AlertDescription>{pantryConfirmation}</AlertDescription>
-                                </Alert>
-                            )}
-                            <ProductGrid products={pantrySuggestions} />
-                             <div className="flex justify-between items-center pt-6 mt-4 border-t">
-                                <Button variant="outline" onClick={startOver}>Scan Again</Button>
-                                <Button onClick={() => router.push('/cart')} size="lg">Go to Cart</Button>
-                            </div>
-                        </CardContent>
-                    </>
-                )}
-
               </Card>
             </div>
           ) : (
             <Tabs value={activeTab} className="w-full" onValueChange={handleTabChange}>
-              <TabsList className="grid w-full grid-cols-6">
+              <TabsList className="grid w-full grid-cols-5">
                 <TabsTrigger value="scan" className="gap-2"><Camera /> Scan</TabsTrigger>
                 <TabsTrigger value="saver" className="gap-2"><PiggyBank /> SparkSaver</TabsTrigger>
                 <TabsTrigger value="match" className="gap-2"><Receipt /> Price Match</TabsTrigger>
-                <TabsTrigger value="pantry" className="gap-2"><ScanSearch /> Pantry</TabsTrigger>
                 <TabsTrigger value="speak" className="gap-2"><Mic /> Speak</TabsTrigger>
                 <TabsTrigger value="type" className="gap-2"><FileText /> Type</TabsTrigger>
               </TabsList>
@@ -875,44 +757,6 @@ function SparkPageComponent() {
                     </div>
 
                     {isCameraOpen && <CameraView onCapture={handleCapture} onClose={handleCloseCamera} videoRef={videoRef} hasCameraPermission={hasCameraPermission} />}
-                  </CardContent>
-                </Card>
-              </TabsContent>
-
-              <TabsContent value="pantry">
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">Scan Your Pantry</CardTitle>
-                    <CardDescription>Take a picture of your pantry or fridge, and our AI will suggest what you need to restock.</CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-6">
-                    <div className={cn("space-y-6", isCameraOpen && "hidden")}>
-                        <div className="relative aspect-video w-full flex items-center justify-center bg-muted rounded-lg border-2 border-dashed">
-                        {photoDataUri ? (
-                            <Image src={photoDataUri} alt="Pantry preview" fill className="object-contain rounded-lg" />
-                        ) : (
-                            <p className="text-muted-foreground">Image preview will appear here</p>
-                        )}
-                        </div>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div>
-                            <Label htmlFor="pantry-photo" className="sr-only">Upload from Device</Label>
-                             <Button asChild variant="outline" className="w-full">
-                                <label htmlFor="pantry-photo-upload" className="cursor-pointer">
-                                    <FileText className="mr-2" /> Upload Photo
-                                </label>
-                            </Button>
-                            <Input id="pantry-photo-upload" type="file" accept="image/*" className="sr-only" onChange={handleFileChange} disabled={isLoading}/>
-                        </div>
-                        <Button onClick={handleOpenCamera} variant="outline" disabled={isLoading}>
-                            <Camera className="mr-2" /> Open Camera
-                        </Button>
-                        </div>
-                        <Button onClick={handlePantryCheck} disabled={isLoading || !photoDataUri} className="w-full" size="lg">
-                            {isLoading ? ( <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Analyzing your pantry...</> ) : ( <><Sparkles className="mr-2 h-4 w-4" /> Check Pantry</> )}
-                        </Button>
-                    </div>
-                     {isCameraOpen && <CameraView onCapture={handleCapture} onClose={handleCloseCamera} videoRef={videoRef} hasCameraPermission={hasCameraPermission} />}
                   </CardContent>
                 </Card>
               </TabsContent>
@@ -1006,8 +850,8 @@ function SparkPageComponent() {
                         </>
                     ) : (
                         <>
-                            <CardTitle className="flex items-center gap-2">Speak Your List</CardTitle>
-                            <CardDescription>Press record, speak your shopping list in any language, and we'll build your cart.</CardDescription>
+                            <CardTitle className="flex items-center gap-2">Voice Shopping Assistant</CardTitle>
+                            <CardDescription>Press record and speak your order. Try saying "Refill my last order" or "Add 5kg atta and 1 liter milk."</CardDescription>
                         </>
                     )}
                   </CardHeader>
