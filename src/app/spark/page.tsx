@@ -5,7 +5,7 @@ import { Suspense, useRef, useState, useEffect, useCallback, useMemo } from 'rea
 import Image from 'next/image';
 import Link from 'next/link';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { ArrowLeft, Camera, FileText, Loader2, Mic, Bot, Sparkles, StopCircle, Trash2, Video, Volume2, Receipt, AlertCircle, Globe, PiggyBank } from 'lucide-react';
+import { ArrowLeft, Camera, FileText, Loader2, Mic, Bot, Sparkles, StopCircle, Trash2, Video, Volume2, Receipt, AlertCircle, Globe, PiggyBank, ScanSearch } from 'lucide-react';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 
 import { Button } from '@/components/ui/button';
@@ -16,10 +16,12 @@ import { parseTextList } from '@/ai/flows/text-list-parser-flow';
 import { generateContextualCart } from '@/ai/flows/contextual-cart-flow';
 import { generateSparkSaverCart } from '@/ai/flows/spark-saver-flow';
 import { compareBill } from '@/ai/flows/price-match-flow.ts';
-import { products } from '@/lib/products';
+import { products, type Product } from '@/lib/products';
 import { getIngredientsForDish, type RecipeToCartOutput } from '@/ai/flows/recipe-to-cart-flow.ts';
 import { generateSpeech } from '@/ai/flows/tts-flow';
 import { translations, type Language } from '@/lib/translations';
+import { checkPantry } from '@/ai/flows/pantry-checker-flow';
+import { ProductGrid } from '@/components/store/product-grid';
 
 import { type ListParserOutput, type ListParserOutputItem } from '@/ai/schemas/list-parser-schemas';
 import { type PriceMatchOutput } from '@/ai/schemas/price-match-schemas';
@@ -49,6 +51,10 @@ function SparkPageComponent() {
   const [recipeResult, setRecipeResult] = useState<RecipeToCartOutput | null>(null);
   const [audioConfirmationUrl, setAudioConfirmationUrl] = useState<string | null>(null);
 
+  // Pantry check state
+  const [pantrySuggestions, setPantrySuggestions] = useState<Product[]>([]);
+  const [pantryConfirmation, setPantryConfirmation] = useState<string | null>(null);
+
   // Context to Cart state
   const [contextualQuery, setContextualQuery] = useState('');
   const [sparkSaverInput, setSparkSaverInput] = useState({ budget: '', familySize: '', preferences: '' });
@@ -66,6 +72,7 @@ function SparkPageComponent() {
   const [languagePrompt, setLanguagePrompt] = useState<{ show: boolean, languageName: string, langCode: Language } | null>(null);
 
   const availableProductsForAI = useMemo(() => products.map(({ id, name, category, price, salePrice, quantity }) => ({ id, name, category, price: salePrice || price, quantity })), []);
+  const availableProductsForPantryCheck = useMemo(() => products.map(({ id, name, category }) => ({ id, name, category })), []);
 
   useEffect(() => {
     const cleanupStream = () => {
@@ -136,6 +143,8 @@ function SparkPageComponent() {
     setRecipeResult(null);
     setLanguagePrompt(null);
     setAudioConfirmationUrl(null);
+    setPantrySuggestions([]);
+    setPantryConfirmation(null);
     if (isCameraOpen) handleCloseCamera();
   }, [isCameraOpen, handleCloseCamera]);
 
@@ -478,6 +487,36 @@ function SparkPageComponent() {
     }
   };
 
+  const handlePantryCheck = async () => {
+    if (!photoDataUri) {
+        toast({ variant: 'destructive', title: 'No Pantry Photo', description: 'Please upload or capture a photo of your pantry first.' });
+        return;
+    }
+    setIsLoading(true);
+    resetViewStates();
+    try {
+        const result = await checkPantry({
+            photoDataUri: photoDataUri,
+            availableProducts: availableProductsForPantryCheck
+        });
+
+        if (!result || !result.suggestionIds || result.suggestionIds.length === 0) {
+            toast({ variant: 'destructive', title: 'No Suggestions', description: 'We could not find any items to suggest from your photo.' });
+            return;
+        }
+
+        const suggested = products.filter(p => result.suggestionIds.includes(p.id));
+        setPantrySuggestions(suggested);
+        setPantryConfirmation(result.confirmationText);
+
+    } catch (error) {
+        console.error("Error checking pantry:", error);
+        toast({ variant: 'destructive', title: 'Analysis Failed', description: 'An error occurred while analyzing your pantry. Please try again.' });
+    } finally {
+        setIsLoading(false);
+    }
+  };
+
   const handleOpenCamera = () => {
     setIsCameraOpen(true);
     setPhotoDataUri(null);
@@ -535,6 +574,8 @@ function SparkPageComponent() {
     setRecipeResult(null);
     setLanguagePrompt(null);
     setAudioConfirmationUrl(null);
+    setPantrySuggestions([]);
+    setPantryConfirmation(null);
   }
 
   const startOver = () => {
@@ -556,7 +597,8 @@ function SparkPageComponent() {
   const hasParsedListResult = parsedItems.length > 0;
   const hasPriceMatchResult = !!priceMatchResult;
   const hasRecipeResult = !!recipeResult;
-  const showResultPage = hasParsedListResult || hasPriceMatchResult;
+  const hasPantryResult = pantrySuggestions.length > 0;
+  const showResultPage = hasParsedListResult || hasPriceMatchResult || hasPantryResult;
 
   return (
     <div className="flex flex-col min-h-dvh bg-background">
@@ -581,6 +623,25 @@ function SparkPageComponent() {
           {showResultPage ? (
             <div>
               <Card>
+                {hasPantryResult && (
+                  <>
+                    <CardHeader>
+                        <CardTitle>{t('spark.pantry.results.title')}</CardTitle>
+                        {pantryConfirmation ? (
+                            <CardDescription>{pantryConfirmation}</CardDescription>
+                        ) : (
+                           <CardDescription>{t('spark.pantry.results.description')}</CardDescription>
+                        )}
+                    </CardHeader>
+                    <CardContent>
+                        <ProductGrid products={pantrySuggestions} />
+                        <div className="flex justify-between items-center pt-4 mt-4 border-t">
+                            <Button variant="outline" onClick={startOver}>{t('spark.pantry.results.checkAgain')}</Button>
+                            <Button onClick={() => router.push('/store')} size="lg">{t('spark.pantry.results.backToStore')}</Button>
+                        </div>
+                    </CardContent>
+                  </>
+                )}
                 {hasParsedListResult && (
                     <>
                     <CardHeader>
@@ -728,10 +789,11 @@ function SparkPageComponent() {
                 )}
               </div>
               <Tabs value={activeTab} className={cn("w-full", isCameraOpen && "hidden")} onValueChange={handleTabChange}>
-              <TabsList className="grid w-full grid-cols-5">
+              <TabsList className="grid w-full grid-cols-6">
                 <TabsTrigger value="scan" className="gap-2"><Camera /> Scan</TabsTrigger>
-                <TabsTrigger value="saver" className="gap-2"><PiggyBank /> Spark Saver</TabsTrigger>
-                <TabsTrigger value="context" className="gap-2"><Bot /> SparkCart AI</TabsTrigger>
+                <TabsTrigger value="pantry" className="gap-2"><ScanSearch /> Pantry</TabsTrigger>
+                <TabsTrigger value="saver" className="gap-2"><PiggyBank /> Saver</TabsTrigger>
+                <TabsTrigger value="context" className="gap-2"><Bot /> AI Cart</TabsTrigger>
                 <TabsTrigger value="speak" className="gap-2"><Mic /> Speak</TabsTrigger>
                 <TabsTrigger value="type" className="gap-2"><FileText /> Type</TabsTrigger>
               </TabsList>
@@ -781,6 +843,41 @@ function SparkPageComponent() {
                             {isLoading ? ( <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> {t('spark.scan.priceMatchLoading')}</> ) : ( <><Receipt className="mr-2 h-4 w-4" /> {t('spark.scan.priceMatchButton')}</> )}
                         </Button>
                     </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="pantry">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">{t('spark.pantry.title')}</CardTitle>
+                    <CardDescription>{t('spark.pantry.description')}</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-6">
+                    <div className="relative aspect-video w-full flex items-center justify-center bg-muted rounded-lg border-2 border-dashed">
+                    {photoDataUri ? (
+                        <Image src={photoDataUri} alt="Pantry Preview" fill className="object-contain rounded-lg" />
+                    ) : (
+                        <p className="text-muted-foreground">Image preview will appear here</p>
+                    )}
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <Label htmlFor="pantry-photo" className="sr-only">Upload from Device</Label>
+                        <Button asChild variant="outline" className="w-full">
+                            <label htmlFor="pantry-photo-upload" className="cursor-pointer">
+                                <FileText className="mr-2" /> Upload Photo
+                            </label>
+                        </Button>
+                        <Input id="pantry-photo-upload" type="file" accept="image/*" className="sr-only" onChange={handleFileChange} disabled={isLoading}/>
+                    </div>
+                    <Button onClick={handleOpenCamera} variant="outline" disabled={isLoading}>
+                        <Camera className="mr-2" /> Open Camera
+                    </Button>
+                    </div>
+                    <Button onClick={handlePantryCheck} disabled={isLoading || !photoDataUri} className="w-full" size="lg">
+                        {isLoading ? ( <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> {t('spark.pantry.buttonLoading')}</> ) : ( <><Sparkles className="mr-2 h-4 w-4" /> {t('spark.pantry.button')}</> )}
+                    </Button>
                   </CardContent>
                 </Card>
               </TabsContent>

@@ -12,7 +12,7 @@ import { products, type Product } from '@/lib/products';
 import { SparkVoiceCta } from '@/components/store/spark-voice-cta';
 import { ContextualCartCta } from '@/components/store/contextual-cart-cta';
 import { SparkSaverCta } from '@/components/store/spark-saver-cta';
-import { RefillReminderCta } from '@/components/store/refill-reminder-cta';
+import { PantryScanCta } from '@/components/store/pantry-scan-cta';
 import { suggestProducts } from '@/ai/flows/product-suggester-flow';
 import { Loader2, ArrowLeft, ChefHat, Youtube } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -253,7 +253,7 @@ export default function StorePage() {
               <SparkVoiceCta />
               <ContextualCartCta />
               <SparkSaverCta />
-              <RefillReminderCta />
+              <PantryScanCta />
               <CommunityCta />
               <SustainabilityCta />
               <DiwaliBanner />
