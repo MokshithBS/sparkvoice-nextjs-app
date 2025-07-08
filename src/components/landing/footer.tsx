@@ -32,7 +32,6 @@ export function Footer() {
             <div className="space-y-4">
               <h4 className="font-semibold font-headline">{t('landing.footer.company.title')}</h4>
               <ul className="space-y-2">
-                <li><Link href="/sparkathon" className="text-muted-foreground hover:text-primary transition-colors" prefetch={false}>Sparkathon Entry</Link></li>
                 <li><Link href="#" className="text-muted-foreground hover:text-primary transition-colors" prefetch={false}>{t('landing.footer.company.contact')}</Link></li>
                 <li><Link href="#" className="text-muted-foreground hover:text-primary transition-colors" prefetch={false}>{t('landing.footer.company.careers')}</Link></li>
               </ul>

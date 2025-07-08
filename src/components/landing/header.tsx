@@ -37,6 +37,9 @@ export function Header() {
         </nav>
         <div className="hidden md:flex items-center gap-2">
           <Button variant="outline" size="sm" asChild>
+            <Link href="/sparkathon">Sparkathon 2025</Link>
+          </Button>
+          <Button variant="outline" size="sm" asChild>
             <Link href="tel:+910000000000">
               <Phone className="w-4 h-4" />
               {t('landing.header.orderByCall')}
@@ -71,6 +74,9 @@ export function Header() {
                  ))}
               </nav>
               <div className="flex flex-col gap-4 mt-4">
+                 <Button variant="outline" asChild onClick={closeSheet}>
+                   <Link href="/sparkathon">Sparkathon 2025</Link>
+                 </Button>
                  <Button variant="outline" asChild onClick={closeSheet}>
                    <Link href="tel:+910000000000">
                     <Phone className="w-5 h-5" />
