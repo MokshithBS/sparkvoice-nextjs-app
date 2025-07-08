@@ -4,6 +4,7 @@ import { useLanguage } from '@/context/language-context';
 const categories = [
   { name: 'Vegetables & Fruits', discount: '70% OFF', image: 'https://storage.googleapis.com/aip-dev-images-public/vegetables.png', hint: 'fresh vegetables' },
   { name: 'Dairy, Bread & Eggs', discount: '80% OFF', image: 'https://storage.googleapis.com/aip-dev-images-public/dairy.png', hint: 'milk bread' },
+  { name: 'Meat & Fish', discount: '30% OFF', image: 'https://storage.googleapis.com/aip-dev-images-public/meat-fish.png', hint: 'raw meat' },
   { name: 'Atta, Rice & Dals', discount: '70% OFF', image: 'https://storage.googleapis.com/aip-dev-images-public/grains.png', hint: 'rice bag' },
   { name: 'Masala & Oils', discount: '60% OFF', image: 'https://storage.googleapis.com/aip-dev-images-public/spices.png', hint: 'spices cooking' },
   { name: 'Snacks & Beverages', discount: '70% OFF', image: 'https://storage.googleapis.com/aip-dev-images-public/snacks.png', hint: 'potato chips' },

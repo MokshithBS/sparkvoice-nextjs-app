@@ -35,6 +35,7 @@ import { Label } from '@/components/ui/label';
 import { CommunityCta } from '@/components/store/community-cta';
 import { useLanguage } from '@/context/language-context';
 import { SustainabilityCta } from '@/components/store/sustainability-cta';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface RecipeInput {
   dishName: string;
@@ -48,6 +49,9 @@ export default function StorePage() {
   const [suggestedProducts, setSuggestedProducts] = useState<Product[]>([]);
   const [isSuggesting, setIsSuggesting] = useState(false);
   const [isFetchingIngredients, setIsFetchingIngredients] = useState(false);
+
+  const [sortOption, setSortOption] = useState<string>('relevance');
+  const [filters, setFilters] = useState({ onSale: false, vegOnly: false });
 
   const [recipeResult, setRecipeResult] = useState<RecipeToCartOutput | null>(null);
   const [recipeDishName, setRecipeDishName] = useState('');
@@ -83,18 +87,53 @@ export default function StorePage() {
     setSearchQuery('');
   }
 
-  const filteredProducts = useMemo(() => {
+  const handleFilterChange = (filterName: keyof typeof filters, checked: boolean) => {
+    setFilters(prev => ({ ...prev, [filterName]: checked }));
+  };
+
+  const displayedProducts = useMemo(() => {
+    let initialProducts: Product[] = [];
     if (searchQuery) {
-        return products.filter(product => 
+        initialProducts = products.filter(product => 
           product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
           product.category.toLowerCase().includes(searchQuery.toLowerCase())
         );
+    } else if (selectedCategory) {
+        initialProducts = products.filter(p => p.category === selectedCategory);
     }
-    if (selectedCategory) {
-        return products.filter(p => p.category === selectedCategory);
+
+    if (!searchQuery && !selectedCategory) {
+        return [];
     }
-    return [];
-  }, [searchQuery, selectedCategory]);
+
+    let filtered = [...initialProducts];
+
+    if (filters.onSale) {
+        filtered = filtered.filter(p => p.salePrice);
+    }
+    if (filters.vegOnly) {
+        filtered = filtered.filter(p => p.isVeg);
+    }
+
+    switch (sortOption) {
+        case 'price_asc':
+            filtered.sort((a, b) => (a.salePrice || a.price) - (b.salePrice || b.price));
+            break;
+        case 'price_desc':
+            filtered.sort((a, b) => (b.salePrice || b.price) - (a.salePrice || a.price));
+            break;
+        case 'name_asc':
+            filtered.sort((a, b) => a.name.localeCompare(b.name));
+            break;
+        case 'name_desc':
+            filtered.sort((a, b) => b.name.localeCompare(a.name));
+            break;
+        default: // 'relevance'
+            break;
+    }
+
+    return filtered;
+  }, [searchQuery, selectedCategory, filters, sortOption]);
   
   useEffect(() => {
     if (!searchQuery) {
@@ -102,7 +141,7 @@ export default function StorePage() {
         return;
     }
 
-    if (filteredProducts.length === 0) {
+    if (displayedProducts.length === 0 && !filters.onSale && !filters.vegOnly) {
       const getSuggestions = async () => {
         setIsSuggesting(true);
         setSuggestedProducts([]);
@@ -141,7 +180,7 @@ export default function StorePage() {
     } else {
         setSuggestedProducts([]);
     }
-  }, [searchQuery, filteredProducts, availableProductsForAI, toast]);
+  }, [searchQuery, displayedProducts, availableProductsForAI, toast, filters.onSale, filters.vegOnly]);
 
   const handleRecipeInputChange = (field: keyof RecipeInput, value: string) => {
     setRecipeInput(prev => ({ ...prev, [field]: value }));
@@ -232,16 +271,49 @@ export default function StorePage() {
           />
           {searchQuery || selectedCategory ? (
              <>
-              {selectedCategory && (
                 <div className="flex items-center gap-2 mb-4">
                   <Button variant="ghost" size="icon" className="-ml-2" onClick={clearFilters}>
                     <ArrowLeft />
                   </Button>
-                  <h2 className="text-xl font-bold">{selectedCategory}</h2>
+                  <h2 className="text-xl font-bold">{selectedCategory || `Search results for "${searchQuery}"`}</h2>
                 </div>
-              )}
-              {filteredProducts.length > 0 ? (
-                <ProductGrid products={filteredProducts} />
+                
+                <div className="flex flex-col sm:flex-row gap-4 items-center mb-4 p-4 bg-muted/50 rounded-lg">
+                    <div className="flex items-center gap-4 flex-wrap">
+                        <h3 className="text-sm font-semibold mr-4">Filter By:</h3>
+                        <div className="flex items-center space-x-2">
+                            <Checkbox id="veg-only" checked={filters.vegOnly} onCheckedChange={(checked) => handleFilterChange('vegOnly', !!checked)} />
+                            <Label htmlFor="veg-only" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                                Veg Only
+                            </Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                            <Checkbox id="on-sale" checked={filters.onSale} onCheckedChange={(checked) => handleFilterChange('onSale', !!checked)} />
+                            <Label htmlFor="on-sale" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                                On Sale
+                            </Label>
+                        </div>
+                    </div>
+                    <div className="flex-grow hidden sm:block" />
+                    <div className="flex items-center gap-2 w-full sm:w-auto">
+                        <Label htmlFor="sort-by" className="text-sm font-semibold whitespace-nowrap">Sort By:</Label>
+                        <Select value={sortOption} onValueChange={setSortOption}>
+                        <SelectTrigger className="w-full sm:w-[180px]">
+                            <SelectValue placeholder="Sort by" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="relevance">Relevance</SelectItem>
+                            <SelectItem value="price_asc">Price: Low to High</SelectItem>
+                            <SelectItem value="price_desc">Price: High to Low</SelectItem>
+                            <SelectItem value="name_asc">Name: A-Z</SelectItem>
+                            <SelectItem value="name_desc">Name: Z-A</SelectItem>
+                        </SelectContent>
+                        </Select>
+                    </div>
+                </div>
+
+              {displayedProducts.length > 0 ? (
+                <ProductGrid products={displayedProducts} />
              ) : (
                <div className="text-center py-10">
                    <p className="text-muted-foreground">{t('store.search.noProducts', { query: searchQuery })}</p>
