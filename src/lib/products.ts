@@ -14,6 +14,7 @@ export interface Product {
     // Atta, Rice & Dals
     { id: 1, name: 'Aashirvaad Atta (5 kg)', price: 250, salePrice: 225, quantity: '5 kg', image: 'https://storage.googleapis.com/aip-dev-images-public/product-atta.png', category: 'Atta, Rice & Dals', hint: 'flour bag', isVeg: true },
     { id: 13, name: 'India Gate Basmati Rice (5 kg)', price: 650, quantity: '5 kg', image: 'https://storage.googleapis.com/aip-dev-images-public/product-basmati-rice.png', category: 'Atta, Rice & Dals', hint: 'rice bag', isVeg: true },
+    { id: 106, name: 'India Gate Basmati Rice (1 kg)', price: 140, quantity: '1 kg', image: 'https://storage.googleapis.com/aip-dev-images-public/product-basmati-rice.png', category: 'Atta, Rice & Dals', hint: 'rice bag', isVeg: true },
     { id: 14, name: 'Tata Sampann Toor Dal (1 kg)', price: 150, quantity: '1 kg', image: 'https://storage.googleapis.com/aip-dev-images-public/product-toor-dal.png', category: 'Atta, Rice & Dals', hint: 'lentils package', isVeg: true },
     { id: 15, name: 'Organic Moong Dal (1 kg)', price: 165, quantity: '1 kg', image: 'https://storage.googleapis.com/aip-dev-images-public/product-moong-dal.png', category: 'Atta, Rice & Dals', hint: 'lentils package', isVeg: true },
     { id: 52, name: 'Fortune Besan (1 kg)', price: 80, quantity: '1 kg', image: 'https://storage.googleapis.com/aip-dev-images-public/product-besan.png', category: 'Atta, Rice & Dals', hint: 'flour pack', isVeg: true },
@@ -39,6 +40,7 @@ export interface Product {
 
     // Dairy, Bread & Eggs
     { id: 3, name: 'Amul Milk Taaza (500 ml)', price: 28, quantity: '500 ml', image: 'https://storage.googleapis.com/aip-dev-images-public/product-milk.png', category: 'Dairy, Bread & Eggs', hint: 'milk carton', isVeg: true },
+    { id: 107, name: 'Nandini Goodlife UHT Milk (500 ml)', price: 30, quantity: '500 ml', image: 'https://storage.googleapis.com/aip-dev-images-public/product-nandini-milk.png', category: 'Dairy, Bread & Eggs', hint: 'milk packet', isVeg: true },
     { id: 91, name: 'Amul Milk Taaza (1 L)', price: 55, quantity: '1 L', image: 'https://storage.googleapis.com/aip-dev-images-public/product-milk.png', category: 'Dairy, Bread & Eggs', hint: 'milk carton', isVeg: true },
     { id: 6, name: 'Farm Fresh Eggs (1 dozen)', price: 72, salePrice: 60, quantity: '1 dozen', image: 'https://storage.googleapis.com/aip-dev-images-public/product-eggs.png', category: 'Dairy, Bread & Eggs', hint: 'egg carton', isVeg: false },
     { id: 19, name: 'Britannia Brown Bread (400 g)', price: 45, quantity: '400 g', image: 'https://storage.googleapis.com/aip-dev-images-public/product-brown-bread.png', category: 'Dairy, Bread & Eggs', hint: 'bread loaf', isVeg: true },
