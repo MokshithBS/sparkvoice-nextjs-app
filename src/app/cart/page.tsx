@@ -28,6 +28,7 @@ export default function CartPage() {
 
   useEffect(() => {
     if (cartItems.length > 0) {
+      const handler = setTimeout(() => {
         const getSuggestions = async () => {
             setIsSuggesting(true);
             try {
@@ -44,18 +45,33 @@ export default function CartPage() {
                 if (result.suggestionIds && result.suggestionIds.length > 0) {
                     const suggestions = products.filter(p => result.suggestionIds.includes(p.id));
                     setSuggestedProducts(suggestions);
+                } else {
+                    setSuggestedProducts([]);
                 }
             } catch (error) {
                 console.error("Failed to get product suggestions:", error);
+                 if (error instanceof Error && error.message.includes('429')) {
+                    toast({
+                        variant: 'destructive',
+                        title: 'Suggestion service is busy',
+                        description: 'Too many requests were made. Please wait a moment before trying again.',
+                    });
+                }
+                setSuggestedProducts([]);
             } finally {
                 setIsSuggesting(false);
             }
         };
         getSuggestions();
+      }, 500); // Debounce API call by 500ms
+
+      return () => {
+        clearTimeout(handler);
+      };
     } else {
-        setSuggestedProducts([]);
+      setSuggestedProducts([]);
     }
-  }, [cartItems]);
+  }, [cartItems, toast]);
 
   const handleCheckout = () => {
     toast({
