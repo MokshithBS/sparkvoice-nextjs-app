@@ -52,11 +52,42 @@ export default function HiveDetailPage({ params }: { params: { hiveId: string } 
     const equalShare = totalCost / hiveData.members.length;
 
     const handleAddItem = () => {
-        toast({ title: t('common.featureNotImplemented'), description: t('common.prototypeDisclaimer') });
+        const newItem = {
+            id: 12,
+            name: 'Lays Potato Chips',
+            price: 20,
+            addedBy: 'You',
+            image: 'https://storage.googleapis.com/aip-dev-images-public/snacks.png',
+            hint: 'potato chips'
+        };
+
+        if (cart.some(item => item.id === newItem.id)) {
+            toast({
+                title: 'Item already in cart',
+                description: `${newItem.name} is already in the shared cart.`,
+            });
+            return;
+        }
+
+        setCart(currentCart => [...currentCart, newItem]);
+        setChat(currentChat => [...currentChat, { type: 'user', user: 'You', message: `I've added ${newItem.name} to the cart.` }]);
+
+        toast({
+            title: 'Item Added',
+            description: `${newItem.name} has been added to the Hive's shared cart.`,
+        });
     };
 
     const handleRemoveItem = (itemId: number) => {
+        const itemToRemove = cart.find(item => item.id === itemId);
+        if (!itemToRemove) return;
+
         setCart(currentCart => currentCart.filter(item => item.id !== itemId));
+        setChat(currentChat => [...currentChat, { type: 'user', user: 'You', message: `I've removed ${itemToRemove.name} from the cart.` }]);
+        toast({
+            title: 'Item Removed',
+            description: `${itemToRemove.name} has been removed from the Hive's shared cart.`,
+        });
     };
 
     const handleSendMessage = () => {
@@ -107,7 +138,7 @@ export default function HiveDetailPage({ params }: { params: { hiveId: string } 
                         <Card>
                             <CardHeader>
                                 <CardTitle>{t('community.hive.cart.title')}</CardTitle>
-                                <CardDescription>{t('community.hive.cart.description', { total: totalCost.toFixed(2) })}</CardDescription>
+                                <CardDescription dangerouslySetInnerHTML={{ __html: t('community.hive.cart.description', { total: totalCost.toFixed(2) })}} />
                             </CardHeader>
                             <CardContent className="space-y-3">
                                 {cart.map(item => (
