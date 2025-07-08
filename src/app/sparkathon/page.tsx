@@ -4,7 +4,7 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { ArrowLeft, Film, Lightbulb, Package, Target, Youtube } from 'lucide-react';
+import { ArrowLeft, Film, Lightbulb, Package, Target, Youtube, CheckCircle, BrainCircuit, Handshake, Globe, TrendingUp, Users, Rocket } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { AspectRatio } from "@/components/ui/aspect-ratio"
@@ -76,7 +76,7 @@ export default function SparkathonPage() {
 
             <Card className="shadow-lg">
                 <CardHeader>
-                     <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-3">
                         <Package className="w-8 h-8 text-green-600"/>
                         <CardTitle className="text-2xl font-headline">How We Solve It: SparkVoice</CardTitle>
                     </div>
@@ -85,21 +85,64 @@ export default function SparkathonPage() {
                    <p>
                     SparkVoice acts as a compassionate, intelligent bridge across this divide. Instead of forcing users to learn a new system, our platform understands them in the most natural ways possible. It’s not just an app; it’s a full-stack conversational commerce ecosystem.
                    </p>
-                    <ul className="list-disc pl-5 space-y-2">
-                        <li>
-                            <strong className="text-foreground">We speak human:</strong> Users can snap a photo of a list, speak in their native tongue (including Hinglish), or describe a need like "a birthday party for 10 kids." Our AI instantly translates this intent into a perfectly curated cart.
-                        </li>
-                        <li>
-                            <strong className="text-foreground">We build trust:</strong> Our AI-powered Price Match feature scans any physical bill and shows users exactly how much they save, making Walmart the most transparent and trusted option.
-                        </li>
-                        <li>
-                            <strong className="text-foreground">We foster community:</strong> With SparkHives, neighbours can create shared carts, vote on bulk buys, and even organize social-good contributions, transforming solitary shopping into a collective, rewarding experience.
-                        </li>
-                    </ul>
-                   <Separator className="my-4"/>
-                   <p className="text-sm">
-                    <strong className="text-foreground">Tech Stack:</strong> We've built SparkVoice on a modern, scalable foundation using Next.js (with App Router and Server Components for performance), React, Tailwind CSS for styling, and ShadCN for our UI library. The core intelligence is powered by Google's Genkit, allowing us to rapidly build and deploy sophisticated multimodal AI flows.
-                   </p>
+                    <div className="space-y-4">
+                        <div className="flex gap-4">
+                            <div className="flex-shrink-0 pt-1">
+                                <CheckCircle className="w-6 h-6 text-green-600" />
+                            </div>
+                            <div>
+                                <h4 className="font-bold text-foreground">A Truly Multimodal Shopping Experience</h4>
+                                <p>We eliminate the tyranny of the search bar. Users can snap a photo of a handwritten list in any language, record a voice note in a regional dialect, or simply type a thought. Our AI comprehends the intent and instantly builds a cart.</p>
+                            </div>
+                        </div>
+                        <div className="flex gap-4">
+                            <div className="flex-shrink-0 pt-1">
+                                <CheckCircle className="w-6 h-6 text-green-600" />
+                            </div>
+                            <div>
+                                <h4 className="font-bold text-foreground">Hyper-Personalized, Context-Aware AI</h4>
+                                <p>SparkVoice goes beyond keywords. Users can describe a need (“healthy snacks for my kid’s exams”), set a budget (“build me a weekly cart for ₹1500”), or ask for a recipe (“get me ingredients for paneer butter masala”). Our AI acts as a personal shopper, curating the perfect items.</p>
+                            </div>
+                        </div>
+                        <div className="flex gap-4">
+                            <div className="flex-shrink-0 pt-1">
+                                <CheckCircle className="w-6 h-6 text-green-600" />
+                            </div>
+                            <div>
+                                <h4 className="font-bold text-foreground">Trust Through Radical Transparency</h4>
+                                <p>Our Instant Price-Match feature allows users to scan any physical bill and see a line-by-line comparison with Walmart's prices, proving the value of shopping online and building unshakable customer loyalty.</p>
+                            </div>
+                        </div>
+                        <div className="flex gap-4">
+                            <div className="flex-shrink-0 pt-1">
+                                <CheckCircle className="w-6 h-6 text-green-600" />
+                            </div>
+                            <div>
+                                <h4 className="font-bold text-foreground">Community Commerce with SparkHives</h4>
+                                <p>We transform shopping from a solitary task into a collective activity. Hives enable neighbors to create shared carts, run polls on bulk buys, split payments effortlessly, and earn rewards for social contributions, deeply embedding Walmart into the community fabric.</p>
+                            </div>
+                        </div>
+                    </div>
+                   <Separator className="my-6"/>
+                    <div>
+                        <h4 className="font-bold text-foreground text-lg mb-2">Our Technology Stack</h4>
+                        <p className="text-sm mb-4">
+                            Built from the ground up for performance, scalability, and rapid AI integration, our stack is modern and robust.
+                        </p>
+                        <ul className="list-disc pl-5 space-y-2 text-sm">
+                            <li><strong>Core Framework:</strong> Next.js 15 utilizing the App Router, Server Components, and Turbopack for a high-performance, server-first architecture.</li>
+                            <li><strong>Frontend:</strong> React 18 with TypeScript for building a type-safe, component-based, and reactive user interface.</li>
+                            <li><strong>UI & Styling:</strong> A combination of ShadCN UI for our accessible component library and Tailwind CSS for rapid, utility-first styling.</li>
+                            <li><strong>AI Orchestration & Backend:</strong> We use Google's Genkit, an open-source framework, to build, deploy, and monitor our production-grade AI flows. This allows us to chain prompts, integrate tools, and manage complex agentic logic reliably.</li>
+                            <li><strong>AI Models:</strong>
+                                <ul className="list-['-_'] pl-5 mt-1">
+                                    <li><strong>Gemini 2.0 Flash:</strong> For our core multimodal reasoning, handling complex vision tasks (list & bill OCR), natural language understanding (contextual carts, recipe generation), and structured data output.</li>
+                                    <li><strong>Gemini 2.0 Flash Image Generation:</strong> Used for creative features like generating user avatars.</li>
+                                    <li><strong>Gemini 2.5 Flash TTS:</strong> Powers our text-to-speech capabilities, providing voice feedback in our conversational flows.</li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
                 </CardContent>
             </Card>
 
