@@ -61,7 +61,7 @@ export default function StorePage() {
   const { toast } = useToast();
   const { addToCartBatch } = useCart();
   const { t } = useLanguage();
-  const availableProductsForAI = products.map(({ id, name, category, price, salePrice, quantity }) => ({ id, name, category, price: salePrice || price, quantity }));
+  const availableProductsForAI = useMemo(() => products.map(({ id, name, category, price, salePrice, quantity }) => ({ id, name, category, price: salePrice || price, quantity })), []);
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);

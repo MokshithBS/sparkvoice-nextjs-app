@@ -1,7 +1,7 @@
 
 'use client';
 
-import { Suspense, useRef, useState, useEffect, useCallback } from 'react';
+import { Suspense, useRef, useState, useEffect, useCallback, useMemo } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useSearchParams, useRouter } from 'next/navigation';
@@ -65,7 +65,7 @@ function SparkPageComponent() {
   const mediaStreamRef = useRef<MediaStream | null>(null);
   const [languagePrompt, setLanguagePrompt] = useState<{ show: boolean, languageName: string, langCode: Language } | null>(null);
 
-  const availableProductsForAI = products.map(({ id, name, category, price, salePrice, quantity }) => ({ id, name, category, price: salePrice || price, quantity }));
+  const availableProductsForAI = useMemo(() => products.map(({ id, name, category, price, salePrice, quantity }) => ({ id, name, category, price: salePrice || price, quantity })), []);
 
   useEffect(() => {
     const cleanupStream = () => {
