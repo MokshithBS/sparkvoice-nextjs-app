@@ -71,7 +71,7 @@ export function LocationHeader() {
                 ))}
             </DropdownMenuContent>
         </DropdownMenu>
-        <Button variant="ghost" size="icon" onClick={handleFeatureClick}>
+        <Button variant="outline" size="icon" onClick={handleFeatureClick}>
             <CircleUserRound className="w-8 h-8 text-foreground/80 shrink-0" />
             <span className="sr-only">Profile</span>
         </Button>
