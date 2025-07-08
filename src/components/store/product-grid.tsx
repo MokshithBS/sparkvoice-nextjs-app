@@ -1,18 +1,21 @@
+
 import Image from 'next/image';
 import type { Product } from '@/lib/products';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { useCart } from '@/context/cart-context';
 import { Plus, Minus } from 'lucide-react';
+import { useLanguage } from '@/context/language-context';
 
 export function ProductGrid({ products }: { products: Product[] }) {
   const { cartItems, addToCart, updateQuantity } = useCart();
+  const { t } = useLanguage();
 
   if (products.length === 0) {
     return (
         <div className="text-center py-10">
-            <p className="text-muted-foreground">No products found.</p>
-            <p className="text-sm text-muted-foreground/80">Try a different search term.</p>
+            <p className="text-muted-foreground">{t('store.productGrid.noProducts.title')}</p>
+            <p className="text-sm text-muted-foreground/80">{t('store.productGrid.noProducts.description')}</p>
         </div>
     );
   }
@@ -35,7 +38,7 @@ export function ProductGrid({ products }: { products: Product[] }) {
                 />
                  {product.salePrice && (
                     <div className="absolute top-2 right-2 bg-accent text-accent-foreground text-xs font-bold px-2 py-1 rounded-md shadow-lg transform rotate-6">
-                        SALE
+                        {t('common.sale')}
                     </div>
                 )}
                 </div>
@@ -63,7 +66,7 @@ export function ProductGrid({ products }: { products: Product[] }) {
                             </Button>
                         </div>
                     ) : (
-                        <Button size="sm" className="w-full" onClick={() => addToCart(product)}>Add</Button>
+                        <Button size="sm" className="w-full" onClick={() => addToCart(product)}>{t('common.add')}</Button>
                     )}
                 </div>
             </CardContent>

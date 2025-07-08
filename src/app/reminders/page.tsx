@@ -10,20 +10,22 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { WhatsAppIcon } from '@/components/icons/whatsapp-icon';
+import { useLanguage } from '@/context/language-context';
 
 export default function RemindersPage() {
   const [phone, setPhone] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const { toast } = useToast();
+  const { t } = useLanguage();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!/^\d{10}$/.test(phone)) {
         toast({
             variant: 'destructive',
-            title: 'Invalid Phone Number',
-            description: 'Please enter a valid 10-digit phone number.',
+            title: t('reminders.toast.invalidPhone.title'),
+            description: t('reminders.toast.invalidPhone.description'),
         });
         return;
     }
@@ -34,8 +36,8 @@ export default function RemindersPage() {
         setIsSubmitting(false);
         setIsSubmitted(true);
         toast({
-            title: 'Reminders Enabled!',
-            description: "We'll send smart refill reminders for your essential items to your WhatsApp.",
+            title: t('reminders.toast.remindersEnabled.title'),
+            description: t('reminders.toast.remindersEnabled.description'),
         });
     }, 1500);
   };
@@ -47,12 +49,12 @@ export default function RemindersPage() {
                 <Button variant="ghost" size="icon" asChild>
                     <Link href="/store">
                     <ArrowLeft />
-                    <span className="sr-only">Back to Store</span>
+                    <span className="sr-only">{t('common.backToStore')}</span>
                     </Link>
                 </Button>
                 <h1 className="text-xl font-bold font-headline flex items-center gap-2">
                     <BellRing className="w-6 h-6 text-primary" />
-                    <span>My Essentials Reminders</span>
+                    <span>{t('reminders.title')}</span>
                 </h1>
                 <div className="w-8"></div>
             </div>
@@ -62,25 +64,25 @@ export default function RemindersPage() {
             <div className="container mx-auto max-w-md">
                 <Card>
                     <CardHeader>
-                        <CardTitle>Smart Refill Reminders</CardTitle>
+                        <CardTitle>{t('reminders.card.title')}</CardTitle>
                         <CardDescription>
-                            Never run out of your must-have items again. Based on your past purchases, we'll track your essentials like atta, oil, or milk and send a friendly reminder to your WhatsApp just before you're about to run out.
+                            {t('reminders.card.description')}
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
                         {isSubmitted ? (
                              <div className="text-center space-y-4 py-8">
                                 <CheckCircle className="mx-auto h-16 w-16 text-green-500" />
-                                <h2 className="text-2xl font-bold">You're All Set!</h2>
-                                <p className="text-muted-foreground">We will send smart reminders to <span className="font-bold text-foreground">{phone}</span>. You can now return to shopping.</p>
+                                <h2 className="text-2xl font-bold">{t('reminders.submitted.title')}</h2>
+                                <p className="text-muted-foreground">{t('reminders.submitted.description', { phone })}</p>
                                 <Button asChild>
-                                    <Link href="/store">Back to Store</Link>
+                                    <Link href="/store">{t('common.backToStore')}</Link>
                                 </Button>
                             </div>
                         ) : (
                             <form onSubmit={handleSubmit} className="space-y-6">
                                 <div className="space-y-2">
-                                    <Label htmlFor="phone">Your 10-digit WhatsApp Number</Label>
+                                    <Label htmlFor="phone">{t('reminders.form.phoneLabel')}</Label>
                                     <div className="relative">
                                         <Smartphone className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                                         <Input
@@ -99,12 +101,12 @@ export default function RemindersPage() {
                                     {isSubmitting ? (
                                         <>
                                             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                            Setting Up...
+                                            {t('reminders.form.buttonLoading')}
                                         </>
                                     ) : (
                                         <>
                                             <WhatsAppIcon className="mr-2 h-5 w-5" />
-                                            Enable Smart Reminders
+                                            {t('reminders.form.button')}
                                         </>
                                     )}
                                 </Button>

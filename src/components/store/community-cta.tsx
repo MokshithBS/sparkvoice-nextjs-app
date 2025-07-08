@@ -1,11 +1,14 @@
+
 'use client';
 
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Sparkles, Users } from 'lucide-react';
 import Link from 'next/link';
+import { useLanguage } from '@/context/language-context';
 
 export function CommunityCta() {
+  const { t } = useLanguage();
   return (
     <Card className="my-6">
       <CardContent className="p-4 flex items-center justify-between">
@@ -14,15 +17,15 @@ export function CommunityCta() {
                 <Sparkles className="w-6 h-6 text-primary" />
             </div>
             <div>
-                <h3 className="font-bold font-headline text-foreground">SparkHives</h3>
+                <h3 className="font-bold font-headline text-foreground">{t('store.communityCta.title')}</h3>
                 <p className="text-sm text-muted-foreground">
-                    Shop together with neighbours, save more!
+                    {t('store.communityCta.description')}
                 </p>
             </div>
         </div>
         <Button asChild>
           <Link href="/community">
-            Explore Hives
+            {t('store.communityCta.button')}
           </Link>
         </Button>
       </CardContent>

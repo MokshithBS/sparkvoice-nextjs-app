@@ -33,6 +33,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { CommunityCta } from '@/components/store/community-cta';
+import { useLanguage } from '@/context/language-context';
 
 interface RecipeInput {
   dishName: string;
@@ -59,6 +60,7 @@ export default function StorePage() {
 
   const { toast } = useToast();
   const { addToCartBatch } = useCart();
+  const { t } = useLanguage();
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
@@ -154,16 +156,16 @@ export default function StorePage() {
         } else {
             toast({
                 variant: 'destructive',
-                title: 'Could not find recipe',
-                description: `We could not find any ingredients for "${recipeInput.dishName}". Please try another dish.`,
+                title: t('store.recipe.toast.notFound.title'),
+                description: t('store.recipe.toast.notFound.description', { dishName: recipeInput.dishName }),
             });
         }
     } catch (error) {
         console.error("Failed to get ingredients:", error);
         toast({
             variant: 'destructive',
-            title: 'Something went wrong',
-            description: 'We could not get ingredients at this time. Please try again later.',
+            title: t('common.error.generic.title'),
+            description: t('common.error.generic.description'),
         });
     } finally {
         setIsFetchingIngredients(false);
@@ -190,8 +192,8 @@ export default function StorePage() {
     if (selectedRecipeItems.length > 0) {
       addToCartBatch(selectedRecipeItems);
       toast({
-        title: 'Ingredients Added!',
-        description: `We've added ${selectedRecipeItems.length} items for ${recipeDishName} to your cart.`,
+        title: t('store.recipe.toast.addedToCart.title'),
+        description: t('store.recipe.toast.addedToCart.description', { count: selectedRecipeItems.length.toString(), dishName: recipeDishName }),
       });
       closeRecipeDialog();
     }
@@ -227,21 +229,21 @@ export default function StorePage() {
                 <ProductGrid products={filteredProducts} />
              ) : (
                <div className="text-center py-10">
-                   <p className="text-muted-foreground">No products found for "{searchQuery}".</p>
+                   <p className="text-muted-foreground">{t('store.search.noProducts', { query: searchQuery })}</p>
                    {isSuggesting && (
                        <div className="flex items-center justify-center gap-2 mt-4 text-muted-foreground">
                            <Loader2 className="h-4 w-4 animate-spin" />
-                           <span>Looking for alternatives...</span>
+                           <span>{t('store.search.loadingAlternatives')}</span>
                        </div>
                    )}
                    {suggestedProducts.length > 0 && !isSuggesting && (
                         <div className="mt-6 text-left">
-                           <h3 className="text-xl font-bold mb-4">Similar Products You Might Like</h3>
+                           <h3 className="text-xl font-bold mb-4">{t('store.search.suggestionsTitle')}</h3>
                            <ProductGrid products={suggestedProducts} />
                        </div>
                    )}
                    {!isSuggesting && suggestedProducts.length === 0 && (
-                       <p className="text-sm text-muted-foreground/80 mt-2">Try a different search term.</p>
+                       <p className="text-sm text-muted-foreground/80 mt-2">{t('store.search.tryDifferent')}</p>
                    )}
                </div>
              )}
@@ -270,16 +272,16 @@ export default function StorePage() {
        <Dialog open={!!recipeResult} onOpenChange={(isOpen) => !isOpen && closeRecipeDialog()}>
         <DialogContent className="max-w-lg">
           <DialogHeader>
-            <DialogTitle>Recipe for {recipeDishName}</DialogTitle>
+            <DialogTitle>{t('store.recipe.modal.title', { dishName: recipeDishName })}</DialogTitle>
             <DialogDescription>
-              Review your shopping list and the recipe instructions below.
+              {t('store.recipe.modal.description')}
             </DialogDescription>
           </DialogHeader>
 
           <Tabs defaultValue="shopping-list" className="w-full">
             <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="shopping-list">Shopping List ({selectedRecipeItems.length})</TabsTrigger>
-              <TabsTrigger value="recipe">Recipe</TabsTrigger>
+              <TabsTrigger value="shopping-list">{t('store.recipe.modal.tabs.shoppingList', { count: selectedRecipeItems.length })}</TabsTrigger>
+              <TabsTrigger value="recipe">{t('store.recipe.modal.tabs.recipe')}</TabsTrigger>
             </TabsList>
             <TabsContent value="shopping-list" className="mt-4">
               <div className="space-y-3 pr-2 my-4">
@@ -290,7 +292,7 @@ export default function StorePage() {
                         onCheckedChange={(checked) => handleSelectAllRecipeItems(!!checked)}
                     />
                     <Label htmlFor="select-all" className="font-medium text-sm">
-                        Select All
+                        {t('common.selectAll')}
                     </Label>
                 </div>
                 <div className="max-h-60 overflow-y-auto space-y-3">
@@ -313,7 +315,7 @@ export default function StorePage() {
             <TabsContent value="recipe" className="mt-4">
                 <div className="max-h-[22rem] overflow-y-auto space-y-4 pr-4 text-sm">
                     <div>
-                        <h4 className="font-semibold mb-2 text-base">Ingredients</h4>
+                        <h4 className="font-semibold mb-2 text-base">{t('store.recipe.modal.ingredients')}</h4>
                         <ul className="list-disc list-inside text-muted-foreground space-y-1">
                             {recipeResult?.ingredients.map((item, index) => (
                             <li key={index}><span className="font-medium text-foreground">{item.quantity}</span> {item.name}</li>
@@ -321,7 +323,7 @@ export default function StorePage() {
                         </ul>
                     </div>
                     <div>
-                        <h4 className="font-semibold mb-2 text-base">Instructions</h4>
+                        <h4 className="font-semibold mb-2 text-base">{t('store.recipe.modal.instructions')}</h4>
                         <div className="text-muted-foreground whitespace-pre-wrap prose prose-sm">
                           {recipeResult?.recipeInstructions.split('\n').map((line, index) => <p key={index}>{line}</p>)}
                         </div>
@@ -336,17 +338,17 @@ export default function StorePage() {
                 <Button asChild variant="secondary">
                   <Link href={recipeResult.youtubeVideoUrl} target="_blank" rel="noopener noreferrer">
                     <Youtube className="mr-2" />
-                    Watch Recipe Video
+                    {t('store.recipe.modal.watchVideo')}
                   </Link>
                 </Button>
               )}
             </div>
             <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2">
                 <DialogClose asChild>
-                  <Button variant="outline">Cancel</Button>
+                  <Button variant="outline">{t('common.cancel')}</Button>
                 </DialogClose>
                 <Button onClick={handleAddToCartFromRecipe} disabled={selectedRecipeItems.length === 0}>
-                    Add {selectedRecipeItems.length} {selectedRecipeItems.length === 1 ? 'Item' : 'Items'} to Cart
+                    {t('store.recipe.modal.addToCartButton', { count: selectedRecipeItems.length })}
                 </Button>
             </div>
           </DialogFooter>

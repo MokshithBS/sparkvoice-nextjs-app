@@ -20,9 +20,11 @@ import { generatePersonalizedSale } from '@/ai/flows/personalized-sale-flow';
 import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { Separator } from '@/components/ui/separator';
+import { useLanguage } from '@/context/language-context';
 
 export default function SalePage() {
   const { toast } = useToast();
+  const { t } = useLanguage();
 
   const [isModalOpen, setIsModalOpen] = useState(true);
   const [profession, setProfession] = useState('');
@@ -45,8 +47,8 @@ export default function SalePage() {
     if (!profession.trim()) {
       toast({
         variant: 'destructive',
-        title: 'Profession Required',
-        description: 'Please enter your profession to get personalized deals.',
+        title: t('sale.toast.professionRequired.title'),
+        description: t('sale.toast.professionRequired.description'),
       });
       return;
     }
@@ -69,8 +71,8 @@ export default function SalePage() {
          setPersonalizedSuggestions([]);
          setOtherSaleItems(allSaleProducts);
          toast({
-            title: "No specific deals found",
-            description: "We couldn't find special deals for your profession, but here are all our great offers!",
+            title: t('sale.toast.noDealsFound.title'),
+            description: t('sale.toast.noDealsFound.description'),
         });
       }
       setIsModalOpen(false);
@@ -79,8 +81,8 @@ export default function SalePage() {
       console.error("Failed to get personalized sale:", error);
       toast({
         variant: 'destructive',
-        title: 'Something went wrong',
-        description: 'We could not get personalized deals at this time. Please try again.',
+        title: t('common.error.generic.title'),
+        description: t('common.error.generic.description'),
       });
       setIsModalOpen(false); // Close modal on error to show all deals
     } finally {
@@ -102,12 +104,12 @@ export default function SalePage() {
             <Button variant="ghost" size="icon" asChild>
               <Link href="/store">
                 <ArrowLeft />
-                <span className="sr-only">Back to Store</span>
+                <span className="sr-only">{t('common.backToStore')}</span>
               </Link>
             </Button>
             <h1 className="text-xl font-bold font-headline flex items-center gap-2 text-accent">
               <Sparkles className="w-6 h-6 text-accent" />
-              <span>Grand Sparkathon Sale</span>
+              <span>{t('sale.title')}</span>
               <Sparkles className="w-6 h-6 text-accent" />
             </h1>
             <div className="w-8"></div>
@@ -117,14 +119,14 @@ export default function SalePage() {
         <main className="flex-1 py-8 px-4">
           <div className="container mx-auto max-w-4xl">
             <div className="text-center mb-8">
-                <h2 className="text-3xl font-extrabold tracking-tight text-foreground drop-shadow-md">Unbeatable Deals!</h2>
-                <p className="mt-2 text-lg text-muted-foreground">Grab them before they're gone. Up to 50% OFF on your favorite brands.</p>
+                <h2 className="text-3xl font-extrabold tracking-tight text-foreground drop-shadow-md">{t('sale.hero.title')}</h2>
+                <p className="mt-2 text-lg text-muted-foreground">{t('sale.hero.description')}</p>
             </div>
 
             {summaryText && (
                 <Alert className="mb-8">
                   <Award className="h-5 w-5 text-primary" />
-                  <AlertTitle className="font-bold">Deals Curated For You!</AlertTitle>
+                  <AlertTitle className="font-bold">{t('sale.curatedDeals.title')}</AlertTitle>
                   <AlertDescription>
                     {summaryText}
                   </AlertDescription>
@@ -133,10 +135,10 @@ export default function SalePage() {
             
             {personalizedSuggestions.length > 0 && (
                 <>
-                    <h3 className="text-2xl font-bold mb-4">Your Personalized Deals</h3>
+                    <h3 className="text-2xl font-bold mb-4">{t('sale.personalizedDeals.title')}</h3>
                     <ProductGrid products={personalizedSuggestions} />
                     <Separator className="my-8 bg-border" />
-                    <h3 className="text-2xl font-bold mb-4">All Sale Items</h3>
+                    <h3 className="text-2xl font-bold mb-4">{t('sale.allItems.title')}</h3>
                 </>
             )}
             
@@ -149,35 +151,35 @@ export default function SalePage() {
        <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogContent className="sm:max-w-[425px]" onInteractOutside={(e) => e.preventDefault()}>
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2"><Sparkles className="text-primary"/> Personalize Your Sale!</DialogTitle>
+            <DialogTitle className="flex items-center gap-2"><Sparkles className="text-primary"/>{t('sale.modal.title')}</DialogTitle>
             <DialogDescription>
-              Tell us your profession and we'll curate the best deals for you.
+              {t('sale.modal.description')}
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="profession" className="text-right">
-                I'm a...
+                {t('sale.modal.professionLabel')}
               </Label>
               <Input
                 id="profession"
                 value={profession}
                 onChange={(e) => setProfession(e.target.value)}
-                placeholder="e.g., Student, Doctor"
+                placeholder={t('sale.modal.professionPlaceholder')}
                 className="col-span-3"
                 disabled={isLoading}
               />
             </div>
           </div>
           <DialogFooter>
-            <Button variant="ghost" onClick={handleSkip} disabled={isLoading}>Skip</Button>
+            <Button variant="ghost" onClick={handleSkip} disabled={isLoading}>{t('common.skip')}</Button>
             <Button onClick={handlePersonalize} disabled={isLoading || !profession.trim()}>
               {isLoading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Finding Deals...
+                  {t('sale.modal.buttonLoading')}
                 </>
-              ) : "Find My Deals"}
+              ) : t('sale.modal.button')}
             </Button>
           </DialogFooter>
         </DialogContent>

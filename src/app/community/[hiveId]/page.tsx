@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
@@ -13,6 +14,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useToast } from '@/hooks/use-toast';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Progress } from '@/components/ui/progress';
+import { useLanguage } from '@/context/language-context';
 
 // Mock Data
 const hiveData = {
@@ -44,12 +46,13 @@ export default function HiveDetailPage({ params }: { params: { hiveId: string } 
     const [newMessage, setNewMessage] = useState('');
     const [splitOption, setSplitOption] = useState('item');
     const { toast } = useToast();
+    const { t } = useLanguage();
 
     const totalCost = cart.reduce((acc, item) => acc + item.price, 0);
     const equalShare = totalCost / hiveData.members.length;
 
     const handleAddItem = () => {
-        toast({ title: "Feature not implemented", description: "This is a prototype. Adding new items is not functional." });
+        toast({ title: t('common.featureNotImplemented'), description: t('common.prototypeDisclaimer') });
     };
 
     const handleRemoveItem = (itemId: number) => {
@@ -77,7 +80,7 @@ export default function HiveDetailPage({ params }: { params: { hiveId: string } 
                     <Button variant="ghost" size="icon" asChild>
                         <Link href="/community">
                         <ArrowLeft />
-                        <span className="sr-only">Back to Hives</span>
+                        <span className="sr-only">{t('community.hive.backToHives')}</span>
                         </Link>
                     </Button>
                     <div className="text-center">
@@ -85,7 +88,7 @@ export default function HiveDetailPage({ params }: { params: { hiveId: string } 
                             <Sparkles className="w-5 h-5 text-primary" />
                             {hiveData.name}
                         </h1>
-                        <p className="text-xs text-muted-foreground -mt-1">{hiveData.members.length} Members</p>
+                        <p className="text-xs text-muted-foreground -mt-1">{t('community.hive.membersCount', { count: hiveData.members.length })}</p>
                     </div>
                     <div className="w-8">
                         <Avatar className="h-8 w-8">
@@ -103,8 +106,8 @@ export default function HiveDetailPage({ params }: { params: { hiveId: string } 
                     <div className="lg:col-span-2 space-y-6">
                         <Card>
                             <CardHeader>
-                                <CardTitle>Shared Cart</CardTitle>
-                                <CardDescription>Items added by all Hive members. Total: <span className="font-bold text-foreground">₹{totalCost.toFixed(2)}</span></CardDescription>
+                                <CardTitle>{t('community.hive.cart.title')}</CardTitle>
+                                <CardDescription>{t('community.hive.cart.description', { total: totalCost.toFixed(2) })}</CardDescription>
                             </CardHeader>
                             <CardContent className="space-y-3">
                                 {cart.map(item => (
@@ -112,7 +115,7 @@ export default function HiveDetailPage({ params }: { params: { hiveId: string } 
                                         <Image src={item.image} alt={item.name} width={48} height={48} className="rounded-md border bg-white" data-ai-hint={item.hint} />
                                         <div className="flex-grow">
                                             <p className="font-semibold">{item.name}</p>
-                                            <p className="text-xs text-muted-foreground">Added by {item.addedBy}</p>
+                                            <p className="text-xs text-muted-foreground">{t('community.hive.cart.addedBy', { user: item.addedBy })}</p>
                                         </div>
                                         <p className="font-bold text-lg">₹{item.price.toFixed(2)}</p>
                                         {item.addedBy === 'You' && (
@@ -123,25 +126,25 @@ export default function HiveDetailPage({ params }: { params: { hiveId: string } 
                                     </div>
                                 ))}
                                 <Button variant="outline" className="w-full" onClick={handleAddItem}>
-                                    <Plus className="mr-2 h-4 w-4" /> Add Item to Hive Cart
+                                    <Plus className="mr-2 h-4 w-4" /> {t('community.hive.cart.addItemButton')}
                                 </Button>
                             </CardContent>
                         </Card>
 
                         <Card>
                             <CardHeader>
-                                <CardTitle>Smart Split Payments</CardTitle>
-                                <CardDescription>Choose how to split the bill.</CardDescription>
+                                <CardTitle>{t('community.hive.payment.title')}</CardTitle>
+                                <CardDescription>{t('community.hive.payment.description')}</CardDescription>
                             </CardHeader>
                             <CardContent className="space-y-4">
                                 <RadioGroup value={splitOption} onValueChange={setSplitOption}>
                                     <div className="flex items-center space-x-2">
                                         <RadioGroupItem value="item" id="item" />
-                                        <Label htmlFor="item">Split by items selected</Label>
+                                        <Label htmlFor="item">{t('community.hive.payment.splitByItem')}</Label>
                                     </div>
                                     <div className="flex items-center space-x-2">
                                         <RadioGroupItem value="equal" id="equal" />
-                                        <Label htmlFor="equal">Split equally among members (₹{equalShare.toFixed(2)} each)</Label>
+                                        <Label htmlFor="equal">{t('community.hive.payment.splitEqually', { amount: equalShare.toFixed(2) })}</Label>
                                     </div>
                                 </RadioGroup>
                                 <Separator />
@@ -161,7 +164,7 @@ export default function HiveDetailPage({ params }: { params: { hiveId: string } 
                                         </div>
                                     ))}
                                 </div>
-                                <Button className="w-full">Settle Up & Place Order</Button>
+                                <Button className="w-full">{t('community.hive.payment.settleButton')}</Button>
                             </CardContent>
                         </Card>
 
@@ -171,7 +174,7 @@ export default function HiveDetailPage({ params }: { params: { hiveId: string } 
                     <div className="flex flex-col">
                        <Card className="flex-1 flex flex-col">
                             <CardHeader className="flex-row items-center justify-between">
-                                <CardTitle>Hive Chat</CardTitle>
+                                <CardTitle>{t('community.hive.chat.title')}</CardTitle>
                                 <div className="flex -space-x-2">
                                     {hiveData.members.map(m => (
                                         <Avatar key={m.id} className="h-6 w-6 border-2 border-background">
@@ -200,7 +203,7 @@ export default function HiveDetailPage({ params }: { params: { hiveId: string } 
                                             <div key={index} className="flex gap-2 items-start">
                                                  <Avatar className="h-8 w-8 bg-accent/20"><Bot className="h-5 w-5 m-auto text-accent"/></Avatar>
                                                  <div className="flex-1 rounded-lg px-3 py-2 bg-accent/10 border border-accent/20 text-sm">
-                                                    <p className="font-bold text-accent mb-1">AI Assistant</p>
+                                                    <p className="font-bold text-accent mb-1">{t('community.hive.chat.aiAssistant')}</p>
                                                     {item.message}
                                                  </div>
                                             </div>
@@ -219,14 +222,14 @@ export default function HiveDetailPage({ params }: { params: { hiveId: string } 
                                                             <div key={option}>
                                                                 <div className="flex justify-between text-xs mb-1">
                                                                     <span>{option}</span>
-                                                                    <span className="font-bold">{voteCount} vote(s)</span>
+                                                                    <span className="font-bold">{t('community.hive.chat.poll.votes', { count: voteCount })}</span>
                                                                 </div>
                                                                 <Progress value={percentage} />
                                                             </div>
                                                         )
                                                     })}
                                                 </div>
-                                                <Button variant="outline" size="sm" className="w-full mt-3">Vote Now</Button>
+                                                <Button variant="outline" size="sm" className="w-full mt-3">{t('community.hive.chat.poll.voteButton')}</Button>
                                             </div>
                                         )
                                     }
@@ -236,7 +239,7 @@ export default function HiveDetailPage({ params }: { params: { hiveId: string } 
                             <div className="p-4 border-t">
                                 <div className="relative">
                                     <Input 
-                                        placeholder="Type a message or ask AI..."
+                                        placeholder={t('community.hive.chat.inputPlaceholder')}
                                         value={newMessage}
                                         onChange={(e) => setNewMessage(e.target.value)}
                                         onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}

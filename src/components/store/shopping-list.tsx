@@ -1,12 +1,15 @@
+
 'use client';
 
 import { ShoppingCart } from 'lucide-react';
 import Link from 'next/link';
 import { useCart } from '@/context/cart-context';
 import { Button } from '@/components/ui/button';
+import { useLanguage } from '@/context/language-context';
 
 export function ShoppingList() {
     const { itemCount, cartTotal } = useCart();
+    const { t } = useLanguage();
 
     if (itemCount === 0) {
         return null;
@@ -18,13 +21,13 @@ export function ShoppingList() {
         <div className="flex items-center gap-3">
             <ShoppingCart className="w-6 h-6" />
             <div>
-                <p className="font-bold text-sm">{itemCount} {itemCount > 1 ? 'Items' : 'Item'}</p>
+                <p className="font-bold text-sm">{t('store.shoppingList.items', { count: itemCount })}</p>
                 <p className="text-sm font-bold">₹{cartTotal.toFixed(2)}</p>
             </div>
         </div>
         <Button asChild className="bg-primary-foreground text-primary hover:bg-primary-foreground/90 font-bold">
             <Link href="/cart">
-                View Cart
+                {t('store.shoppingList.viewCart')}
             </Link>
         </Button>
       </div>

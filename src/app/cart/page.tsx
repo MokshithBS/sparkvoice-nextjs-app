@@ -1,3 +1,4 @@
+
 'use client';
 
 import Image from 'next/image';
@@ -14,6 +15,7 @@ import type { Product } from '@/lib/products';
 import { products } from '@/lib/products';
 import { suggestProducts } from '@/ai/flows/product-suggester-flow';
 import { ProductGrid } from '@/components/store/product-grid';
+import { useLanguage } from '@/context/language-context';
 
 
 export default function CartPage() {
@@ -22,6 +24,7 @@ export default function CartPage() {
   const router = useRouter();
   const [suggestedProducts, setSuggestedProducts] = useState<Product[]>([]);
   const [isSuggesting, setIsSuggesting] = useState(false);
+  const { t } = useLanguage();
 
   useEffect(() => {
     if (cartItems.length > 0) {
@@ -56,8 +59,8 @@ export default function CartPage() {
 
   const handleCheckout = () => {
     toast({
-      title: 'Order Placed!',
-      description: 'Thank you for your purchase. Your items are on their way!',
+      title: t('cart.toast.orderPlaced.title'),
+      description: t('cart.toast.orderPlaced.description'),
     });
     clearCart();
     router.push('/store');
@@ -70,12 +73,12 @@ export default function CartPage() {
           <Button variant="ghost" size="icon" asChild>
             <Link href="/store">
               <ArrowLeft />
-              <span className="sr-only">Back to Store</span>
+              <span className="sr-only">{t('common.backToStore')}</span>
             </Link>
           </Button>
           <h1 className="text-xl font-bold font-headline flex items-center gap-2">
             <ShoppingCart className="w-6 h-6 text-primary" />
-            <span>Your Cart</span>
+            <span>{t('cart.title')}</span>
           </h1>
           <div className="w-8"></div>
         </div>
@@ -86,16 +89,16 @@ export default function CartPage() {
           {itemCount === 0 ? (
             <div className="text-center space-y-4 py-16">
               <ShoppingCart className="mx-auto h-16 w-16 text-muted-foreground" />
-              <h2 className="text-2xl font-bold">Your cart is empty</h2>
-              <p className="text-muted-foreground">Looks like you haven't added anything to your cart yet.</p>
+              <h2 className="text-2xl font-bold">{t('cart.empty.title')}</h2>
+              <p className="text-muted-foreground">{t('cart.empty.description')}</p>
               <Button asChild>
-                <Link href="/store">Start Shopping</Link>
+                <Link href="/store">{t('cart.empty.button')}</Link>
               </Button>
             </div>
           ) : (
             <div className="grid gap-8 md:grid-cols-[2fr_1fr]">
               <div className="space-y-4">
-                <h2 className="text-lg font-semibold">Cart Items ({itemCount})</h2>
+                <h2 className="text-lg font-semibold">{t('cart.itemsTitle', { count: itemCount })}</h2>
                 {cartItems.map(item => (
                   <Card key={item.id} className="overflow-hidden">
                     <CardContent className="p-4 flex gap-4 items-center">
@@ -133,12 +136,12 @@ export default function CartPage() {
                     {isSuggesting && (
                         <div className="flex items-center justify-center gap-2 py-8 text-muted-foreground">
                             <Loader2 className="h-5 w-5 animate-spin" />
-                            <span>Looking for suggestions...</span>
+                            <span>{t('common.loadingSuggestions')}</span>
                         </div>
                     )}
                     {suggestedProducts.length > 0 && !isSuggesting && (
                         <>
-                            <h2 className="text-xl font-bold mb-4 mt-8 pt-8 border-t">You Might Also Like</h2>
+                            <h2 className="text-xl font-bold mb-4 mt-8 pt-8 border-t">{t('common.youMightAlsoLike')}</h2>
                             <ProductGrid products={suggestedProducts} />
                         </>
                     )}
@@ -148,24 +151,24 @@ export default function CartPage() {
               <div className="space-y-4 sticky top-24">
                 <Card>
                   <CardHeader>
-                    <CardTitle>Order Summary</CardTitle>
+                    <CardTitle>{t('cart.summary.title')}</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div className="flex justify-between text-muted-foreground">
-                      <span>Subtotal ({itemCount} items)</span>
+                      <span>{t('cart.summary.subtotal', { count: itemCount })}</span>
                       <span>₹{cartTotal.toFixed(2)}</span>
                     </div>
                     <div className="flex justify-between text-muted-foreground">
-                      <span>Delivery Fee</span>
-                      <span className="text-primary font-medium">FREE</span>
+                      <span>{t('cart.summary.deliveryFee')}</span>
+                      <span className="text-primary font-medium">{t('cart.summary.free')}</span>
                     </div>
                     <Separator />
                     <div className="flex justify-between font-bold text-lg">
-                      <span>Total Amount</span>
+                      <span>{t('cart.summary.total')}</span>
                       <span>₹{cartTotal.toFixed(2)}</span>
                     </div>
                     <Button className="w-full" size="lg" onClick={handleCheckout}>
-                      Place Order
+                      {t('cart.summary.placeOrder')}
                     </Button>
                   </CardContent>
                 </Card>

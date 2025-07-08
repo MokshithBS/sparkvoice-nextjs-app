@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -6,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { ChefHat, Loader2, Mic, Camera } from 'lucide-react';
 import Link from 'next/link';
 import { Label } from '@/components/ui/label';
+import { useLanguage } from '@/context/language-context';
 
 interface RecipeInput {
   dishName: string;
@@ -21,6 +23,7 @@ interface ShopByRecipeProps {
 }
 
 export function ShopByRecipe({ recipeInput, onRecipeInputChange, onSubmit, isLoading }: ShopByRecipeProps) {
+  const { t } = useLanguage();
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (recipeInput.dishName.trim()) {
@@ -34,8 +37,8 @@ export function ShopByRecipe({ recipeInput, onRecipeInputChange, onSubmit, isLoa
         <div className="flex items-center gap-3">
           <ChefHat className="w-8 h-8 text-primary" />
           <div>
-            <CardTitle className="font-headline text-lg">Shop by Recipe</CardTitle>
-            <CardDescription>Tell us what you're cooking!</CardDescription>
+            <CardTitle className="font-headline text-lg">{t('store.shopByRecipe.title')}</CardTitle>
+            <CardDescription>{t('store.shopByRecipe.description')}</CardDescription>
           </div>
         </div>
       </CardHeader>
@@ -43,11 +46,11 @@ export function ShopByRecipe({ recipeInput, onRecipeInputChange, onSubmit, isLoa
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-[2fr_1fr] gap-4">
             <div className="space-y-2">
-              <Label htmlFor="dish-name">Dish Name</Label>
+              <Label htmlFor="dish-name">{t('store.shopByRecipe.dishNameLabel')}</Label>
               <div className="relative flex h-10 w-full items-center rounded-md border border-input bg-background ring-offset-background focus-within:ring-2 focus-within:ring-ring">
                 <Input
                   id="dish-name"
-                  placeholder="e.g., Paneer Butter Masala"
+                  placeholder={t('store.shopByRecipe.dishNamePlaceholder')}
                   value={recipeInput.dishName}
                   onChange={(e) => onRecipeInputChange('dishName', e.target.value)}
                   disabled={isLoading}
@@ -57,25 +60,25 @@ export function ShopByRecipe({ recipeInput, onRecipeInputChange, onSubmit, isLoa
                   <Button asChild variant="ghost" size="icon" className="h-8 w-8 flex-shrink-0 rounded-full" disabled={isLoading}>
                     <Link href="/spark?tab=speak&context=recipe">
                       <Mic className="h-4 w-4" />
-                      <span className="sr-only">Speak dish name</span>
+                      <span className="sr-only">{t('common.speak')}</span>
                     </Link>
                   </Button>
                   <Button asChild variant="ghost" size="icon" className="h-8 w-8 flex-shrink-0 rounded-full" disabled={isLoading}>
                     <Link href="/spark?tab=scan&context=recipe">
                       <Camera className="h-4 w-4" />
-                      <span className="sr-only">Scan recipe list</span>
+                      <span className="sr-only">{t('common.scan')}</span>
                     </Link>
                   </Button>
                 </div>
               </div>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="serving-size">Servings</Label>
+              <Label htmlFor="serving-size">{t('store.shopByRecipe.servingsLabel')}</Label>
               <Input
                 id="serving-size"
                 type="number"
                 min="1"
-                placeholder="e.g., 4"
+                placeholder={t('store.shopByRecipe.servingsPlaceholder')}
                 value={recipeInput.servingSize}
                 onChange={(e) => onRecipeInputChange('servingSize', e.target.value)}
                 disabled={isLoading}
@@ -83,10 +86,10 @@ export function ShopByRecipe({ recipeInput, onRecipeInputChange, onSubmit, isLoa
             </div>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="special-requests">Special Requests (optional)</Label>
+            <Label htmlFor="special-requests">{t('store.shopByRecipe.specialRequestsLabel')}</Label>
             <Input
               id="special-requests"
-              placeholder="e.g., make it spicy, Jain version"
+              placeholder={t('store.shopByRecipe.specialRequestsPlaceholder')}
               value={recipeInput.specialRequests}
               onChange={(e) => onRecipeInputChange('specialRequests', e.target.value)}
               disabled={isLoading}
@@ -96,10 +99,10 @@ export function ShopByRecipe({ recipeInput, onRecipeInputChange, onSubmit, isLoa
             {isLoading ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                <span>Getting Ingredients...</span>
+                <span>{t('store.shopByRecipe.buttonLoading')}</span>
               </>
             ) : (
-              'Get Ingredients'
+              t('store.shopByRecipe.button')
             )}
           </Button>
         </form>
