@@ -1,7 +1,7 @@
 'use client';
 
 import { useLanguage } from "@/context/language-context";
-import { CheckCircle, HeartHandshake, PackageSplit, SearchX, MessageSquareWarning } from "lucide-react";
+import { CheckCircle, HeartHandshake, Package, SearchX, MessageSquareWarning } from "lucide-react";
 
 const problems = [
     {
@@ -21,7 +21,7 @@ const problems = [
         ]
     },
     {
-        icon: <PackageSplit className="w-8 h-8 text-destructive" />,
+        icon: <Package className="w-8 h-8 text-destructive" />,
         title: 'Fragmented fulfillment',
         description: [
             'Quick-commerce (“anytime, under 30 min”) lives in a different silo from regular e-commerce (“next-day” or subscription), forcing customers to juggle multiple apps.',
