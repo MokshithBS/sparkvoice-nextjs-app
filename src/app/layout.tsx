@@ -5,7 +5,7 @@ import { Providers } from './providers';
 
 export const metadata: Metadata = {
   title: 'SparkVoice',
-  description: 'Speak It or Snap It. Just Spark It.',
+  description: 'A conversational commerce platform that turns your voice, photos, and text into an instant shopping cart. Experience the future of effortless retail with AI.',
 };
 
 export default function RootLayout({
