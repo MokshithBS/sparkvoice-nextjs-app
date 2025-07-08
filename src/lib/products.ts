@@ -34,6 +34,7 @@ export interface Product {
 
     // Dairy, Bread & Eggs
     { id: 3, name: 'Amul Milk Taaza', price: 28, quantity: '500 ml', image: 'https://storage.googleapis.com/aip-dev-images-public/product-milk.png', category: 'Dairy, Bread & Eggs', hint: 'milk carton' },
+    { id: 91, name: 'Amul Milk Taaza', price: 55, quantity: '1 L', image: 'https://storage.googleapis.com/aip-dev-images-public/product-milk.png', category: 'Dairy, Bread & Eggs', hint: 'milk carton' },
     { id: 6, name: 'Farm Fresh Eggs', price: 72, salePrice: 60, quantity: '1 dozen', image: 'https://storage.googleapis.com/aip-dev-images-public/product-eggs.png', category: 'Dairy, Bread & Eggs', hint: 'egg carton' },
     { id: 19, name: 'Britannia Brown Bread', price: 45, quantity: '400 g', image: 'https://storage.googleapis.com/aip-dev-images-public/product-brown-bread.png', category: 'Dairy, Bread & Eggs', hint: 'bread loaf' },
     { id: 20, name: 'Amul Butter', price: 52, quantity: '100 g', image: 'https://storage.googleapis.com/aip-dev-images-public/product-butter.png', category: 'Dairy, Bread & Eggs', hint: 'butter stick' },

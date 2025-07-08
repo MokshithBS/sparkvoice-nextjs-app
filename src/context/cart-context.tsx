@@ -70,16 +70,21 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
     items.forEach(parsedItem => {
         const searchName = (parsedItem.englishProduct || parsedItem.product).toLowerCase();
-        const searchQuantity = parsedItem.quantity.toLowerCase();
+        // Normalize by removing spaces and making it lowercase.
+        const searchQuantity = parsedItem.quantity.toLowerCase().replace(/\s/g, '');
 
         // Attempt to find the best matching product from the available list by matching name and quantity/size.
         let foundProduct = products.find(p => 
-            p.name.toLowerCase().includes(searchName) && p.quantity.toLowerCase() === searchQuantity
+            p.name.toLowerCase().includes(searchName) && 
+            p.quantity.toLowerCase().replace(/\s/g, '') === searchQuantity
         );
 
         // If no exact match, try a more fuzzy match on the name that might include the quantity.
         if (!foundProduct) {
-            foundProduct = products.find(p => p.name.toLowerCase().includes(searchName) && p.name.toLowerCase().includes(searchQuantity));
+            foundProduct = products.find(p => 
+                p.name.toLowerCase().includes(searchName) && 
+                p.name.toLowerCase().replace(/\s/g, '').includes(searchQuantity)
+            );
         }
 
         // If still not found, fall back to matching just the name. This is less accurate but better than nothing.
