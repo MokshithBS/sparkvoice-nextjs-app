@@ -243,6 +243,7 @@ function SparkPageComponent() {
           availableProducts: availableProductsForAI,
         });
         setRecipeResult(result);
+        setParsedItems(result.shoppableItems); // Use parsedItems to display results
         await generateConfirmationAudio(result.confirmationText);
       } else {
         const result = await parseList({ photoDataUri, availableProducts: availableProductsForAI });
@@ -322,6 +323,7 @@ function SparkPageComponent() {
                         availableProducts: availableProductsForAI,
                     });
                     setRecipeResult(result);
+                    setParsedItems(result.shoppableItems);
                     await generateConfirmationAudio(result.confirmationText);
                 } catch (error) {
                     console.error("Error getting recipe from voice:", error);
@@ -515,8 +517,10 @@ function SparkPageComponent() {
   };
   
   const handleConfirmList = () => {
-    addToCartBatch(parsedItems);
-    router.push('/cart');
+    if (parsedItems.length > 0) {
+        addToCartBatch(parsedItems);
+        router.push('/cart');
+    }
   };
 
   const handleTabChange = (tab: string) => {
@@ -552,7 +556,7 @@ function SparkPageComponent() {
   const hasParsedListResult = parsedItems.length > 0;
   const hasPriceMatchResult = !!priceMatchResult;
   const hasRecipeResult = !!recipeResult;
-  const showResultPage = hasParsedListResult || hasPriceMatchResult || hasRecipeResult;
+  const showResultPage = hasParsedListResult || hasPriceMatchResult;
 
   return (
     <div className="flex flex-col min-h-dvh bg-background">
@@ -580,7 +584,7 @@ function SparkPageComponent() {
                 {hasParsedListResult && (
                     <>
                     <CardHeader>
-                        <CardTitle>Confirm Your List</CardTitle>
+                        <CardTitle>{recipeResult ? "Your Recipe & Shopping List" : "Confirm Your List"}</CardTitle>
                         <CardDescription>We've parsed your list. Please review and make any edits below before adding items to your cart.</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
@@ -612,22 +616,41 @@ function SparkPageComponent() {
                             </div>
                         )}
                         <div className="space-y-3">
-                            <div className="grid grid-cols-[1fr_auto_auto] gap-2 items-center text-sm font-medium text-muted-foreground px-2">
-                                <span>Product</span>
-                                <span>Quantity</span>
-                                <span className="w-8"></span>
-                            </div>
-                            {parsedItems.map((item, index) => (
-                            <div key={index} className="grid grid-cols-[1fr_auto_auto] gap-2 items-center">
-                                <Input value={item.product} onChange={(e) => handleItemChange(index, 'product', e.target.value)} className="w-full" aria-label="Product" />
-                                <Input value={item.quantity} onChange={(e) => handleItemChange(index, 'quantity', e.target.value)} className="w-24" aria-label="Quantity" />
-                                <Button variant="ghost" size="icon" onClick={() => handleDeleteItem(index)} aria-label="Delete item"><Trash2 className="h-4 w-4 text-destructive" /></Button>
-                            </div>
-                            ))}
-                        </div>
+                          <div className="grid grid-cols-[1fr_auto_auto] gap-2 items-center text-sm font-medium text-muted-foreground px-2">
+                              <span>Product to Add</span>
+                              <span className="w-20 text-center">Units</span>
+                              <span className="w-8"></span>
+                          </div>
+                          {parsedItems.map((item, index) => (
+                          <div key={index} className="p-3 rounded-lg border bg-muted/50 space-y-2">
+                              <div className="grid grid-cols-[1fr_auto_auto] gap-2 items-center">
+                                  <Input 
+                                      value={item.product} 
+                                      onChange={(e) => !recipeResult && handleItemChange(index, 'product', e.target.value)} 
+                                      className="w-full bg-background" 
+                                      aria-label="Product" 
+                                      readOnly={!!recipeResult}
+                                  />
+                                  <Input 
+                                      value={item.quantity} 
+                                      onChange={(e) => !recipeResult && handleItemChange(index, 'quantity', e.target.value)} 
+                                      className="w-20 text-center bg-background" 
+                                      aria-label="Quantity" 
+                                      readOnly={!!recipeResult}
+                                  />
+                                  <Button variant="ghost" size="icon" onClick={() => handleDeleteItem(index)} aria-label="Delete item"><Trash2 className="h-4 w-4 text-destructive" /></Button>
+                              </div>
+                              {item.requestedText && (
+                                  <p className="text-xs text-muted-foreground px-1">
+                                      Added <span className="font-semibold text-foreground">{item.quantity} unit(s)</span> to fulfill your request for "<span className="font-semibold text-foreground">{item.requestedText}</span>".
+                                  </p>
+                              )}
+                          </div>
+                          ))}
+                      </div>
                         <div className="flex justify-between items-center pt-4">
                             <Button variant="outline" onClick={startOver}>Start Over</Button>
-                            <Button onClick={handleConfirmList} size="lg">Confirm & Add to Cart</Button>
+                            <Button onClick={handleConfirmList} size="lg" disabled={parsedItems.length === 0}>Confirm & Add to Cart</Button>
                         </div>
                     </CardContent>
                     </>
@@ -681,44 +704,6 @@ function SparkPageComponent() {
                     </CardContent>
                     </>
                 )}
-                 {hasRecipeResult && recipeResult && (
-                    <>
-                        <CardHeader>
-                            <CardTitle>Your Recipe & Shopping List</CardTitle>
-                            <CardDescription>
-                                We've generated your recipe and a practical shopping list. Review and add to cart!
-                            </CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                             <div className="flex items-center gap-4 p-3 bg-secondary/20 rounded-lg">
-                                {audioConfirmationUrl ? (
-                                    <audio src={audioConfirmationUrl} autoPlay controls className="h-8 shrink-0" />
-                                ) : (
-                                    <Volume2 className="text-primary flex-shrink-0" />
-                                )}
-                                <p className="flex-1 text-sm text-secondary-foreground">{recipeResult.confirmationText}</p>
-                            </div>
-                            <div className="space-y-3 mt-4">
-                                <div className="grid grid-cols-[1fr_auto_auto] gap-2 items-center text-sm font-medium text-muted-foreground px-2">
-                                    <span>Product</span>
-                                    <span>Quantity</span>
-                                    <span className="w-8"></span>
-                                </div>
-                                {recipeResult.shoppableItems.map((item, index) => (
-                                <div key={index} className="grid grid-cols-[1fr_auto_auto] gap-2 items-center">
-                                    <Input defaultValue={item.product} className="w-full" aria-label="Product" />
-                                    <Input defaultValue={item.quantity} className="w-24" aria-label="Quantity" />
-                                    <Button variant="ghost" size="icon" onClick={() => handleDeleteItem(index)} aria-label="Delete item"><Trash2 className="h-4 w-4 text-destructive" /></Button>
-                                </div>
-                                ))}
-                            </div>
-                            <div className="flex justify-between items-center pt-4 mt-4 border-t">
-                                <Button variant="outline" onClick={startOver}>Start Over</Button>
-                                <Button onClick={() => handleConfirmList()} size="lg">Add to Cart</Button>
-                            </div>
-                        </CardContent>
-                    </>
-                 )}
               </Card>
             </div>
           ) : (

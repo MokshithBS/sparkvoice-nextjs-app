@@ -35,6 +35,7 @@ Your tasks are:
 4.  **Format Output**:
     - The 'product' and 'englishProduct' fields in your output MUST be the exact product name from the available products list.
     - The 'quantity' field MUST be the calculated number of units to add to the cart (e.g., "4").
+    - The 'requestedText' field should be a user-friendly description of the item's purpose, e.g., "Chips for the party".
 5.  **Generate a Creative Summary**: Write a friendly, personalized summary message ('summaryText') that explains your choices and why they fit the context.
 6.  **Return JSON**: Provide ONLY a JSON object that matches the output schema.
 

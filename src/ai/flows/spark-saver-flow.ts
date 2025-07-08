@@ -37,6 +37,7 @@ Your tasks are:
 4.  **Format Output**: For each selected item, determine the number of units to add to the cart.
     - The 'product' and 'englishProduct' fields MUST be the exact product name from the available products list.
     - The 'quantity' field MUST be the number of units to add to the cart, as a string (e.g., "1", "2").
+    - The 'requestedText' field should be a user-friendly description of the item, e.g., "Weekly Atta Supply".
 5.  **Generate a Summary**: Write a friendly, summary message ('summaryText') that explains your choices. For example: "For your family of {{familySize}} on a ₹{{budget}} budget, I've selected a 5kg pack of Aashirvaad Atta for best value and added seasonal vegetables to keep costs down. The total is just under your budget!"
 6.  **Return JSON**: Provide ONLY a JSON object that matches the output schema.
 

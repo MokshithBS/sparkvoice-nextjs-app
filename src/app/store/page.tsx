@@ -296,16 +296,24 @@ export default function StorePage() {
                 </div>
                 <div className="max-h-60 overflow-y-auto space-y-3">
                     {recipeResult?.shoppableItems.map((item, index) => (
-                    <div key={index} className="flex items-center space-x-3">
+                    <div key={index} className="flex items-start space-x-3">
                         <Checkbox 
                             id={`item-${index}`} 
                             checked={selectedRecipeItems.some(selected => selected.product === item.product)}
                             onCheckedChange={() => handleRecipeItemToggle(item)}
+                            className="mt-1"
                         />
-                        <Label htmlFor={`item-${index}`} className="flex justify-between w-full text-sm font-normal cursor-pointer">
-                            <span>{item.product}</span>
-                            <span className="text-muted-foreground">{item.quantity}</span>
-                        </Label>
+                        <div className="grid gap-0.5">
+                          <Label htmlFor={`item-${index}`} className="flex justify-between w-full text-sm font-normal cursor-pointer">
+                              <span>{item.product}</span>
+                              <span className="text-muted-foreground">Qty: {item.quantity}</span>
+                          </Label>
+                          {item.requestedText && (
+                            <p className="text-xs text-muted-foreground -mt-1">
+                                Fulfills recipe need for: <span className="font-semibold">{item.requestedText}</span>
+                            </p>
+                          )}
+                        </div>
                     </div>
                     ))}
                 </div>

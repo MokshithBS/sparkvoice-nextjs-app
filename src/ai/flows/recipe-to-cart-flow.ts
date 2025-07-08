@@ -85,6 +85,7 @@ Your tasks are:
 5.  **Format Output**:
     - The 'product' and 'englishProduct' fields in your output MUST be the exact product name from the \`availableProducts\` list.
     - The 'quantity' field MUST be the calculated number of units to add to the cart (e.g., "1", "2").
+    - For each shoppable item, the 'requestedText' field MUST be the original ingredient text from the recipe (e.g., "500g Onions", "2 cups all-purpose flour"). This is for user clarity.
 6.  **Generate Confirmation**: Create a friendly confirmation message in English summarizing the shoppable list.
 7.  **Find a Recipe Video**: Search for a popular, highly-rated YouTube video that shows how to cook '{{dishName}}'.
 8.  **Return JSON**: Structure the entire output as a single JSON object.

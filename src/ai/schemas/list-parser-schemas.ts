@@ -35,6 +35,7 @@ export const ListParserOutputItemSchema = z.object({
   product: z.string().describe('The exact name of the product from the available products list that was matched.'),
   englishProduct: z.string().describe('The English translation of the matched product name.'),
   quantity: z.string().describe('The **calculated number of units** to add to the cart, as a string. For example, if the user asks for "15kg Rice" and the store sells a "5 kg" pack, this value should be "3".'),
+  requestedText: z.string().describe("The original text of the item as identified from the user's list (e.g., '15kg Rice', '5 packs Parle-G'). This should capture the user's intent directly."),
 });
 export type ListParserOutputItem = z.infer<typeof ListParserOutputItemSchema>;
 
