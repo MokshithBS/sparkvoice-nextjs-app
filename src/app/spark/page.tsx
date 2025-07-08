@@ -18,6 +18,7 @@ import { generateSparkSaverCart } from '@/ai/flows/spark-saver-flow';
 import { compareBill } from '@/ai/flows/price-match-flow.ts';
 import { products } from '@/lib/products';
 import { getIngredientsForDish, type RecipeToCartOutput } from '@/ai/flows/recipe-to-cart-flow.ts';
+import { translations, type Language } from '@/lib/translations';
 
 import { type ListParserOutput, type ListParserOutputItem } from '@/ai/schemas/list-parser-schemas';
 import { type PriceMatchOutput } from '@/ai/schemas/price-match-schemas';
@@ -28,8 +29,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
 import { useCart } from '@/context/cart-context';
 import { useLanguage } from '@/context/language-context';
-import type { Language } from '@/lib/translations';
-import { translations } from '@/lib/translations';
 import { cn } from '@/lib/utils';
 
 
@@ -741,7 +740,7 @@ function SparkPageComponent() {
               <TabsList className="grid w-full grid-cols-5">
                 <TabsTrigger value="scan" className="gap-2"><Camera /> Scan</TabsTrigger>
                 <TabsTrigger value="saver" className="gap-2"><PiggyBank /> Spark Saver</TabsTrigger>
-                <TabsTrigger value="context" className="gap-2"><Bot /> AI Assistant</TabsTrigger>
+                <TabsTrigger value="context" className="gap-2"><Bot /> SparkCart AI</TabsTrigger>
                 <TabsTrigger value="speak" className="gap-2"><Mic /> Speak</TabsTrigger>
                 <TabsTrigger value="type" className="gap-2"><FileText /> Type</TabsTrigger>
               </TabsList>
@@ -826,7 +825,7 @@ function SparkPageComponent() {
               <TabsContent value="context">
                 <Card>
                   <CardHeader>
-                    <CardTitle className="flex items-center gap-2">AI Shopping Assistant</CardTitle>
+                    <CardTitle className="flex items-center gap-2">SparkCart AI</CardTitle>
                     <CardDescription>Describe a scenario (e.g., "weekend party," "healthy snacks for kids") and let our AI build a cart for you.</CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-6">

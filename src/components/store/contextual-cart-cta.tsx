@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Card, CardContent } from '@/components/ui/card';
@@ -12,7 +13,7 @@ export function ContextualCartCta() {
         <div className="flex items-center gap-3">
             <Bot className="w-8 h-8 text-primary" />
             <div>
-                <h3 className="font-bold font-headline text-foreground">AI Shopping Assistant</h3>
+                <h3 className="font-bold font-headline text-foreground">SparkCart AI</h3>
                 <p className="text-sm text-muted-foreground">
                     Describe what you need, we'll build the cart.
                 </p>
