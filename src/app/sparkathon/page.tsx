@@ -85,7 +85,7 @@ export default function SparkathonPage() {
                    <p>
                     SparkVoice acts as a compassionate, intelligent bridge across this divide. Instead of forcing users to learn a new system, our platform understands them in the most natural ways possible. It’s not just an app; it’s a full-stack conversational commerce ecosystem.
                    </p>
-                    <div className="space-y-4">
+                    <div className="space-y-6">
                         <div className="flex gap-4">
                             <div className="flex-shrink-0 pt-1">
                                 <CheckCircle className="w-6 h-6 text-green-600" />
@@ -100,8 +100,13 @@ export default function SparkathonPage() {
                                 <CheckCircle className="w-6 h-6 text-green-600" />
                             </div>
                             <div>
-                                <h4 className="font-bold text-foreground">Hyper-Personalized, Context-Aware AI</h4>
-                                <p>SparkVoice goes beyond keywords. Users can describe a need (“healthy snacks for my kid’s exams”), set a budget (“build me a weekly cart for ₹1500”), or ask for a recipe (“get me ingredients for paneer butter masala”). Our AI acts as a personal shopper, curating the perfect items.</p>
+                                <h4 className="font-bold text-foreground">A Suite of Hyper-Personalized AI Assistants</h4>
+                                <ul className="list-disc pl-5 mt-2 space-y-2 text-muted-foreground">
+                                    <li><strong>SparkCart AI:</strong> A family preparing for a festival can simply say, “I need items for a Diwali pooja,” and our AI curates a cart with everything from diyas and sweets to fresh flowers.</li>
+                                    <li><strong>SparkSaver:</strong> Users set a weekly budget like, “₹1500 for my family of four,” and our AI builds the most value-for-money cart, prioritizing essentials and sale items to help them manage expenses.</li>
+                                    <li><strong>AI Pantry Management:</strong> A quick snap of a kitchen shelf allows our AI to identify what's running low—like the last bit of tea powder or a nearly empty jar of pickles—and suggest a restock list.</li>
+                                    <li><strong>SparkGreen:</strong> At checkout, users are gently nudged with eco-friendly alternatives, like swapping plastic detergent bags for refill pouches, and can offset their delivery's carbon footprint.</li>
+                                </ul>
                             </div>
                         </div>
                         <div className="flex gap-4">
@@ -110,7 +115,7 @@ export default function SparkathonPage() {
                             </div>
                             <div>
                                 <h4 className="font-bold text-foreground">Trust Through Radical Transparency</h4>
-                                <p>Our Instant Price-Match feature allows users to scan any physical bill and see a line-by-line comparison with Walmart's prices, proving the value of shopping online and building unshakable customer loyalty.</p>
+                                <p>Our <strong>Instant Price-Match</strong> feature allows users to scan any physical kirana bill and see a line-by-line comparison with Walmart's prices, proving the value of shopping online and building unshakable customer loyalty.</p>
                             </div>
                         </div>
                         <div className="flex gap-4">
@@ -119,7 +124,7 @@ export default function SparkathonPage() {
                             </div>
                             <div>
                                 <h4 className="font-bold text-foreground">Community Commerce with SparkHives</h4>
-                                <p>We transform shopping from a solitary task into a collective activity. Hives enable neighbors to create shared carts, run polls on bulk buys, split payments effortlessly, and earn rewards for social contributions, deeply embedding Walmart into the community fabric.</p>
+                                <p>We transform shopping from a solitary task into a collective activity. <strong>Hives</strong> enable neighbors to create shared carts, run polls on bulk buys (like which brand of rice to get for the building), split payments effortlessly, and earn rewards for social contributions.</p>
                             </div>
                         </div>
                     </div>
