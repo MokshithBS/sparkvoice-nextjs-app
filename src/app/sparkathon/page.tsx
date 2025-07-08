@@ -45,7 +45,7 @@ export default function SparkathonPage() {
                 </CardHeader>
                 <CardContent>
                     <p className="text-lg font-medium leading-relaxed">
-                        SparkVoice is a multimodal AI that turns a photo, voice note, or simple thought into a complete shopping cart, delivered.
+                        SparkVoice is a multimodal AI that turns everyday human intent—a photo of a handwritten list, a voice note in a native dialect, or a simple thought—into a complete, delivered shopping cart.
                     </p>
                 </CardContent>
             </Card>
