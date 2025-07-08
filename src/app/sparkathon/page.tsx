@@ -59,14 +59,17 @@ export default function SparkathonPage() {
                     </div>
                 </CardHeader>
                 <CardContent className="space-y-4 text-base text-muted-foreground leading-relaxed">
-                    <p>
-                        For over 500 million people in India’s smaller towns and rural areas, the promise of e-commerce remains out of reach. The problem isn’t a lack of ambition; it’s a series of deeply human barriers.
+                   <p>
+                        Walmart’s next phase of growth in India depends on reaching the 500 million consumers in Tier 2/3 cities and rural areas. Yet, conventional e-commerce has hit a wall. The core problem isn't technology; it's that the current digital interface is fundamentally misaligned with how a massive part of India lives and thinks.
                     </p>
                     <p>
-                        This includes everyone from a grandmother in a village who handwrites her weekly grocery list in Kannada, to a first-time internet user who finds complex apps intimidating, to a busy parent who simply wants to use a voice note to order. They face a digital world built on a different set of assumptions—one that requires English proficiency, digital literacy, and comfort with multi-step checkouts.
+                        We see this every day: a grandmother in a village who only trusts her handwritten Kannada grocery list; a first-time internet user intimidated by complex apps; a busy parent who just wants to send a voice note for the week's shopping. These aren't edge cases; they represent the heart of the next billion users.
+                    </p>
+                    <p className="font-bold text-foreground">
+                        This is Walmart's key challenge: The digital divide isn't about access to phones, it's about a mismatch in interaction. This daily friction prevents half a billion people from accessing Walmart's ecosystem, limiting market penetration and leaving immense value on the table.
                     </p>
                     <p>
-                        This friction occurs every single day, creating a digital divide that prevents a massive segment of the population from accessing the convenience, variety, and savings of online retail. At the same time, local kirana stores struggle to grow, burdened by the manual effort of transcribing these very same handwritten lists and spoken orders.
+                        At the same time, local kirana stores—Walmart's crucial last-mile partners—are burdened by the same manual friction, transcribing these very same lists and spoken orders, which stifles their efficiency and growth.
                     </p>
                 </CardContent>
             </Card>
