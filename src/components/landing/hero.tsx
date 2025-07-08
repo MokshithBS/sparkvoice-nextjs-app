@@ -1,12 +1,12 @@
 
 'use client';
 
-import Image from "next/image"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { WhatsAppIcon } from "../icons/whatsapp-icon"
 import { Phone } from "lucide-react"
 import { useLanguage } from "@/context/language-context"
+import { HeroAnimation } from "./hero-animation";
 
 export function Hero() {
   const { t } = useLanguage();
@@ -40,14 +40,7 @@ export function Hero() {
             </div>
           </div>
           <div className="flex items-center justify-center">
-            <Image
-              src="https://storage.googleapis.com/aip-dev-images-public/spark-voice-hero.png"
-              alt="Hero"
-              width={600}
-              height={400}
-              className="rounded-xl shadow-2xl"
-              data-ai-hint="handwritten list phone"
-            />
+            <HeroAnimation />
           </div>
         </div>
       </div>
