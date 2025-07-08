@@ -3,7 +3,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Users, CheckCircle, Loader2, Building, Sparkles, MapPin, Package, Plus, Globe, Lock } from 'lucide-react';
+import { ArrowLeft, Users, CheckCircle, Loader2, Building, Sparkles, Plus, MessagesSquare, Vote, PiggyBank, ShoppingCart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -25,10 +25,11 @@ const discoverHives = [
     { id: '4', name: "BH Road Seniors Club", members: 31, image: 'https://storage.googleapis.com/aip-dev-images-public/community-4.png', hint: 'senior citizens' },
 ]
 
-const hiveTemplates = [
-    { name: "Hostel Starter Kit", description: "Monthly stock-up for students.", icon: <Package/>, hint: 'student supplies' },
-    { name: "Family Festival Pack", description: "All essentials for the festival season.", icon: <Package/>, hint: 'festival food' },
-    { name: "Weekly Veggie Haul", description: "Fresh vegetables for the week.", icon: <Package/>, hint: 'vegetable basket' },
+const hiveFeatures = [
+    { key: "chat_together", icon: <MessagesSquare className="w-6 h-6 text-primary"/> },
+    { key: "decide_together", icon: <Vote className="w-6 h-6 text-primary"/> },
+    { key: "budget_together", icon: <PiggyBank className="w-6 h-6 text-primary"/> },
+    { key: "shop_together", icon: <ShoppingCart className="w-6 h-6 text-primary"/> },
 ]
 
 export default function CommunityPage() {
@@ -58,16 +59,6 @@ export default function CommunityPage() {
             description: t('community.hub.toast.hiveCreated.description', { groupName }),
         });
     }, 1500);
-  };
-
-  const getTemplateName = (name: string) => {
-    const key = `community.hub.templates.${name.toLowerCase().replace(/ /g, '_')}.name`;
-    return t(key as any, name);
-  };
-
-  const getTemplateDescription = (name: string) => {
-    const key = `community.hub.templates.${name.toLowerCase().replace(/ /g, '_')}.description`;
-    return t(key as any, name);
   };
 
 
@@ -147,6 +138,24 @@ export default function CommunityPage() {
                     </CardContent>
                 </Card>
 
+                <div className="mt-12">
+                    <h2 className="text-2xl font-bold mb-2 text-center">{t('community.hub.features.title')}</h2>
+                    <p className="text-muted-foreground text-center mb-6 max-w-xl mx-auto">{t('community.hub.features.description')}</p>
+                    <div className="grid sm:grid-cols-2 gap-4">
+                        {hiveFeatures.map((feature) => (
+                           <Card key={feature.key}>
+                                <CardHeader className="flex flex-row items-center gap-4 space-y-0 pb-2">
+                                    <div className="p-2 bg-primary/10 rounded-lg">{feature.icon}</div>
+                                    <CardTitle className="text-base">{t(`community.hub.features.${feature.key}.title` as any)}</CardTitle>
+                                </CardHeader>
+                                <CardContent>
+                                    <p className="text-sm text-muted-foreground">{t(`community.hub.features.${feature.key}.description` as any)}</p>
+                                </CardContent>
+                            </Card>
+                        ))}
+                    </div>
+                </div>
+
                 <Separator/>
 
                 <div>
@@ -181,24 +190,9 @@ export default function CommunityPage() {
                                 </Avatar>
                                 <div className="flex-grow">
                                     <CardTitle className="text-lg">{hive.name}</CardTitle>
-                                    <CardDescription className="flex items-center gap-2"><Globe className="w-4 h-4"/>{t('community.hub.discover.public')}</CardDescription>
+                                    <CardDescription className="flex items-center gap-2"><Users className="w-4 h-4"/>{t('community.hub.members', { count: hive.members })}</CardDescription>
                                 </div>
                                 <Button>{t('community.hub.discover.join')}</Button>
-                            </Card>
-                        ))}
-                    </div>
-                </div>
-
-                <div>
-                    <h2 className="text-2xl font-bold mb-4">{t('community.hub.templates.title')}</h2>
-                    <div className="grid sm:grid-cols-2 gap-4">
-                        {hiveTemplates.map(template => (
-                             <Card key={template.name} className="p-4 flex items-center gap-4 hover:bg-muted/50 transition-colors cursor-pointer">
-                                <div className="p-2 bg-primary/10 rounded-lg">{template.icon}</div>
-                                <div>
-                                    <h3 className="font-bold">{getTemplateName(template.name)}</h3>
-                                    <p className="text-sm text-muted-foreground">{getTemplateDescription(template.description)}</p>
-                                </div>
                             </Card>
                         ))}
                     </div>
@@ -209,3 +203,5 @@ export default function CommunityPage() {
     </div>
   );
 }
+
+    

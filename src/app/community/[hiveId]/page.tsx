@@ -61,29 +61,9 @@ export default function HiveDetailPage({ params }: { params: { hiveId: string } 
     };
 
     const handleAddItem = () => {
-        const newItem = {
-            id: 12,
-            name: 'Lays Potato Chips (Classic Salted)',
-            price: 20,
-            addedBy: 'You',
-            image: 'https://storage.googleapis.com/aip-dev-images-public/snacks.png',
-            hint: 'potato chips'
-        };
-
-        if (cart.some(item => item.id === newItem.id)) {
-            toast({
-                title: 'Item already in cart',
-                description: `${newItem.name} is already in the shared cart.`,
-            });
-            return;
-        }
-
-        setCart(currentCart => [...currentCart, newItem]);
-        setChat(currentChat => [...currentChat, { type: 'user', user: 'You', message: `I've added ${newItem.name} to the cart.` }]);
-
         toast({
-            title: 'Item Added',
-            description: `${newItem.name} has been added to the Hive's shared cart.`,
+            title: t('common.featureNotImplemented'),
+            description: t('community.hive.cart.addItemToast'),
         });
     };
 
@@ -300,3 +280,5 @@ export default function HiveDetailPage({ params }: { params: { hiveId: string } 
         </div>
     );
 }
+
+    
