@@ -55,6 +55,9 @@ export interface Product {
     { id: 100, name: 'Fresh Chicken Breast (500 g)', price: 250, quantity: '500 g', image: 'https://storage.googleapis.com/aip-dev-images-public/product-chicken.png', category: 'Meat & Fish', hint: 'chicken breast', isVeg: false },
     { id: 101, name: 'Mutton Curry Cut (500 g)', price: 400, salePrice: 380, quantity: '500 g', image: 'https://storage.googleapis.com/aip-dev-images-public/product-mutton.png', category: 'Meat & Fish', hint: 'raw meat', isVeg: false },
     { id: 102, name: 'Fresh Rohu Fish (1 kg)', price: 300, quantity: '1 kg', image: 'https://storage.googleapis.com/aip-dev-images-public/product-fish.png', category: 'Meat & Fish', hint: 'fresh fish', isVeg: false },
+    { id: 103, name: 'Fresh Chicken Curry Cut (1 kg)', price: 450, quantity: '1 kg', image: 'https://storage.googleapis.com/aip-dev-images-public/product-chicken-curry.png', category: 'Meat & Fish', hint: 'chicken pieces', isVeg: false },
+    { id: 104, name: 'Fresh Chicken Boneless (500 g)', price: 280, salePrice: 260, quantity: '500 g', image: 'https://storage.googleapis.com/aip-dev-images-public/product-chicken-boneless.png', category: 'Meat & Fish', hint: 'boneless chicken', isVeg: false },
+    { id: 105, name: 'Mutton Biryani Cut (500 g)', price: 420, quantity: '500 g', image: 'https://storage.googleapis.com/aip-dev-images-public/product-mutton-biryani.png', category: 'Meat & Fish', hint: 'mutton pieces', isVeg: false },
 
     // Vegetables & Fruits
     { id: 7, name: 'Fresh Onions (1 kg)', price: 40, quantity: '1 kg', image: 'https://storage.googleapis.com/aip-dev-images-public/product-onions.png', category: 'Vegetables & Fruits', hint: 'onions', isVeg: true },
