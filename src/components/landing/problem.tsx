@@ -7,22 +7,34 @@ const problems = [
     {
         icon: <MessageSquareWarning className="w-8 h-8 text-destructive" />,
         title: 'Digital & language barriers',
-        description: 'Many first-time internet users struggle with complex UIs or English-only searches. Handwritten lists or voice notes in regional tongues go unrecognized by conventional apps.'
+        description: [
+            'Many first-time internet users struggle to navigate complex UIs, search in English, or complete multi-step checkouts.',
+            'Handwritten lists or voice notes in regional tongues go unrecognized by conventional apps.'
+        ]
     },
     {
         icon: <SearchX className="w-8 h-8 text-destructive" />,
         title: 'Discovery overload',
-        description: 'With millions of products, shoppers waste time scrolling and comparing. Price transparency is low, and hidden delivery or convenience fees erode trust.'
+        description: [
+            'With millions of SKUs across hundreds of categories, shoppers waste time scrolling, filtering and comparing—often settling for second-best.',
+            'Price transparency is low, and hidden delivery or convenience fees erode trust.'
+        ]
     },
     {
         icon: <PackageSplit className="w-8 h-8 text-destructive" />,
         title: 'Fragmented fulfillment',
-        description: 'Quick-commerce and regular e-commerce exist in separate apps, forcing customers to juggle multiple platforms. No single service ties together subscriptions, one-off orders, and group buys.'
+        description: [
+            'Quick-commerce (“anytime, under 30 min”) lives in a different silo from regular e-commerce (“next-day” or subscription), forcing customers to juggle multiple apps.',
+            'No single platform ties together subscriptions, one-off orders and community group buys.'
+        ]
     },
     {
         icon: <HeartHandshake className="w-8 h-8 text-destructive" />,
         title: 'Lack of social & sustainability signals',
-        description: 'Shopping is often a solitary, opaque process where eco-friendly options are buried. There’s no easy way to pool demand or earn rewards for buying green.'
+        description: [
+            'Shopping is often a solitary, opaque process; there’s no easy way to pool demand, crowdsource choices or earn rewards for buying green.',
+            'Environmentally conscious options remain buried under mainstream catalogs.'
+        ]
     },
 ]
 
@@ -62,8 +74,10 @@ export function Problem() {
                                     {problem.icon}
                                 </div>
                                 <div>
-                                    <h4 className="text-xl font-bold mb-1">{problem.title}</h4>
-                                    <p className="text-muted-foreground">{problem.description}</p>
+                                    <h4 className="text-xl font-bold mb-2">{problem.title}</h4>
+                                     <ul className="text-muted-foreground list-disc pl-5 space-y-2">
+                                        {problem.description.map((desc, i) => <li key={i}>{desc}</li>)}
+                                    </ul>
                                 </div>
                            </div>
                         ))}
