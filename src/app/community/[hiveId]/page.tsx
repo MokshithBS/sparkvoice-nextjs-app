@@ -4,7 +4,7 @@
 import { useState, useRef, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { ArrowLeft, Users, Send, IndianRupee, Plus, Trash2, Mic, Bot, Sparkles, X, Search } from 'lucide-react';
+import { ArrowLeft, Users, Send, IndianRupee, Plus, Trash2, Mic, Bot, Sparkles, X, Search, Award } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -30,15 +30,17 @@ const hiveData = {
     ],
     sharedCart: [
         { id: 1, name: 'Aashirvaad Atta (5 kg)', price: 225, addedBy: 'Anika S.', image: 'https://storage.googleapis.com/aip-dev-images-public/product-atta.png', hint: 'flour bag' },
-        { id: 2, name: 'Amul Milk Taaza (500 ml)', price: 28, addedBy: 'You', image: 'https://storage.googleapis.com/aip-dev-images-public/product-milk.png', hint: 'milk carton' },
-        { id: 3, name: 'Fresh Onions (1 kg)', price: 40, addedBy: 'Rohan V.', image: 'https://storage.googleapis.com/aip-dev-images-public/product-onions.png', hint: 'onions' },
+        { id: 12, name: 'Lays Potato Chips (Classic Salted)', price: 18, addedBy: 'Anika S.', image: 'https://storage.googleapis.com/aip-dev-images-public/snacks.png', hint: 'potato chips' },
+        { id: 3, name: 'Amul Milk Taaza (500 ml)', price: 28, addedBy: 'You', image: 'https://storage.googleapis.com/aip-dev-images-public/product-milk.png', hint: 'milk carton' },
+        { id: 18, name: 'MDH Deggi Mirch (100 g)', price: 70, addedBy: 'Rohan V.', image: 'https://storage.googleapis.com/aip-dev-images-public/product-chilli-powder.png', hint: 'spice powder' },
     ],
     chat: [
-        { type: 'user', user: 'Anika S.', message: 'I\'ve added the big atta pack for everyone.' },
-        { type: 'user', user: 'You', message: 'Great! I added milk for myself.' },
-        { type: 'ai', message: "✨ Suggestion: Add 5kg potatoes & 5kg tomatoes to your bulk order to unlock an extra 10% discount on all three items!" },
+        { type: 'user', user: 'Anika S.', message: 'Okay team, I\'ve added atta and some chips for the weekend get-together.' },
+        { type: 'user', user: 'You', message: 'I added milk for my morning coffee.' },
+        { type: 'user', user: 'Priya K.', message: 'Great! Rohan, since you like spicy food, should I add some extra chilli powder for the biryani?' },
+        { type: 'user', user: 'Rohan V.', message: 'Yes please, Priya! Good thinking. Just added it.' },
+        { type: 'ai', message: "Since you're planning a get-together, don't forget essentials like disposable plates and cups. Based on your cart, you can also get a 10% discount by adding 2L of Coke. Shall I add these?" },
         { type: 'poll', question: 'Which rice brand to buy?', options: ['India Gate (₹650)', 'Sona Masoori (₹550)'], votes: { 'India Gate (₹650)': 2, 'Sona Masoori (₹550)': 1 } },
-        { type: 'user', user: 'Rohan V.', message: 'Voted for India Gate. Added onions too.' },
     ]
 };
 
@@ -216,6 +218,24 @@ export default function HiveDetailPage({ params }: { params: { hiveId: string } 
                                         </div>
                                     </DialogContent>
                                 </Dialog>
+                            </CardContent>
+                        </Card>
+                         
+                         <Card>
+                            <CardHeader className="flex-row items-center gap-4 space-y-0">
+                                <div className="p-3 bg-primary/10 rounded-lg">
+                                    <Award className="w-6 h-6 text-primary"/>
+                                </div>
+                                <div>
+                                    <CardTitle>{t('community.hive.rewards.title')}</CardTitle>
+                                    <CardDescription>{t('community.hive.rewards.description')}</CardDescription>
+                                </div>
+                            </CardHeader>
+                            <CardContent>
+                                <div className="text-center p-4 bg-muted rounded-lg">
+                                    <p className="text-4xl font-bold text-primary">1,250</p>
+                                    <p className="text-sm font-medium text-muted-foreground">{t('community.hive.rewards.points')}</p>
+                                </div>
                             </CardContent>
                         </Card>
 

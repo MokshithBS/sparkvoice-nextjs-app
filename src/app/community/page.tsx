@@ -3,7 +3,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Users, CheckCircle, Loader2, Building, Sparkles, Plus, MessagesSquare, Vote, PiggyBank, ShoppingCart } from 'lucide-react';
+import { ArrowLeft, Users, CheckCircle, Loader2, Building, Sparkles, Plus, MessagesSquare, Vote, PiggyBank, ShoppingCart, Bot, Award } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -30,6 +30,8 @@ const hiveFeatures = [
     { key: "decide_together", icon: <Vote className="w-6 h-6 text-primary"/> },
     { key: "budget_together", icon: <PiggyBank className="w-6 h-6 text-primary"/> },
     { key: "shop_together", icon: <ShoppingCart className="w-6 h-6 text-primary"/> },
+    { key: "ai_assistant", icon: <Bot className="w-6 h-6 text-primary"/> },
+    { key: "hive_rewards", icon: <Award className="w-6 h-6 text-primary"/> },
 ]
 
 export default function CommunityPage() {

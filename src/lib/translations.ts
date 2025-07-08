@@ -226,7 +226,11 @@ export const translations = {
     'community.hub.features.budget_together.description': 'Split payments easily by item or equally among all members.',
     'community.hub.features.shop_together.title': 'Shop Together',
     'community.hub.features.shop_together.description': 'A single shared cart shows all items, avoiding duplicate purchases.',
-    
+    'community.hub.features.ai_assistant.title': 'AI Assistant',
+    'community.hub.features.ai_assistant.description': 'Your personal shopping assistant helps plan parties, find the best deals, and even suggests items for social contributions.',
+    'community.hub.features.hive_rewards.title': 'Hive Rewards',
+    'community.hub.features.hive_rewards.description': 'Earn points for your Hive by making bulk purchases or contributing to social causes. Redeem for discounts!',
+
     'community.hive.backToHives': 'Back to Hives',
     'community.hive.membersCount': '{{count}} Members',
     'community.hive.cart.title': 'Shared Cart',
@@ -244,6 +248,9 @@ export const translations = {
     'community.hive.chat.poll.votes': '{{count}} vote(s)',
     'community.hive.chat.poll.voteButton': 'Vote Now',
     'community.hive.chat.inputPlaceholder': 'Type a message or ask AI...',
+    'community.hive.rewards.title': 'Hive Rewards',
+    'community.hive.rewards.description': 'Points earned for group purchases and contributions.',
+    'community.hive.rewards.points': 'Hive Points',
 
     'sale.title': 'Grand Sparkathon Sale',
     'sale.hero.title': 'Unbeatable Deals!',
@@ -518,6 +525,10 @@ export const translations = {
     'community.hub.features.budget_together.description': 'वस्तु के अनुसार या सभी सदस्यों के बीच समान रूप से भुगतान विभाजित करें।',
     'community.hub.features.shop_together.title': 'एक साथ खरीदारी करें',
     'community.hub.features.shop_together.description': 'एक एकल साझा कार्ट सभी वस्तुओं को दिखाता है, डुप्लिकेट खरीदारी से बचता है।',
+    'community.hub.features.ai_assistant.title': 'एआई सहायक',
+    'community.hub.features.ai_assistant.description': 'आपका व्यक्तिगत खरीदारी सहायक पार्टियों की योजना बनाने, सर्वोत्तम सौदे खोजने और यहां तक कि सामाजिक योगदान के लिए आइटम सुझाने में मदद करता है।',
+    'community.hub.features.hive_rewards.title': 'हाइव पुरस्कार',
+    'community.hub.features.hive_rewards.description': 'थोक खरीद या सामाजिक कार्यों में योगदान करके अपने हाइव के लिए अंक अर्जित करें। छूट के लिए भुनाएं!',
 
     'community.hive.backToHives': 'हाइव्स पर वापस जाएं',
     'community.hive.membersCount': '{{count}} सदस्य',
@@ -536,6 +547,9 @@ export const translations = {
     'community.hive.chat.poll.votes': '{{count}} वोट',
     'community.hive.chat.poll.voteButton': 'अभी वोट करें',
     'community.hive.chat.inputPlaceholder': 'एक संदेश टाइप करें या एआई से पूछें...',
+    'community.hive.rewards.title': 'हाइव पुरस्कार',
+    'community.hive.rewards.description': 'समूह खरीद और योगदान के लिए अर्जित अंक।',
+    'community.hive.rewards.points': 'हाइव अंक',
 
     'sale.title': 'ग्रैंड स्पार्कथॉन सेल',
     'sale.hero.title': 'अपराजेय सौदे!',
@@ -808,6 +822,10 @@ export const translations = {
     'community.hub.features.budget_together.description': 'ಪಾವತಿಗಳನ್ನು ವಸ್ತುವಿನ ಮೂಲಕ ಅಥವಾ ಎಲ್ಲಾ ಸದಸ್ಯರ ನಡುವೆ ಸಮಾನವಾಗಿ ಸುಲಭವಾಗಿ ವಿಭಜಿಸಿ.',
     'community.hub.features.shop_together.title': 'ಒಟ್ಟಿಗೆ ಶಾಪಿಂಗ್ ಮಾಡಿ',
     'community.hub.features.shop_together.description': 'ಒಂದೇ ಹಂಚಿದ ಕಾರ್ಟ್ ಎಲ್ಲಾ ವಸ್ತುಗಳನ್ನು ತೋರಿಸುತ್ತದೆ, ನಕಲಿ ಖರೀದಿಗಳನ್ನು ತಪ್ಪಿಸುತ್ತದೆ.',
+    'community.hub.features.ai_assistant.title': 'AI ಸಹಾಯಕ',
+    'community.hub.features.ai_assistant.description': 'ನಿಮ್ಮ ವೈಯಕ್ತಿಕ ಶಾಪಿಂಗ್ ಸಹಾಯಕ ಪಾರ್ಟಿಗಳನ್ನು ಯೋಜಿಸಲು, ಉತ್ತಮ ಡೀಲ್‌ಗಳನ್ನು ಹುಡುಕಲು ಮತ್ತು ಸಾಮಾಜಿಕ ಕೊಡುಗೆಗಳಿಗಾಗಿ ವಸ್ತುಗಳನ್ನು ಸೂಚಿಸಲು ಸಹಾಯ ಮಾಡುತ್ತದೆ.',
+    'community.hub.features.hive_rewards.title': 'ಹೈವ್ ಬಹುಮಾನಗಳು',
+    'community.hub.features.hive_rewards.description': 'ಬೃಹತ್ ಖರೀದಿಗಳನ್ನು ಮಾಡುವ ಮೂಲಕ ಅಥವಾ ಸಾಮಾಜಿಕ ಕಾರಣಗಳಿಗೆ ಕೊಡುಗೆ ನೀಡುವ ಮೂಲಕ ನಿಮ್ಮ ಹೈವ್‌ಗಾಗಿ ಅಂಕಗಳನ್ನು ಗಳಿಸಿ. ರಿಯಾಯಿತಿಗಳಿಗಾಗಿ ಪಡೆದುಕೊಳ್ಳಿ!',
 
     'community.hive.backToHives': 'ಹೈವ್‌ಗಳಿಗೆ ಹಿಂತಿರುಗಿ',
     'community.hive.membersCount': '{{count}} ಸದಸ್ಯರು',
@@ -826,6 +844,9 @@ export const translations = {
     'community.hive.chat.poll.votes': '{{count}} ಮತ(ಗಳು)',
     'community.hive.chat.poll.voteButton': 'ಈಗ ಮತ ಚಲಾಯಿಸಿ',
     'community.hive.chat.inputPlaceholder': 'ಸಂದೇಶವನ್ನು ಟೈಪ್ ಮಾಡಿ ಅಥವಾ AI ಅನ್ನು ಕೇಳಿ...',
+    'community.hive.rewards.title': 'ಹೈವ್ ಬಹುಮಾನಗಳು',
+    'community.hive.rewards.description': 'ಗುಂಪು ಖರೀದಿಗಳು ಮತ್ತು ಕೊಡುಗೆಗಳಿಗಾಗಿ ಗಳಿಸಿದ ಅಂಕಗಳು.',
+    'community.hive.rewards.points': 'ಹೈವ್ ಅಂಕಗಳು',
 
     'sale.title': 'ಗ್ರಾಂಡ್ ಸ್ಪಾರ್ಕಥಾನ್ ಸೇಲ್',
     'sale.hero.title': 'ಅಜೇಯ ಡೀಲ್‌ಗಳು!',
@@ -1097,6 +1118,10 @@ export const translations = {
     'community.hub.features.budget_together.description': 'பொருளின் மூலம் அல்லது அனைத்து உறுப்பினர்களிடையே சமமாக பணம் செலுத்துவதை எளிதாகப் பிரிக்கவும்.',
     'community.hub.features.shop_together.title': 'ஒன்றாக ஷாப்பிங் செய்யுங்கள்',
     'community.hub.features.shop_together.description': 'ஒற்றைப் பகிரப்பட்ட வண்டி அனைத்துப் பொருட்களையும் காட்டுகிறது, நகல் வாங்குவதைத் தவிர்க்கிறது.',
+    'community.hub.features.ai_assistant.title': 'AI உதவியாளர்',
+    'community.hub.features.ai_assistant.description': 'உங்கள் தனிப்பட்ட ஷாப்பிங் உதவியாளர் விருந்துகளைத் திட்டமிடவும், சிறந்த ஒப்பந்தங்களைக் கண்டறியவும், சமூகப் பங்களிப்புகளுக்கான பொருட்களைப் பரிந்துரைக்கவும் உதவுகிறார்.',
+    'community.hub.features.hive_rewards.title': 'ஹைவ் வெகுமதிகள்',
+    'community.hub.features.hive_rewards.description': 'மொத்த கொள்முதல் செய்வதன் மூலம் அல்லது சமூக காரணங்களுக்காக பங்களிப்பதன் மூலம் உங்கள் ஹைவிற்கான புள்ளிகளைப் பெறுங்கள். தள்ளுபடிகளுக்குப் பெறுங்கள்!',
 
     'community.hive.backToHives': 'ஹைவ்ஸ்களுக்குத் திரும்பு',
     'community.hive.membersCount': '{{count}} உறுப்பினர்கள்',
@@ -1115,6 +1140,9 @@ export const translations = {
     'community.hive.chat.poll.votes': '{{count}} வாக்கு(கள்)',
     'community.hive.chat.poll.voteButton': 'இப்போது வாக்களி',
     'community.hive.chat.inputPlaceholder': 'ஒரு செய்தியைத் தட்டச்சு செய்யவும் அல்லது AI ஐக் கேட்கவும்...',
+    'community.hive.rewards.title': 'ஹைவ் வெகுமதிகள்',
+    'community.hive.rewards.description': 'குழு கொள்முதல் மற்றும் பங்களிப்புகளுக்காகப் பெற்ற புள்ளிகள்.',
+    'community.hive.rewards.points': 'ஹைவ் புள்ளிகள்',
 
     'sale.title': 'கிராண்ட் ஸ்பார்க்கத்தான் விற்பனை',
     'sale.hero.title': 'தோற்கடிக்க முடியாத ஒப்பந்தங்கள்!',
