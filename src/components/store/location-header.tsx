@@ -12,6 +12,8 @@ import {
 } from '@/components/ui/dropdown-menu';
 import type { Language } from '@/lib/translations';
 import { useToast } from '@/hooks/use-toast';
+import { Dialog, DialogTrigger } from '@/components/ui/dialog';
+import { ProfileDialog } from './profile-dialog';
 
 export function LocationHeader() {
   const { language, setLanguage, t, languageNames } = useLanguage();
@@ -71,10 +73,17 @@ export function LocationHeader() {
                 ))}
             </DropdownMenuContent>
         </DropdownMenu>
-        <Button variant="outline" size="icon" onClick={handleFeatureClick}>
-            <CircleUserRound className="w-8 h-8 text-foreground/80 shrink-0" />
-            <span className="sr-only">Profile</span>
-        </Button>
+        
+        <Dialog>
+            <DialogTrigger asChild>
+                <Button variant="outline" size="icon">
+                    <CircleUserRound className="w-8 h-8 text-foreground/80 shrink-0" />
+                    <span className="sr-only">Profile</span>
+                </Button>
+            </DialogTrigger>
+            <ProfileDialog />
+        </Dialog>
+
       </div>
     </header>
   );

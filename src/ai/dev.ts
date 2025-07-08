@@ -11,3 +11,4 @@ import './flows/price-match-flow.ts';
 import './flows/personalized-sale-flow.ts';
 import './flows/pantry-checker-flow.ts';
 import './flows/contextual-cart-flow.ts';
+import './flows/generate-avatar-flow.ts';
