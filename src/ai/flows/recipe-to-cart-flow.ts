@@ -80,7 +80,7 @@ Your tasks are:
 2.  **Create Shoppable List**: From the recipe ingredients, create a practical, **shoppable grocery list** ('shoppableItems').
 3.  **Exclude Pantry Staples**: From the **shoppable list only**, **do not** include items that are typically already in a home kitchen pantry. This includes: salt, sugar, water, turmeric powder, chili powder, and basic cooking oil, unless a very specific type is required.
 4.  **Match to Products & Calculate Quantity**: For each required item on the shoppable list, find the best matching product from the \`availableProducts\` list. Then, calculate the quantity of that product needed for the recipe.
-    - Example: If the recipe needs "500g Onions" and the store sells "1 kg" packs of onions, you should determine the quantity is "1" pack (as it's the smallest unit that fulfills the need).
+    - Example: If the recipe needs "500g Onions" and the store sells a "1 kg" packs of onions, you should determine the quantity is "1" pack (as it's the smallest unit that fulfills the need).
     - If a recipe needs "2 tomatoes", and tomatoes are sold by the kg, estimate a reasonable weight and find the corresponding product pack (e.g., "500g" or "1kg").
 5.  **Format Output**:
     - The 'product' and 'englishProduct' fields in your output MUST be the exact product name from the \`availableProducts\` list.
@@ -106,21 +106,10 @@ const recipeToCartFlow = ai.defineFlow(
     outputSchema: RecipeToCartOutputSchema,
   },
   async (input) => {
-    try {
-      const {output} = await recipeToCartPrompt(input);
-      if (!output) {
-        throw new Error('The AI failed to generate a valid response.');
-      }
-      return output;
-    } catch (error) {
-      console.error("Error in recipeToCartFlow:", error);
-      // Re-throwing a new Error ensures that the client-side code can properly
-      // inspect the error message for keywords like '503' or 'overloaded'.
-      if (error instanceof Error) {
-        throw new Error(error.message);
-      }
-      // Fallback for non-Error objects
-      throw new Error('An unknown error occurred while processing the recipe.');
+    const {output} = await recipeToCartPrompt(input);
+    if (!output) {
+      throw new Error('The AI failed to generate a valid response.');
     }
+    return output;
   }
 );
