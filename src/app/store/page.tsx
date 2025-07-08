@@ -34,6 +34,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { CommunityCta } from '@/components/store/community-cta';
 import { useLanguage } from '@/context/language-context';
+import { SustainabilityCta } from '@/components/store/sustainability-cta';
 
 interface RecipeInput {
   dishName: string;
@@ -254,6 +255,7 @@ export default function StorePage() {
               <SparkSaverCta />
               <RefillReminderCta />
               <CommunityCta />
+              <SustainabilityCta />
               <DiwaliBanner />
               <ShopByRecipe 
                 recipeInput={recipeInput}
