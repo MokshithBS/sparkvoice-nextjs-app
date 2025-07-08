@@ -17,7 +17,7 @@ import { suggestProducts } from '@/ai/flows/product-suggester-flow';
 import { Loader2, ArrowLeft, ChefHat, Youtube } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ShopByRecipe } from '@/components/store/shop-by-recipe';
-import { getIngredientsForDish, type RecipeToCartOutput } from '@/ai/flows/recipe-to-cart-flow';
+import { getIngredientsForDish, type RecipeToCartOutput } from '@/ai/flows/recipe-to-cart-flow.ts';
 import { useToast } from '@/hooks/use-toast';
 import { useCart } from '@/context/cart-context';
 import {
@@ -208,19 +208,11 @@ export default function StorePage() {
         }
     } catch (error) {
         console.error("Failed to get ingredients:", error);
-        if (error instanceof Error && (error.message.includes('503') || error.message.toLowerCase().includes('overloaded'))) {
-            toast({
-                variant: 'destructive',
-                title: 'AI Service Unavailable',
-                description: 'The AI model is currently busy. Please try again in a moment.',
-            });
-        } else {
-            toast({
-                variant: 'destructive',
-                title: t('common.error.generic.title'),
-                description: t('common.error.generic.description'),
-            });
-        }
+        toast({
+            variant: 'destructive',
+            title: t('common.error.generic.title'),
+            description: (error instanceof Error) ? error.message : t('common.error.generic.description'),
+        });
     } finally {
         setIsFetchingIngredients(false);
     }

@@ -106,10 +106,18 @@ const recipeToCartFlow = ai.defineFlow(
     outputSchema: RecipeToCartOutputSchema,
   },
   async (input) => {
-    const {output} = await recipeToCartPrompt(input);
-    if (!output) {
-      throw new Error('The AI failed to generate a valid response.');
+    try {
+      const {output} = await recipeToCartPrompt(input);
+      if (!output) {
+        throw new Error('The AI failed to generate a valid response.');
+      }
+      return output;
+    } catch (error) {
+      console.error("Error in recipeToCartFlow:", error);
+      if (error instanceof Error && (error.message.includes('503') || error.message.toLowerCase().includes('overloaded'))) {
+        throw new Error('The AI model is currently busy. Please try again in a moment.');
+      }
+      throw new Error('An unexpected error occurred while generating the recipe.');
     }
-    return output;
   }
 );
