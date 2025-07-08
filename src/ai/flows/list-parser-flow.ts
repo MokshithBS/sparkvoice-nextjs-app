@@ -31,13 +31,13 @@ Your tasks are:
 1.  **Item Extraction**: Read each item from the user's list.
 2.  **Store Original Text**: For each item, store the original text as you interpreted it from the image (e.g., "15kg Rice", "5 packs Parle-G") in the \`requestedText\` field. This is crucial for user clarity.
 3.  **Product Matching**: For each item, find the best matching product from the \`availableProducts\` list.
-4.  **Quantity Calculation**: This is the most critical step. Calculate how many units of the matched store product are needed to fulfill the user's request.
-    -   Example 1: If the user writes "15kg Rice" and the available product is a "5 kg" pack, you must calculate that the user needs **3** units. The 'quantity' field should be "3".
+4.  **Quantity Calculation**: This is the most critical step. Calculate the quantity of the matched store product needed to fulfill the user's request.
+    -   Example 1: If the user writes "15kg Rice" and the available product is a "5 kg" pack, you must calculate that the user needs a quantity of **3**. The 'quantity' field should be "3".
     -   Example 2: If the user writes "5 packs of Parle-G" and the available product is a "1 pack" unit, the quantity is **5**.
 5.  **Language Detection**: Determine the primary language of the text in the image (e.g., Hindi, English, Hinglish, Tamil). Set the \`detectedLanguage\` field to the appropriate BCP-47 code.
 6.  **Format Output**:
     - The 'product' and 'englishProduct' fields in your output MUST be the exact product name from the \`availableProducts\` list.
-    - The 'quantity' field MUST be the calculated number of units to add to the cart, as a string (e.g., "3", "5").
+    - The 'quantity' field MUST be the calculated quantity to add to the cart, as a string (e.g., "3", "5").
     - The 'requestedText' field MUST contain the original text for that item from the list.
 7.  **Confirmation Message**: Generate a natural, friendly confirmation message in the detected language that summarizes the items you found.
 8.  **Return JSON**: Structure the entire output as a single JSON object. Do not return anything else.

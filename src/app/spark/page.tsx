@@ -618,7 +618,7 @@ function SparkPageComponent() {
                         <div className="space-y-3">
                           <div className="grid grid-cols-[1fr_auto_auto] gap-2 items-center text-sm font-medium text-muted-foreground px-2">
                               <span>Product to Add</span>
-                              <span className="w-20 text-center">Units</span>
+                              <span className="w-20 text-center">Quantity</span>
                               <span className="w-8"></span>
                           </div>
                           {parsedItems.map((item, index) => (
@@ -642,7 +642,7 @@ function SparkPageComponent() {
                               </div>
                               {item.requestedText && (
                                   <p className="text-xs text-muted-foreground px-1">
-                                      Added <span className="font-semibold text-foreground">{item.quantity} unit(s)</span> to fulfill your request for "<span className="font-semibold text-foreground">{item.requestedText}</span>".
+                                      Added a quantity of <span className="font-semibold text-foreground">{item.quantity}</span> to fulfill your request for "<span className="font-semibold text-foreground">{item.requestedText}</span>".
                                   </p>
                               )}
                           </div>

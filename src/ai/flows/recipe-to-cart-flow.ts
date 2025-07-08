@@ -79,12 +79,12 @@ Your tasks are:
 1.  **Generate Recipe**: First, create a clear, step-by-step recipe for '{{dishName}}' adjusted for {{servingSize}} servings. This includes a detailed ingredient list (like '2 cups atta', '1 tsp salt') and cooking instructions.
 2.  **Create Shoppable List**: From the recipe ingredients, create a practical, **shoppable grocery list** ('shoppableItems').
 3.  **Exclude Pantry Staples**: From the **shoppable list only**, **do not** include items that are typically already in a home kitchen pantry. This includes: salt, sugar, water, turmeric powder, chili powder, and basic cooking oil, unless a very specific type is required.
-4.  **Match to Products & Calculate Quantity**: For each required item on the shoppable list, find the best matching product from the \`availableProducts\` list. Then, calculate how many units of that product are needed for the recipe.
+4.  **Match to Products & Calculate Quantity**: For each required item on the shoppable list, find the best matching product from the \`availableProducts\` list. Then, calculate the quantity of that product needed for the recipe.
     - Example: If the recipe needs "500g Onions" and the store sells "1 kg" packs of onions, you should determine the quantity is "1" pack (as it's the smallest unit that fulfills the need).
     - If a recipe needs "2 tomatoes", and tomatoes are sold by the kg, estimate a reasonable weight and find the corresponding product pack (e.g., "500g" or "1kg").
 5.  **Format Output**:
     - The 'product' and 'englishProduct' fields in your output MUST be the exact product name from the \`availableProducts\` list.
-    - The 'quantity' field MUST be the calculated number of units to add to the cart (e.g., "1", "2").
+    - The 'quantity' field MUST be the calculated quantity to add to the cart (e.g., "1", "2").
     - For each shoppable item, the 'requestedText' field MUST be the original ingredient text from the recipe (e.g., "500g Onions", "2 cups all-purpose flour"). This is for user clarity.
 6.  **Generate Confirmation**: Create a friendly confirmation message in English summarizing the shoppable list.
 7.  **Find a Recipe Video**: Search for a popular, highly-rated YouTube video that shows how to cook '{{dishName}}'.

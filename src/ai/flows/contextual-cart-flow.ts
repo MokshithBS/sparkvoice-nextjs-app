@@ -31,10 +31,10 @@ You will be given:
 Your tasks are:
 1.  **Analyze Intent**: Understand the user's core need (e.g., party, health focus, comfort food for a rainy day, quick meal for students).
 2.  **Select Relevant Products**: From the list of available products, create a curated list of items that match the user's context. Be thoughtful about quantities.
-3.  **Quantity Calculation**: Calculate how many units of the matched store product are needed. For "a party of 8," if you choose "Lays Potato Chips" and the available product is a single pack, you must calculate that the user needs **multiple** units (e.g., a quantity of "4").
+3.  **Quantity Calculation**: Calculate the quantity of the matched store product needed. For "a party of 8," if you choose "Lays Potato Chips" and the available product is a single pack, you must calculate that the user needs a **quantity** of "4".
 4.  **Format Output**:
     - The 'product' and 'englishProduct' fields in your output MUST be the exact product name from the available products list.
-    - The 'quantity' field MUST be the calculated number of units to add to the cart (e.g., "4").
+    - The 'quantity' field MUST be the calculated quantity to add to the cart (e.g., "4").
     - The 'requestedText' field should be a user-friendly description of the item's purpose, e.g., "Chips for the party".
 5.  **Generate a Creative Summary**: Write a friendly, personalized summary message ('summaryText') that explains your choices and why they fit the context.
 6.  **Return JSON**: Provide ONLY a JSON object that matches the output schema.
