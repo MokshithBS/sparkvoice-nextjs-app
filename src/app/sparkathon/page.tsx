@@ -33,6 +33,7 @@ export default function SparkathonPage() {
 
             <div className="text-center space-y-2">
                 <h2 className="text-4xl font-extrabold tracking-tight text-primary font-headline">SparkVoice</h2>
+                <p className="text-2xl font-bold tracking-tight">Speak It or Snap It. Just Spark It.</p>
                 <p className="text-lg text-muted-foreground">Bridging India's Digital Divide, One Conversation at a Time.</p>
             </div>
 
