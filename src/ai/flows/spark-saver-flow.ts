@@ -34,8 +34,11 @@ Your tasks are:
 1.  **Analyze Needs**: Based on the family size, estimate the required quantities of essential weekly staples (atta, rice, dal, oil, milk, key vegetables).
 2.  **Select Value Products**: From the list of available products, select items that meet these needs while staying strictly under the budget. Prioritize value packs, items on sale, and cost-effective alternatives.
 3.  **Incorporate Preferences**: Adjust your selections based on user preferences (e.g., if 'vegetarian', do not include eggs or meat).
-4.  **Generate a Summary**: Write a friendly, summary message ('summaryText') that explains your choices. For example: "For your family of {{familySize}} on a ₹{{budget}} budget, I've selected a 5kg pack of Aashirvaad Atta for best value and added seasonal vegetables to keep costs down. The total is just under your budget!"
-5.  **Return JSON**: Provide ONLY a JSON object that matches the output schema. The 'items' array should contain the product name and the recommended quantity.
+4.  **Format Output**: For each selected item, determine the number of units to add to the cart.
+    - The 'product' and 'englishProduct' fields MUST be the exact product name from the available products list.
+    - The 'quantity' field MUST be the number of units to add to the cart, as a string (e.g., "1", "2").
+5.  **Generate a Summary**: Write a friendly, summary message ('summaryText') that explains your choices. For example: "For your family of {{familySize}} on a ₹{{budget}} budget, I've selected a 5kg pack of Aashirvaad Atta for best value and added seasonal vegetables to keep costs down. The total is just under your budget!"
+6.  **Return JSON**: Provide ONLY a JSON object that matches the output schema.
 
 Available Products (JSON format):
 {{{json availableProducts}}}`,

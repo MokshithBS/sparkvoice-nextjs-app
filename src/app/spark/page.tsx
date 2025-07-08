@@ -65,6 +65,8 @@ function SparkPageComponent() {
   const mediaStreamRef = useRef<MediaStream | null>(null);
   const [languagePrompt, setLanguagePrompt] = useState<{ show: boolean, languageName: string, langCode: Language } | null>(null);
 
+  const availableProductsForAI = products.map(({ id, name, category, price, salePrice, quantity }) => ({ id, name, category, price: salePrice || price, quantity }));
+
   useEffect(() => {
     const cleanupStream = () => {
       if (mediaStreamRef.current) {
@@ -234,7 +236,6 @@ function SparkPageComponent() {
 
     try {
       if (context === 'recipe') {
-        const availableProductsForAI = products.map(({ id, name, category, quantity }) => ({ id, name, category, quantity }));
         const result = await getIngredientsForDish({
           dishName: `the dish in this image: ${photoDataUri}`,
           servingSize: 4,
@@ -244,7 +245,7 @@ function SparkPageComponent() {
         setRecipeResult(result);
         await generateConfirmationAudio(result.confirmationText);
       } else {
-        const result = await parseList({ photoDataUri });
+        const result = await parseList({ photoDataUri, availableProducts: availableProductsForAI });
         await processAndConfirmList(result);
       }
     } catch (error) {
@@ -272,7 +273,7 @@ function SparkPageComponent() {
     setIsLoading(true);
     resetViewStates();
     try {
-      const result = await parseTextList({ textList });
+      const result = await parseTextList({ textList, availableProducts: availableProductsForAI });
       await processAndConfirmList(result);
     } catch (error) {
       console.error('Error parsing text list:', error);
@@ -305,8 +306,7 @@ function SparkPageComponent() {
                 setIsLoading(true);
                 resetViewStates();
                 try {
-                    const availableProductsForAI = products.map(({ id, name, category, quantity }) => ({ id, name, category, quantity }));
-                    const voiceTextResult = await parseVoiceList({ audioDataUri: base64data });
+                    const voiceTextResult = await parseVoiceList({ audioDataUri: base64data, availableProducts: availableProductsForAI });
                     const dishName = voiceTextResult.items.map(i => `${i.product} ${i.quantity}`).join(' ');
 
                     if (!dishName) {
@@ -356,7 +356,7 @@ function SparkPageComponent() {
     setIsLoading(true);
     resetViewStates();
     try {
-      const result = await parseVoiceList({ audioDataUri });
+      const result = await parseVoiceList({ audioDataUri, availableProducts: availableProductsForAI });
       await processAndConfirmList(result);
     } catch (error) {
       console.error('Error parsing voice list:', error);
@@ -378,7 +378,6 @@ function SparkPageComponent() {
     setIsLoading(true);
     resetViewStates();
     try {
-      const availableProductsForAI = products.map(({ id, name, category, price, quantity }) => ({ id, name, category, price, salePrice: price, quantity }));
       const result = await generateContextualCart({
         query: contextualQuery,
         availableProducts: availableProductsForAI,
@@ -422,7 +421,6 @@ function SparkPageComponent() {
     setIsLoading(true);
     resetViewStates();
     try {
-        const availableProductsForAI = products.map(({ id, name, category, price, quantity }) => ({ id, name, category, price, salePrice: price, quantity }));
         const result = await generateSparkSaverCart({
             budget,
             familySize,
@@ -458,7 +456,6 @@ function SparkPageComponent() {
     setIsLoading(true);
     resetViewStates();
     try {
-        const availableProductsForAI = products.map(({ id, name, category, price, quantity }) => ({ id, name, category, price, salePrice: price, quantity }));
         const result = await compareBill({
             billPhotoDataUri: photoDataUri,
             availableProducts: availableProductsForAI

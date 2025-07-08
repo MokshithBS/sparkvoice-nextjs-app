@@ -30,9 +30,13 @@ You will be given:
 
 Your tasks are:
 1.  **Analyze Intent**: Understand the user's core need (e.g., party, health focus, comfort food for a rainy day, quick meal for students).
-2.  **Select Relevant Products**: From the list of available products, create a curated list of items that match the user's context. Be thoughtful about quantities (e.g., for a party of 8, suggest larger packs of snacks and drinks).
-3.  **Generate a Creative Summary**: Write a friendly, personalized summary message ('summaryText') that explains your choices and why they fit the context. For example: "For your beach trip, I've added sunscreen for protection, coconut water to stay hydrated, and some easy-to-carry snacks!"
-4.  **Return JSON**: Provide ONLY a JSON object that matches the output schema. The 'items' array should contain the product name and the recommended quantity.
+2.  **Select Relevant Products**: From the list of available products, create a curated list of items that match the user's context. Be thoughtful about quantities.
+3.  **Quantity Calculation**: Calculate how many units of the matched store product are needed. For "a party of 8," if you choose "Lays Potato Chips" and the available product is a single pack, you must calculate that the user needs **multiple** units (e.g., a quantity of "4").
+4.  **Format Output**:
+    - The 'product' and 'englishProduct' fields in your output MUST be the exact product name from the available products list.
+    - The 'quantity' field MUST be the calculated number of units to add to the cart (e.g., "4").
+5.  **Generate a Creative Summary**: Write a friendly, personalized summary message ('summaryText') that explains your choices and why they fit the context.
+6.  **Return JSON**: Provide ONLY a JSON object that matches the output schema.
 
 Available Products (JSON format):
 {{{json availableProducts}}}`,

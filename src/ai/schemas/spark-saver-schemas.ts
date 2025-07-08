@@ -1,20 +1,13 @@
 import {z} from 'zod';
 import { ListParserOutputItemSchema } from './list-parser-schemas';
-
-const ProductSchemaForAI = z.object({
-  id: z.number(),
-  name: z.string(),
-  price: z.number(),
-  category: z.string(),
-  quantity: z.string(),
-});
+import { ProductForAISchema } from './common-schemas';
 
 export const SparkSaverInputSchema = z.object({
   budget: z.number().positive().describe("The user's weekly grocery budget."),
   familySize: z.number().positive().int().describe("The number of people in the household."),
   preferences: z.string().optional().describe("Any specific user preferences, e.g., 'vegetarian', 'prefers organic', 'no spicy food'."),
   availableProducts: z
-    .array(ProductSchemaForAI)
+    .array(ProductForAISchema)
     .describe('The full list of products available in the store with their prices.'),
 });
 export type SparkSaverInput = z.infer<typeof SparkSaverInputSchema>;

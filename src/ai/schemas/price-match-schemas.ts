@@ -1,12 +1,5 @@
 import {z} from 'zod';
-
-const ProductSchemaForAI = z.object({
-  id: z.number(),
-  name: z.string(),
-  price: z.number(),
-  category: z.string(),
-  quantity: z.string(),
-});
+import { ProductForAISchema } from './common-schemas';
 
 export const PriceMatchInputSchema = z.object({
   billPhotoDataUri: z
@@ -15,7 +8,7 @@ export const PriceMatchInputSchema = z.object({
       "A photo of a physical store bill, as a data URI that must include a MIME type and use Base64 encoding. Expected format: 'data:<mimetype>;base64,<encoded_data>'."
     ),
   availableProducts: z
-    .array(ProductSchemaForAI)
+    .array(ProductForAISchema)
     .describe('The full list of products available in the online store with their prices.'),
 });
 export type PriceMatchInput = z.infer<typeof PriceMatchInputSchema>;

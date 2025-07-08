@@ -61,6 +61,7 @@ export default function StorePage() {
   const { toast } = useToast();
   const { addToCartBatch } = useCart();
   const { t } = useLanguage();
+  const availableProductsForAI = products.map(({ id, name, category, price, salePrice, quantity }) => ({ id, name, category, price: salePrice || price, quantity }));
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
@@ -105,10 +106,9 @@ export default function StorePage() {
         setIsSuggesting(true);
         setSuggestedProducts([]);
         try {
-          const availableProductsForAI = products.map(({ id, name, category }) => ({ id, name, category }));
           const result = await suggestProducts({
             contextProducts: [searchQuery],
-            availableProducts: availableProductsForAI,
+            availableProducts: availableProductsForAI.map(({ id, name, category }) => ({ id, name, category })),
           });
           
           if (result.suggestionIds && result.suggestionIds.length > 0) {
@@ -133,7 +133,7 @@ export default function StorePage() {
     } else {
         setSuggestedProducts([]);
     }
-  }, [searchQuery, filteredProducts]);
+  }, [searchQuery, filteredProducts, availableProductsForAI]);
 
   const handleRecipeInputChange = (field: keyof RecipeInput, value: string) => {
     setRecipeInput(prev => ({ ...prev, [field]: value }));
@@ -143,7 +143,6 @@ export default function StorePage() {
     setIsFetchingIngredients(true);
     setRecipeDishName(recipeInput.dishName);
     try {
-        const availableProductsForAI = products.map(({ id, name, category, quantity }) => ({ id, name, category, quantity }));
         const result = await getIngredientsForDish({
             dishName: recipeInput.dishName,
             servingSize: Number(recipeInput.servingSize) || 4,

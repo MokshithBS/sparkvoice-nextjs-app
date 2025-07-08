@@ -1,18 +1,11 @@
 import {z} from 'zod';
 import { ListParserOutputItemSchema } from './list-parser-schemas';
-
-const ProductSchemaForAI = z.object({
-  id: z.number(),
-  name: z.string(),
-  price: z.number(),
-  category: z.string(),
-  quantity: z.string(),
-});
+import { ProductForAISchema } from './common-schemas';
 
 export const ContextToCartInputSchema = z.object({
   query: z.string().describe("The user's high-level, contextual request (e.g., 'planning a party', 'need healthy food')."),
   availableProducts: z
-    .array(ProductSchemaForAI)
+    .array(ProductForAISchema)
     .describe('The full list of products available in the store with their prices.'),
 });
 export type ContextToCartInput = z.infer<typeof ContextToCartInputSchema>;

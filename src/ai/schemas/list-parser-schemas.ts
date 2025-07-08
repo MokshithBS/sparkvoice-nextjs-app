@@ -1,4 +1,5 @@
 import {z} from 'zod';
+import { ProductForAISchema } from './common-schemas';
 
 export const ListParserInputSchema = z.object({
   photoDataUri: z
@@ -6,6 +7,7 @@ export const ListParserInputSchema = z.object({
     .describe(
       "A photo of a handwritten shopping list, as a data URI that must include a MIME type and use Base64 encoding. Expected format: 'data:<mimetype>;base64,<encoded_data>'."
     ),
+   availableProducts: z.array(ProductForAISchema).describe('A list of all products available in the store with their standard purchasable quantities.')
 });
 export type ListParserInput = z.infer<typeof ListParserInputSchema>;
 
@@ -15,6 +17,7 @@ export const VoiceListParserInputSchema = z.object({
     .describe(
       "An audio recording of a shopping list, as a data URI that must include a MIME type and use Base64 encoding. Expected format: 'data:<mimetype>;base64,<encoded_data>'."
     ),
+    availableProducts: z.array(ProductForAISchema).describe('A list of all products available in the store with their standard purchasable quantities.')
 });
 export type VoiceListParserInput = z.infer<typeof VoiceListParserInputSchema>;
 
@@ -24,13 +27,14 @@ export const TextListParserInputSchema = z.object({
     .describe(
       'A typed or pasted shopping list as a plain text string. Each item may be on a new line.'
     ),
+    availableProducts: z.array(ProductForAISchema).describe('A list of all products available in the store with their standard purchasable quantities.')
 });
 export type TextListParserInput = z.infer<typeof TextListParserInputSchema>;
 
 export const ListParserOutputItemSchema = z.object({
-  product: z.string().describe('The name of the product identified in its original language, e.g., "प्याज" or "Basmati Rice".'),
-  englishProduct: z.string().describe('The English translation of the product name, e.g., "Onions" or "Basmati Rice". This field is crucial for matching with the store\'s English-only product database.'),
-  quantity: z.string().describe('The quantity of the product, e.g., "1L" or "2 kg".'),
+  product: z.string().describe('The exact name of the product from the available products list that was matched.'),
+  englishProduct: z.string().describe('The English translation of the matched product name.'),
+  quantity: z.string().describe('The **calculated number of units** to add to the cart, as a string. For example, if the user asks for "15kg Rice" and the store sells a "5 kg" pack, this value should be "3".'),
 });
 export type ListParserOutputItem = z.infer<typeof ListParserOutputItemSchema>;
 
@@ -44,7 +48,7 @@ export const ListParserOutputSchema = z.object({
   confirmationText: z
     .string()
     .describe(
-      "A complete, natural language confirmation message in the detected language that summarizes the items found. Example: 'I found 3 items: 1 kg Onions, 2 dozen Eggs, and Milk.'"
+      "A complete, natural language confirmation message in the detected language that summarizes the items found. Example: 'I found 3 items: 3 units of 5kg Aashirvaad Atta, 5 packs of Parle-G, and 1 unit of Amul Milk.'"
     ),
 });
 export type ListParserOutput = z.infer<typeof ListParserOutputSchema>;
