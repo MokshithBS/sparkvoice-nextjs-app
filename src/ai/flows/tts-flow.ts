@@ -39,30 +39,39 @@ const ttsFlow = ai.defineFlow(
     outputSchema: z.string(),
   },
   async (textToSpeak) => {
-    if (!textToSpeak) {
+    if (!textToSpeak || !textToSpeak.trim()) {
       return '';
     }
-    const {media} = await ai.generate({
-      model: googleAI.model('gemini-2.5-flash-preview-tts'),
-      config: {
-        responseModalities: ['AUDIO'],
-        speechConfig: {
-          voiceConfig: {
-            prebuiltVoiceConfig: {voiceName: 'Algenib'},
+    try {
+      const {media} = await ai.generate({
+        model: googleAI.model('gemini-2.5-flash-preview-tts'),
+        config: {
+          responseModalities: ['AUDIO'],
+          speechConfig: {
+            voiceConfig: {
+              prebuiltVoiceConfig: {voiceName: 'Algenib'},
+            },
           },
         },
-      },
-      prompt: textToSpeak,
-    });
-    if (!media?.url) {
-      throw new Error('No audio media returned from the TTS model.');
+        prompt: textToSpeak,
+      });
+
+      if (!media?.url) {
+        console.error('TTS generation failed: No audio media returned from the model.');
+        return '';
+      }
+      
+      const audioBuffer = Buffer.from(
+        media.url.substring(media.url.indexOf(',') + 1),
+        'base64'
+      );
+      const wavData = await toWav(audioBuffer);
+      return `data:audio/wav;base64,${wavData}`;
+
+    } catch (e) {
+      console.error("An unexpected error occurred in ttsFlow:", e);
+      return '';
     }
-    const audioBuffer = Buffer.from(
-      media.url.substring(media.url.indexOf(',') + 1),
-      'base64'
-    );
-    const wavData = await toWav(audioBuffer);
-    return `data:audio/wav;base64,${wavData}`;
   }
 );
 
