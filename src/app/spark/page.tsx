@@ -633,29 +633,29 @@ function SparkPageComponent() {
                  {hasPriceMatchResult && priceMatchResult && (
                     <>
                     <CardHeader>
-                        <CardTitle>Price Match Results</CardTitle>
-                        <CardDescription>Here's how our prices stack up against your local store bill.</CardDescription>
+                        <CardTitle>{t('spark.priceMatch.title')}</CardTitle>
+                        <CardDescription>{t('spark.priceMatch.description')}</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-6">
                         <Alert variant={priceMatchResult.totalSavings > 0 ? 'default' : 'default'} className={priceMatchResult.totalSavings > 0 ? "border-green-500/50 bg-green-500/10 text-green-700 dark:text-green-300" : ""}>
                             <AlertCircle className="h-4 w-4" />
-                            <AlertTitle>Summary</AlertTitle>
+                            <AlertTitle>{t('spark.priceMatch.summaryTitle')}</AlertTitle>
                             <AlertDescription>{priceMatchResult.summaryText}</AlertDescription>
                         </Alert>
 
                         {priceMatchResult.couponCode && (
                             <div className="text-center p-4 border-2 border-dashed border-primary rounded-lg">
-                                <p className="text-muted-foreground">Your Coupon Code</p>
+                                <p className="text-muted-foreground">{t('spark.priceMatch.couponTitle')}</p>
                                 <p className="text-2xl font-bold text-primary tracking-widest">{priceMatchResult.couponCode}</p>
                             </div>
                         )}
                 
                         <div className="space-y-3">
                             <div className="grid grid-cols-[2fr_1fr_1fr_1fr] gap-2 items-center text-sm font-medium text-muted-foreground px-2">
-                                <span>Item</span>
-                                <span className="text-right">Store Price</span>
-                                <span className="text-right">Our Price</span>
-                                <span className="text-right">You Save</span>
+                                <span>{t('spark.priceMatch.itemHeader')}</span>
+                                <span className="text-right">{t('spark.priceMatch.storePriceHeader')}</span>
+                                <span className="text-right">{t('spark.priceMatch.ourPriceHeader')}</span>
+                                <span className="text-right">{t('spark.priceMatch.savingsHeader')}</span>
                             </div>
                             {priceMatchResult.comparisonItems.map((item, index) => (
                             <div key={index} className="grid grid-cols-[2fr_1fr_1fr_1fr] gap-2 items-center text-sm p-2 rounded-md bg-secondary/50">
@@ -666,7 +666,7 @@ function SparkPageComponent() {
                             </div>
                             ))}
                               <div className="grid grid-cols-[2fr_1fr_1fr_1fr] gap-2 items-center text-sm font-bold text-foreground px-2 border-t pt-2 mt-2">
-                                <span>Total</span>
+                                <span>{t('spark.priceMatch.total')}</span>
                                 <span className="text-right">₹{priceMatchResult.totalOfflineCost.toFixed(2)}</span>
                                 <span className="text-right">₹{priceMatchResult.totalOnlineCost.toFixed(2)}</span>
                                 <span className="text-right text-green-600">₹{priceMatchResult.totalSavings.toFixed(2)}</span>
@@ -674,7 +674,7 @@ function SparkPageComponent() {
                         </div>
                         <div className="flex justify-between items-center pt-4">
                             <Button variant="outline" onClick={startOver}>Start Over</Button>
-                            <Button onClick={() => router.push('/store')} size="lg">Shop Now & Save</Button>
+                            <Button onClick={() => router.push('/store')} size="lg">{t('spark.priceMatch.shopNowButton')}</Button>
                         </div>
                     </CardContent>
                     </>
@@ -755,8 +755,8 @@ function SparkPageComponent() {
                         </>
                     ) : (
                         <>
-                            <CardTitle className="flex items-center gap-2">Scan Your List or Bill</CardTitle>
-                            <CardDescription>Capture a photo of your handwritten list to shop, or a store bill to compare prices.</CardDescription>
+                            <CardTitle className="flex items-center gap-2">{t('spark.scan.billTitle')}</CardTitle>
+                            <CardDescription>{t('spark.scan.billDescription')}</CardDescription>
                         </>
                     )}
                   </CardHeader>
@@ -784,10 +784,10 @@ function SparkPageComponent() {
                     </div>
                     <div className="flex gap-4">
                         <Button onClick={handleParseList} disabled={isLoading || !photoDataUri} className="w-full" size="lg">
-                            {isLoading ? ( <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Parsing...</> ) : ( <><Sparkles className="mr-2 h-4 w-4" /> Parse List</> )}
+                            {isLoading ? ( <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> {t('spark.scan.parseListLoading')}</> ) : ( <><Sparkles className="mr-2 h-4 w-4" /> {t('spark.scan.parseListButton')}</> )}
                         </Button>
                          <Button onClick={handlePriceMatch} disabled={isLoading || !photoDataUri} className="w-full" size="lg" variant="secondary">
-                            {isLoading ? ( <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Comparing...</> ) : ( <><Receipt className="mr-2 h-4 w-4" /> Price Match</> )}
+                            {isLoading ? ( <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> {t('spark.scan.priceMatchLoading')}</> ) : ( <><Receipt className="mr-2 h-4 w-4" /> {t('spark.scan.priceMatchButton')}</> )}
                         </Button>
                     </div>
                   </CardContent>
