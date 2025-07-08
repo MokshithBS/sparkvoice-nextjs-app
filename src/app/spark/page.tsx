@@ -5,7 +5,7 @@ import { Suspense, useRef, useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { ArrowLeft, Camera, FileText, Loader2, Mic, Bot, Sparkles, StopCircle, Trash2, Video, Volume2, Receipt, AlertCircle, Globe } from 'lucide-react';
+import { ArrowLeft, Camera, FileText, Loader2, Mic, Bot, Sparkles, StopCircle, Trash2, Video, Volume2, Receipt, AlertCircle, Globe, PiggyBank } from 'lucide-react';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 
 import { Button } from '@/components/ui/button';
@@ -13,7 +13,8 @@ import { useToast } from '@/hooks/use-toast';
 import { parseList } from '@/ai/flows/list-parser-flow';
 import { parseVoiceList } from '@/ai/flows/voice-list-parser-flow';
 import { parseTextList } from '@/ai/flows/text-list-parser-flow';
-import { generateContextualCart } from '@/ai/flows/spark-saver-flow.ts';
+import { generateContextualCart } from '@/ai/flows/contextual-cart-flow';
+import { generateSparkSaverCart } from '@/ai/flows/spark-saver-flow';
 import { compareBill } from '@/ai/flows/price-match-flow.ts';
 import { products } from '@/lib/products';
 import { getIngredientsForDish, type RecipeToCartOutput } from '@/ai/flows/recipe-to-cart-flow.ts';
@@ -31,35 +32,6 @@ import type { Language } from '@/lib/translations';
 import { translations } from '@/lib/translations';
 import { cn } from '@/lib/utils';
 
-const CameraView = ({ onCapture, onClose, videoRef, hasCameraPermission }: { onCapture: () => void, onClose: () => void, videoRef: React.RefObject<HTMLVideoElement>, hasCameraPermission: boolean | null }) => (
-    <div className="space-y-4 text-center">
-      <div className="relative w-full aspect-video bg-muted rounded-lg overflow-hidden border">
-        <video ref={videoRef} className="w-full h-full object-cover" autoPlay playsInline muted />
-        {hasCameraPermission === false && (
-          <div className="absolute inset-0 flex items-center justify-center p-4 bg-background/80">
-            <Alert variant="destructive">
-              <Camera className="h-4 w-4" />
-              <AlertTitle>Camera Access Denied</AlertTitle>
-              <AlertDescription>
-                Please enable camera access in your browser settings to use this feature.
-              </AlertDescription>
-            </Alert>
-          </div>
-        )}
-        {hasCameraPermission === null && (
-          <div className="absolute inset-0 flex items-center justify-center bg-background/80">
-            <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-          </div>
-        )}
-      </div>
-      <div className="flex justify-center gap-4">
-        <Button onClick={onCapture} size="lg" disabled={!hasCameraPermission}>
-          <Camera className="mr-2" /> Capture
-        </Button>
-        <Button onClick={onClose} variant="outline" size="lg">Cancel</Button>
-      </div>
-    </div>
-  );
 
 function SparkPageComponent() {
   const searchParams = useSearchParams();
@@ -78,6 +50,7 @@ function SparkPageComponent() {
 
   // Context to Cart state
   const [contextualQuery, setContextualQuery] = useState('');
+  const [sparkSaverInput, setSparkSaverInput] = useState({ budget: '', familySize: '', preferences: '' });
   
   const { toast } = useToast();
   const { addToCartBatch } = useCart();
@@ -90,6 +63,8 @@ function SparkPageComponent() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const mediaStreamRef = useRef<MediaStream | null>(null);
   const [languagePrompt, setLanguagePrompt] = useState<{ show: boolean, languageName: string, langCode: Language } | null>(null);
+
+  const [audioConfirmationUrl, setAudioConfirmationUrl] = useState<string | null>(null);
 
   useEffect(() => {
     const cleanupStream = () => {
@@ -155,9 +130,11 @@ function SparkPageComponent() {
     setIsLoading(false);
     setConfirmationText(null);
     setContextualQuery('');
+    setSparkSaverInput({ budget: '', familySize: '', preferences: '' });
     setPriceMatchResult(null);
     setRecipeResult(null);
     setLanguagePrompt(null);
+    setAudioConfirmationUrl(null);
     if (isCameraOpen) handleCloseCamera();
   }, [isCameraOpen, handleCloseCamera]);
 
@@ -218,6 +195,17 @@ function SparkPageComponent() {
 
     setParsedItems(result.items);
     setConfirmationText(result.confirmationText);
+    
+    // Disabling TTS for now to avoid rate limit issues.
+    // if (result.confirmationText) {
+    //   try {
+    //     const audioData = await generateSpeech(result.confirmationText);
+    //     setAudioConfirmationUrl(audioData);
+    //   } catch (ttsError) {
+    //     console.error("TTS generation failed:", ttsError);
+    //     // Non-critical error, so we don't show a toast.
+    //   }
+    // }
     
     if (result.detectedLanguage) {
       const langCode = result.detectedLanguage.split('-')[0] as Language;
@@ -422,6 +410,44 @@ function SparkPageComponent() {
     }
   };
   
+  const handleSparkSaver = async () => {
+    const budget = parseFloat(sparkSaverInput.budget);
+    const familySize = parseInt(sparkSaverInput.familySize, 10);
+    if (isNaN(budget) || budget <= 0 || isNaN(familySize) || familySize <= 0) {
+        toast({ variant: 'destructive', title: 'Invalid Input', description: 'Please enter a valid budget and family size.' });
+        return;
+    }
+    setIsLoading(true);
+    resetViewStates();
+    try {
+        const availableProductsForAI = products.map(({ id, name, category, price, quantity }) => ({ id, name, category, price, salePrice: price, quantity }));
+        const result = await generateSparkSaverCart({
+            budget,
+            familySize,
+            preferences: sparkSaverInput.preferences,
+            availableProducts: availableProductsForAI,
+        });
+
+        if (!result || result.items.length === 0) {
+            toast({ variant: 'destructive', title: 'Could Not Generate Cart', description: "We couldn't generate a cart for your budget. Please try a different amount." });
+            setParsedItems([]);
+            return;
+        }
+
+        await processAndConfirmList({
+            items: result.items,
+            detectedLanguage: 'en-IN',
+            confirmationText: result.summaryText,
+        });
+    } catch (error) {
+        console.error('Error in Spark Saver:', error);
+        toast({ variant: 'destructive', title: 'Generation Failed', description: 'We could not build your cart at this time. Please try again.' });
+    } finally {
+        setIsLoading(false);
+    }
+  };
+
+
   const handlePriceMatch = async () => {
     if (!photoDataUri) {
         toast({ variant: 'destructive', title: 'No Bill Photo', description: 'Please upload or capture a photo of your bill first.' });
@@ -457,30 +483,23 @@ function SparkPageComponent() {
   };
 
   const handleCapture = () => {
-    if (videoRef.current && videoRef.current.readyState >= 2) {
-      const canvas = document.createElement('canvas');
-      canvas.width = videoRef.current.videoWidth;
-      canvas.height = videoRef.current.videoHeight;
-      const context = canvas.getContext('2d');
-      if (context) {
-        context.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
-        const dataUri = canvas.toDataURL('image/png');
-        if (dataUri && dataUri !== 'data:,') {
-          setPhotoDataUri(dataUri);
-          handleCloseCamera();
-        } else {
-          toast({
-            variant: 'destructive',
-            title: 'Capture Failed',
-            description: 'Could not capture image from camera. Please try again.',
-          });
+    if (videoRef.current && hasCameraPermission) {
+        const video = videoRef.current;
+        const canvas = document.createElement('canvas');
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        const context = canvas.getContext('2d');
+        if (context) {
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+            const dataUri = canvas.toDataURL('image/png');
+            setPhotoDataUri(dataUri);
         }
-      }
+        handleCloseCamera();
     } else {
         toast({
             variant: 'destructive',
             title: 'Camera Not Ready',
-            description: 'Please wait a moment for the camera to initialize.',
+            description: 'Please wait for the camera to initialize or grant permission.',
         });
     }
   };
@@ -512,6 +531,7 @@ function SparkPageComponent() {
     setPriceMatchResult(null);
     setRecipeResult(null);
     setLanguagePrompt(null);
+    setAudioConfirmationUrl(null);
   }
 
   const startOver = () => {
@@ -583,9 +603,11 @@ function SparkPageComponent() {
                             </Alert>
                         )}
                         {confirmationText && (
-                            <div className="flex items-center gap-4 p-3 bg-secondary/20 rounded-lg">
-                                {/* <Volume2 className="text-primary flex-shrink-0" /> */}
-                                <p className="flex-1 text-sm text-secondary-foreground">{confirmationText}</p>
+                            <div className="flex items-start gap-3 p-3 bg-secondary/20 rounded-lg">
+                                {audioConfirmationUrl && (
+                                  <audio src={audioConfirmationUrl} controls className="h-8" />
+                                )}
+                                <p className="flex-1 text-sm text-secondary-foreground pt-1">{confirmationText}</p>
                             </div>
                         )}
                         <div className="space-y-3">
@@ -695,11 +717,31 @@ function SparkPageComponent() {
               </Card>
             </div>
           ) : (
-            <Tabs value={activeTab} className="w-full" onValueChange={handleTabChange}>
+            <>
+              <div className={cn("relative w-full aspect-video bg-muted rounded-lg overflow-hidden border", isCameraOpen ? "block" : "hidden")}>
+                <video ref={videoRef} className="w-full h-full object-cover" autoPlay playsInline muted />
+                {hasCameraPermission === false && (
+                <div className="absolute inset-0 flex items-center justify-center p-4 bg-background/80">
+                    <Alert variant="destructive">
+                    <Camera className="h-4 w-4" />
+                    <AlertTitle>Camera Access Denied</AlertTitle>
+                    <AlertDescription>
+                        Please enable camera access in your browser settings to use this feature.
+                    </AlertDescription>
+                    </Alert>
+                </div>
+                )}
+                {hasCameraPermission === null && (
+                <div className="absolute inset-0 flex items-center justify-center bg-background/80">
+                    <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                </div>
+                )}
+              </div>
+              <Tabs value={activeTab} className={cn("w-full", isCameraOpen && "hidden")} onValueChange={handleTabChange}>
               <TabsList className="grid w-full grid-cols-5">
                 <TabsTrigger value="scan" className="gap-2"><Camera /> Scan</TabsTrigger>
+                <TabsTrigger value="saver" className="gap-2"><PiggyBank /> Spark Saver</TabsTrigger>
                 <TabsTrigger value="context" className="gap-2"><Bot /> AI Assistant</TabsTrigger>
-                <TabsTrigger value="match" className="gap-2"><Receipt /> Price Match</TabsTrigger>
                 <TabsTrigger value="speak" className="gap-2"><Mic /> Speak</TabsTrigger>
                 <TabsTrigger value="type" className="gap-2"><FileText /> Type</TabsTrigger>
               </TabsList>
@@ -714,135 +756,73 @@ function SparkPageComponent() {
                         </>
                     ) : (
                         <>
-                            <CardTitle className="flex items-center gap-2">Scan Your List</CardTitle>
-                            <CardDescription>Capture a photo of your handwritten list or upload an image to build your cart instantly.</CardDescription>
+                            <CardTitle className="flex items-center gap-2">Scan Your List or Bill</CardTitle>
+                            <CardDescription>Capture a photo of your handwritten list to shop, or a store bill to compare prices.</CardDescription>
                         </>
                     )}
                   </CardHeader>
                   <CardContent className="space-y-6">
-                    <div className={cn("space-y-6", isCameraOpen && "hidden")}>
-                        <div className="relative aspect-video w-full flex items-center justify-center bg-muted rounded-lg border-2 border-dashed">
-                        {photoDataUri ? (
-                            <Image src={photoDataUri} alt="Preview" fill className="object-contain rounded-lg" />
-                        ) : (
-                            <p className="text-muted-foreground">Image preview will appear here</p>
-                        )}
-                        </div>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div>
-                            <Label htmlFor="list-photo" className="sr-only">Upload from Device</Label>
-                            <Button asChild variant="outline" className="w-full">
-                                <label htmlFor="list-photo-scan" className="cursor-pointer">
-                                    <FileText className="mr-2" /> Upload Photo
-                                </label>
-                            </Button>
-                            <Input id="list-photo-scan" type="file" accept="image/*" className="sr-only" onChange={handleFileChange} disabled={isLoading}/>
-                        </div>
-                        <Button onClick={handleOpenCamera} variant="outline" disabled={isLoading}>
-                            <Camera className="mr-2" /> Open Camera
+                    <div className="relative aspect-video w-full flex items-center justify-center bg-muted rounded-lg border-2 border-dashed">
+                    {photoDataUri ? (
+                        <Image src={photoDataUri} alt="Preview" fill className="object-contain rounded-lg" />
+                    ) : (
+                        <p className="text-muted-foreground">Image preview will appear here</p>
+                    )}
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <Label htmlFor="list-photo" className="sr-only">Upload from Device</Label>
+                        <Button asChild variant="outline" className="w-full">
+                            <label htmlFor="list-photo-scan" className="cursor-pointer">
+                                <FileText className="mr-2" /> Upload Photo
+                            </label>
                         </Button>
-                        </div>
+                        <Input id="list-photo-scan" type="file" accept="image/*" className="sr-only" onChange={handleFileChange} disabled={isLoading}/>
+                    </div>
+                    <Button onClick={handleOpenCamera} variant="outline" disabled={isLoading}>
+                        <Camera className="mr-2" /> Open Camera
+                    </Button>
+                    </div>
+                    <div className="flex gap-4">
                         <Button onClick={handleParseList} disabled={isLoading || !photoDataUri} className="w-full" size="lg">
-                            {isLoading ? ( <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Parsing your list...</> ) : ( <><Sparkles className="mr-2 h-4 w-4" /> Spark It!</> )}
+                            {isLoading ? ( <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Parsing...</> ) : ( <><Sparkles className="mr-2 h-4 w-4" /> Parse List</> )}
+                        </Button>
+                         <Button onClick={handlePriceMatch} disabled={isLoading || !photoDataUri} className="w-full" size="lg" variant="secondary">
+                            {isLoading ? ( <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Comparing...</> ) : ( <><Receipt className="mr-2 h-4 w-4" /> Price Match</> )}
                         </Button>
                     </div>
-
-                    <div className={cn(isCameraOpen ? "block" : "hidden", "space-y-4 text-center")}>
-                        <div className="relative w-full aspect-video bg-muted rounded-lg overflow-hidden border">
-                            <video ref={videoRef} className="w-full h-full object-cover" autoPlay playsInline muted />
-                            {hasCameraPermission === false && (
-                            <div className="absolute inset-0 flex items-center justify-center p-4 bg-background/80">
-                                <Alert variant="destructive">
-                                <Camera className="h-4 w-4" />
-                                <AlertTitle>Camera Access Denied</AlertTitle>
-                                <AlertDescription>
-                                    Please enable camera access in your browser settings to use this feature.
-                                </AlertDescription>
-                                </Alert>
-                            </div>
-                            )}
-                            {hasCameraPermission === null && (
-                            <div className="absolute inset-0 flex items-center justify-center bg-background/80">
-                                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-                            </div>
-                            )}
-                        </div>
-                        <div className="flex justify-center gap-4">
-                            <Button onClick={handleCapture} size="lg" disabled={!hasCameraPermission}>
-                            <Camera className="mr-2" /> Capture
-                            </Button>
-                            <Button onClick={handleCloseCamera} variant="outline" size="lg">Cancel</Button>
-                        </div>
-                        </div>
-
                   </CardContent>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="saver">
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2">Spark Saver</CardTitle>
+                        <CardDescription>Let our AI build a value-for-money cart based on your weekly budget and family size.</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-6">
+                        <div className="grid sm:grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="budget">Weekly Budget (₹)</Label>
+                                <Input id="budget" type="number" placeholder="e.g., 1500" value={sparkSaverInput.budget} onChange={(e) => setSparkSaverInput(s => ({...s, budget: e.target.value}))} disabled={isLoading} />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="family-size">Family Size</Label>
+                                <Input id="family-size" type="number" placeholder="e.g., 4" value={sparkSaverInput.familySize} onChange={(e) => setSparkSaverInput(s => ({...s, familySize: e.target.value}))} disabled={isLoading} />
+                            </div>
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="preferences">Preferences (optional)</Label>
+                            <Input id="preferences" placeholder="e.g., vegetarian, gluten-free" value={sparkSaverInput.preferences} onChange={(e) => setSparkSaverInput(s => ({...s, preferences: e.target.value}))} disabled={isLoading} />
+                        </div>
+                        <Button onClick={handleSparkSaver} disabled={isLoading || !sparkSaverInput.budget || !sparkSaverInput.familySize} className="w-full" size="lg">
+                            {isLoading ? (<><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Building Your Value Cart...</>) : (<><Sparkles className="mr-2 h-4 w-4" /> Build Cart</>)}
+                        </Button>
+                    </CardContent>
                 </Card>
               </TabsContent>
               
-              <TabsContent value="match">
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">Price Match Your Bill</CardTitle>
-                    <CardDescription>Upload a photo of a recent grocery bill to see if you could have saved money with us.</CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-6">
-                    <div className={cn("space-y-6", isCameraOpen && "hidden")}>
-                        <div className="relative aspect-video w-full flex items-center justify-center bg-muted rounded-lg border-2 border-dashed">
-                        {photoDataUri ? (
-                            <Image src={photoDataUri} alt="Bill preview" fill className="object-contain rounded-lg" />
-                        ) : (
-                            <p className="text-muted-foreground">Bill preview will appear here</p>
-                        )}
-                        </div>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div>
-                             <Label htmlFor="bill-photo" className="sr-only">Upload Bill Photo</Label>
-                            <Button asChild variant="outline" className="w-full">
-                                <label htmlFor="bill-photo-upload" className="cursor-pointer">
-                                    <FileText className="mr-2" /> Upload Photo
-                                </label>
-                            </Button>
-                            <Input id="bill-photo-upload" type="file" accept="image/*" className="sr-only" onChange={handleFileChange} disabled={isLoading}/>
-                        </div>
-                        <Button onClick={handleOpenCamera} variant="outline" disabled={isLoading}>
-                            <Camera className="mr-2" /> Open Camera
-                        </Button>
-                        </div>
-                        <Button onClick={handlePriceMatch} disabled={isLoading || !photoDataUri} className="w-full" size="lg">
-                            {isLoading ? ( <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Analyzing your bill...</> ) : ( <><Sparkles className="mr-2 h-4 w-4" /> Compare Prices</> )}
-                        </Button>
-                    </div>
-                     <div className={cn(isCameraOpen ? "block" : "hidden", "space-y-4 text-center")}>
-                        <div className="relative w-full aspect-video bg-muted rounded-lg overflow-hidden border">
-                            <video ref={videoRef} className="w-full h-full object-cover" autoPlay playsInline muted />
-                            {hasCameraPermission === false && (
-                            <div className="absolute inset-0 flex items-center justify-center p-4 bg-background/80">
-                                <Alert variant="destructive">
-                                <Camera className="h-4 w-4" />
-                                <AlertTitle>Camera Access Denied</AlertTitle>
-                                <AlertDescription>
-                                    Please enable camera access in your browser settings to use this feature.
-                                </AlertDescription>
-                                </Alert>
-                            </div>
-                            )}
-                            {hasCameraPermission === null && (
-                            <div className="absolute inset-0 flex items-center justify-center bg-background/80">
-                                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-                            </div>
-                            )}
-                        </div>
-                        <div className="flex justify-center gap-4">
-                            <Button onClick={handleCapture} size="lg" disabled={!hasCameraPermission}>
-                            <Camera className="mr-2" /> Capture
-                            </Button>
-                            <Button onClick={handleCloseCamera} variant="outline" size="lg">Cancel</Button>
-                        </div>
-                        </div>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-
               <TabsContent value="context">
                 <Card>
                   <CardHeader>
@@ -911,6 +891,15 @@ function SparkPageComponent() {
                 </Card>
               </TabsContent>
             </Tabs>
+             {isCameraOpen && (
+                <div className="flex justify-center gap-4 mt-4">
+                    <Button onClick={handleCapture} size="lg" disabled={!hasCameraPermission}>
+                        <Camera className="mr-2" /> Capture
+                    </Button>
+                    <Button onClick={handleCloseCamera} variant="outline" size="lg">Cancel</Button>
+                </div>
+            )}
+            </>
           )}
         </div>
       </main>
