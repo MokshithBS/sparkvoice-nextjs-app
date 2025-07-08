@@ -18,6 +18,7 @@ import { generateSparkSaverCart } from '@/ai/flows/spark-saver-flow';
 import { compareBill } from '@/ai/flows/price-match-flow.ts';
 import { products } from '@/lib/products';
 import { getIngredientsForDish, type RecipeToCartOutput } from '@/ai/flows/recipe-to-cart-flow.ts';
+import { generateSpeech } from '@/ai/flows/tts-flow';
 import { translations, type Language } from '@/lib/translations';
 
 import { type ListParserOutput, type ListParserOutputItem } from '@/ai/schemas/list-parser-schemas';
@@ -46,6 +47,7 @@ function SparkPageComponent() {
   const [confirmationText, setConfirmationText] = useState<string | null>(null);
   const [priceMatchResult, setPriceMatchResult] = useState<PriceMatchOutput | null>(null);
   const [recipeResult, setRecipeResult] = useState<RecipeToCartOutput | null>(null);
+  const [audioConfirmationUrl, setAudioConfirmationUrl] = useState<string | null>(null);
 
   // Context to Cart state
   const [contextualQuery, setContextualQuery] = useState('');
@@ -62,8 +64,6 @@ function SparkPageComponent() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const mediaStreamRef = useRef<MediaStream | null>(null);
   const [languagePrompt, setLanguagePrompt] = useState<{ show: boolean, languageName: string, langCode: Language } | null>(null);
-
-  const [audioConfirmationUrl, setAudioConfirmationUrl] = useState<string | null>(null);
 
   useEffect(() => {
     const cleanupStream = () => {
@@ -181,6 +181,17 @@ function SparkPageComponent() {
     }
   };
 
+  const generateConfirmationAudio = async (text: string | undefined) => {
+    if (!text) return;
+    try {
+        const audioData = await generateSpeech(text);
+        setAudioConfirmationUrl(audioData);
+    } catch (ttsError) {
+        console.error("TTS generation failed:", ttsError);
+        // Non-critical error, so we don't show a toast.
+    }
+  };
+
   const processAndConfirmList = async (result: ListParserOutput) => {
     if (!result || result.items.length === 0) {
         toast({
@@ -194,17 +205,7 @@ function SparkPageComponent() {
 
     setParsedItems(result.items);
     setConfirmationText(result.confirmationText);
-    
-    // Disabling TTS for now to avoid rate limit issues.
-    // if (result.confirmationText) {
-    //   try {
-    //     const audioData = await generateSpeech(result.confirmationText);
-    //     setAudioConfirmationUrl(audioData);
-    //   } catch (ttsError) {
-    //     console.error("TTS generation failed:", ttsError);
-    //     // Non-critical error, so we don't show a toast.
-    //   }
-    // }
+    await generateConfirmationAudio(result.confirmationText);
     
     if (result.detectedLanguage) {
       const langCode = result.detectedLanguage.split('-')[0] as Language;
@@ -241,6 +242,7 @@ function SparkPageComponent() {
           availableProducts: availableProductsForAI,
         });
         setRecipeResult(result);
+        await generateConfirmationAudio(result.confirmationText);
       } else {
         const result = await parseList({ photoDataUri });
         await processAndConfirmList(result);
@@ -293,7 +295,7 @@ function SparkPageComponent() {
         mediaRecorderRef.current.ondataavailable = (event) => {
           audioChunksRef.current.push(event.data);
         };
-        mediaRecorderRef.current.onstop = () => {
+        mediaRecorderRef.current.onstop = async () => {
           const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
           const reader = new FileReader();
           reader.readAsDataURL(audioBlob);
@@ -320,6 +322,7 @@ function SparkPageComponent() {
                         availableProducts: availableProductsForAI,
                     });
                     setRecipeResult(result);
+                    await generateConfirmationAudio(result.confirmationText);
                 } catch (error) {
                     console.error("Error getting recipe from voice:", error);
                     toast({ variant: 'destructive', title: 'Recipe Not Found', description: 'We could not find a recipe for what you said.' });
@@ -603,8 +606,10 @@ function SparkPageComponent() {
                         )}
                         {confirmationText && (
                             <div className="flex items-start gap-3 p-3 bg-secondary/20 rounded-lg">
-                                {audioConfirmationUrl && (
-                                  <audio src={audioConfirmationUrl} controls className="h-8" />
+                                {audioConfirmationUrl ? (
+                                    <audio src={audioConfirmationUrl} autoPlay controls className="h-8 shrink-0" />
+                                ) : (
+                                    <Volume2 className="text-primary flex-shrink-0 mt-1" />
                                 )}
                                 <p className="flex-1 text-sm text-secondary-foreground pt-1">{confirmationText}</p>
                             </div>
@@ -689,7 +694,11 @@ function SparkPageComponent() {
                         </CardHeader>
                         <CardContent>
                              <div className="flex items-center gap-4 p-3 bg-secondary/20 rounded-lg">
-                                <Volume2 className="text-primary flex-shrink-0" />
+                                {audioConfirmationUrl ? (
+                                    <audio src={audioConfirmationUrl} autoPlay controls className="h-8 shrink-0" />
+                                ) : (
+                                    <Volume2 className="text-primary flex-shrink-0" />
+                                )}
                                 <p className="flex-1 text-sm text-secondary-foreground">{recipeResult.confirmationText}</p>
                             </div>
                             <div className="space-y-3 mt-4">
