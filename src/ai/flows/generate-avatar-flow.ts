@@ -30,8 +30,8 @@ const generateAvatarFlow = ai.defineFlow(
     outputSchema: GenerateAvatarOutputSchema,
   },
   async ({ prompt }) => {
-    // Construct a more detailed prompt for better avatar generation
-    const fullPrompt = `Generate a simple, friendly, cartoon-style avatar for a user profile based on this description: "${prompt}". The avatar should be a close-up portrait with a simple, neutral background.`;
+    // Construct a more direct prompt to improve reliability.
+    const fullPrompt = `A simple, friendly, cartoon-style avatar of a person. Close-up portrait with a plain background, based on the following description: "${prompt}"`;
 
     const { media } = await ai.generate({
       model: 'googleai/gemini-2.0-flash-preview-image-generation',
