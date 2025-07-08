@@ -69,11 +69,11 @@ export function CartProvider({ children }: { children: ReactNode }) {
     const notFoundItems: string[] = [];
 
     items.forEach(parsedItem => {
-        // Simple search: case-insensitive match.
-        const foundProduct = products.find(p => p.name.toLowerCase().includes(parsedItem.product.toLowerCase()));
+        // Use the English translation for searching, but the original for display if not found.
+        const searchName = parsedItem.englishProduct || parsedItem.product;
+        const foundProduct = products.find(p => p.name.toLowerCase().includes(searchName.toLowerCase()));
         
         if (foundProduct) {
-            // Simple quantity parser, assuming the first number is the quantity.
             const quantity = parseInt(parsedItem.quantity.match(/\d+/)?.[0] || '1', 10);
             
             const existingProductInBatch = productsToAdd.find(p => p.id === foundProduct.id);
@@ -83,7 +83,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
                  productsToAdd.push({ ...foundProduct, cartQuantity: quantity });
             }
         } else {
-            notFoundItems.push(parsedItem.product);
+            notFoundItems.push(parsedItem.product); // Show original product name in error message
         }
     });
 
