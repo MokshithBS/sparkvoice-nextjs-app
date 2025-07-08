@@ -49,7 +49,16 @@ export default function HiveDetailPage({ params }: { params: { hiveId: string } 
     const { t } = useLanguage();
 
     const totalCost = cart.reduce((acc, item) => acc + item.price, 0);
-    const equalShare = totalCost / hiveData.members.length;
+    const equalShare = totalCost > 0 ? totalCost / hiveData.members.length : 0;
+
+    const calculateMemberCost = (memberName: string) => {
+        return cart.reduce((total, item) => {
+            if (item.addedBy === memberName) {
+                return total + item.price;
+            }
+            return total;
+        }, 0);
+    };
 
     const handleAddItem = () => {
         const newItem = {
@@ -190,7 +199,9 @@ export default function HiveDetailPage({ params }: { params: { hiveId: string } 
                                                 <span>{member.name}</span>
                                             </div>
                                             <span className="font-bold">
-                                                {splitOption === 'equal' ? `₹${equalShare.toFixed(2)}` : `₹${(Math.random() * (250 - 50) + 50).toFixed(2)}`}
+                                                {splitOption === 'equal' 
+                                                    ? `₹${equalShare.toFixed(2)}` 
+                                                    : `₹${calculateMemberCost(member.name).toFixed(2)}`}
                                             </span>
                                         </div>
                                     ))}
