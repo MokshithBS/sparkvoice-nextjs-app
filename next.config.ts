@@ -17,8 +17,7 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: 'https',
-        hostname: 'storage.googleapis.com',
-        pathname: '/aip-dev-images-public/**',
+        hostname: '**.googleapis.com',
       },
     ],
   },
