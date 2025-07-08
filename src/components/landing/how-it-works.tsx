@@ -1,29 +1,23 @@
+
 'use client';
 
-import Image from "next/image"
+import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Camera, Mic } from "lucide-react"
-import { WhatsAppIcon } from "../icons/whatsapp-icon"
+import { Bot, Camera, Mic } from "lucide-react"
 import { useLanguage } from "@/context/language-context"
 
 const steps = [
   {
     icon: <Camera className="w-10 h-10 text-accent" />,
     key: "snap",
-    image: "https://storage.googleapis.com/aip-dev-images-public/spark-voice-scan.png",
-    hint: "handwritten list scan"
   },
   {
     icon: <Mic className="w-10 h-10 text-accent" />,
     key: "say",
-    image: "https://storage.googleapis.com/aip-dev-images-public/spark-voice-speak.png",
-    hint: "voice command phone"
   },
   {
-    icon: <WhatsAppIcon className="w-10 h-10 text-accent" />,
-    key: "chat",
-    image: "https://storage.googleapis.com/aip-dev-images-public/spark-voice-chat.png",
-    hint: "whatsapp chat phone"
+    icon: <Bot className="w-10 h-10 text-accent" />,
+    key: "describe",
   }
 ]
 
@@ -49,14 +43,11 @@ export function HowItWorks() {
               </CardHeader>
               <CardContent className="text-center text-muted-foreground flex flex-col flex-grow justify-between">
                 <p className="mb-4">{t(`landing.howItWorks.steps.${step.key}.description` as any)}</p>
-                 <Image
-                    src={step.image}
-                    alt={t(`landing.howItWorks.steps.${step.key}.title` as any)}
-                    width={400}
-                    height={300}
-                    className="rounded-lg shadow-md object-cover aspect-[4/3]"
-                    data-ai-hint={step.hint}
-                  />
+                <div className="aspect-[4/3] flex items-center justify-center">
+                    <div className="w-48 h-48 rounded-full bg-gradient-to-br from-primary/10 via-secondary/10 to-accent/10 flex items-center justify-center">
+                        {React.cloneElement(step.icon, {className: "w-24 h-24 text-primary/80"})}
+                    </div>
+                </div>
               </CardContent>
             </Card>
           ))}

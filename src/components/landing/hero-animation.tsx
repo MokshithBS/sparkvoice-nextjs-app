@@ -1,7 +1,18 @@
 
 'use client';
 
-import { Camera, FileText, Mic, ShoppingCart, Sparkles } from 'lucide-react';
+import { Camera, FileText, Mic, Sparkles, Bot, Users2, ScanSearch, Leaf, Receipt } from 'lucide-react';
+
+const icons = [
+  { icon: Camera, rotation: 0 },
+  { icon: Mic, rotation: 45 },
+  { icon: FileText, rotation: 90 },
+  { icon: Bot, rotation: 135 },
+  { icon: Users2, rotation: 180 },
+  { icon: ScanSearch, rotation: 225 },
+  { icon: Leaf, rotation: 270 },
+  { icon: Receipt, rotation: 315 },
+];
 
 export function HeroAnimation() {
   return (
@@ -14,23 +25,22 @@ export function HeroAnimation() {
       {/* Central Element */}
       <div className="relative z-10 flex flex-col items-center justify-center w-52 h-52 bg-card/80 backdrop-blur-lg rounded-full border shadow-2xl">
         <Sparkles className="w-8 h-8 text-primary mb-2" />
-        <p className="font-bold text-xl text-foreground">SparkVoice AI</p>
+        <p className="font-bold text-2xl text-foreground">SparkVoice</p>
       </div>
       
       {/* Orbiting Icons */}
       <div className="absolute inset-0 w-full h-full animate-spin-slow">
-        <div className="absolute top-4 left-1/2 -translate-x-1/2 -translate-y-1/2 p-3 bg-card/80 backdrop-blur-md rounded-full border shadow-lg">
-            <FileText className="w-7 h-7 text-foreground" />
-        </div>
-        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 translate-y-1/2 p-3 bg-card/80 backdrop-blur-md rounded-full border shadow-lg">
-            <ShoppingCart className="w-7 h-7 text-foreground" />
-        </div>
-        <div className="absolute left-4 top-1/2 -translate-y-1/2 -translate-x-1/2 p-3 bg-card/80 backdrop-blur-md rounded-full border shadow-lg">
-            <Mic className="w-7 h-7 text-foreground" />
-        </div>
-        <div className="absolute right-4 top-1/2 -translate-y-1/2 translate-x-1/2 p-3 bg-card/80 backdrop-blur-md rounded-full border shadow-lg">
-            <Camera className="w-7 h-7 text-foreground" />
-        </div>
+        {icons.map(({ icon: Icon, rotation }, index) => (
+            <div 
+                key={index}
+                className="absolute top-1/2 left-1/2 w-16 h-16 -m-8"
+                style={{ transform: `rotate(${rotation}deg) translate(14rem) rotate(-${rotation}deg)` }}
+            >
+                <div className="w-full h-full flex items-center justify-center p-3 bg-card/80 backdrop-blur-md rounded-full border shadow-lg">
+                    <Icon className="w-7 h-7 text-foreground" />
+                </div>
+            </div>
+        ))}
       </div>
     </div>
   );
