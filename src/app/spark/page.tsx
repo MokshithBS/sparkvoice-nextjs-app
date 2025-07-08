@@ -5,7 +5,7 @@ import { Suspense, useRef, useState, useEffect, useCallback, useMemo } from 'rea
 import Image from 'next/image';
 import Link from 'next/link';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { ArrowLeft, Camera, FileText, Loader2, Mic, Bot, Sparkles, StopCircle, Trash2, Video, Volume2, Receipt, AlertCircle, Globe, PiggyBank, ScanSearch } from 'lucide-react';
+import { ArrowLeft, Camera, FileText, Loader2, Mic, Bot, Sparkles, StopCircle, Trash2, Video, Volume2, Receipt, AlertCircle, Globe, PiggyBank, ScanSearch, Bell, Repeat } from 'lucide-react';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 
 import { Button } from '@/components/ui/button';
@@ -71,7 +71,7 @@ function SparkPageComponent() {
   const mediaStreamRef = useRef<MediaStream | null>(null);
   const [languagePrompt, setLanguagePrompt] = useState<{ show: boolean, languageName: string, langCode: Language } | null>(null);
 
-  const availableProductsForAI = useMemo(() => products.map(({ id, name, category, price, salePrice, quantity }) => ({ id, name, category, price: salePrice || price, quantity })), []);
+  const availableProductsForAI = useMemo(() => products.map(({ id, name, price, salePrice, quantity, category }) => ({ id, name, price: salePrice || price, quantity, category })), []);
   const availableProductsForPantryCheck = useMemo(() => products.map(({ id, name, category }) => ({ id, name, category })), []);
 
   useEffect(() => {
@@ -594,6 +594,13 @@ function SparkPageComponent() {
     }
   };
 
+  const handleNotImplemented = (feature: string) => {
+    toast({
+      title: t('spark.essentials.toast.notImplemented.title', { feature }),
+      description: t('spark.essentials.toast.notImplemented.description'),
+    });
+  };
+
   const hasParsedListResult = parsedItems.length > 0;
   const hasPriceMatchResult = !!priceMatchResult;
   const hasRecipeResult = !!recipeResult;
@@ -621,7 +628,7 @@ function SparkPageComponent() {
       <main className="flex-1 py-8 px-4">
         <div className="container mx-auto max-w-2xl">
           {showResultPage ? (
-            <div>
+            <div className="space-y-6">
               <Card>
                 {hasPantryResult && (
                   <>
@@ -637,7 +644,7 @@ function SparkPageComponent() {
                         <ProductGrid products={pantrySuggestions} />
                         <div className="flex justify-between items-center pt-4 mt-4 border-t">
                             <Button variant="outline" onClick={startOver}>{t('spark.pantry.results.checkAgain')}</Button>
-                            <Button onClick={() => router.push('/store')} size="lg">{t('spark.pantry.results.backToStore')}</Button>
+                            <Button onClick={() => addToCartBatch(pantrySuggestions.map(p => ({product: p.name, englishProduct: p.name, quantity: '1', requestedText: p.name})))} size="lg">Add All to Cart</Button>
                         </div>
                     </CardContent>
                   </>
@@ -766,6 +773,37 @@ function SparkPageComponent() {
                     </>
                 )}
               </Card>
+
+              {hasPantryResult && (
+                <Card className="mt-6 bg-primary/10 border-primary/20">
+                    <CardHeader>
+                        <CardTitle>{t('spark.essentials.results.title')}</CardTitle>
+                        <CardDescription>{t('spark.essentials.results.description')}</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                        <div className="flex items-center justify-between p-3 rounded-lg bg-background">
+                            <div className='flex items-center gap-3'>
+                                <Repeat className="h-5 w-5 text-primary"/>
+                                <div>
+                                    <Label className="font-semibold">{t('spark.essentials.results.subscription.title')}</Label>
+                                    <p className="text-sm text-muted-foreground">{t('spark.essentials.results.subscription.description')}</p>
+                                </div>
+                            </div>
+                            <Button onClick={() => handleNotImplemented('Subscription Saver')}>{t('spark.essentials.results.subscription.button')}</Button>
+                        </div>
+                        <div className="flex items-center justify-between p-3 rounded-lg bg-background">
+                             <div className='flex items-center gap-3'>
+                                <Bell className="h-5 w-5 text-primary"/>
+                                <div>
+                                    <Label className="font-semibold">{t('spark.essentials.results.alerts.title')}</Label>
+                                    <p className="text-sm text-muted-foreground">{t('spark.essentials.results.alerts.description')}</p>
+                                </div>
+                            </div>
+                            <Button onClick={() => handleNotImplemented('Deal Alerts')}>{t('spark.essentials.results.alerts.button')}</Button>
+                        </div>
+                    </CardContent>
+                </Card>
+              )}
             </div>
           ) : (
             <>
@@ -850,8 +888,8 @@ function SparkPageComponent() {
               <TabsContent value="pantry">
                 <Card>
                   <CardHeader>
-                    <CardTitle className="flex items-center gap-2">{t('spark.pantry.title')}</CardTitle>
-                    <CardDescription>{t('spark.pantry.description')}</CardDescription>
+                    <CardTitle className="flex items-center gap-2">{t('spark.essentials.title')}</CardTitle>
+                    <CardDescription>{t('spark.essentials.description')}</CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-6">
                     <div className="relative aspect-video w-full flex items-center justify-center bg-muted rounded-lg border-2 border-dashed">
