@@ -19,6 +19,7 @@ export interface Product {
     { id: 59, name: 'Sona Masoori Rice (5 kg)', price: 550, quantity: '5 kg', image: 'https://storage.googleapis.com/aip-dev-images-public/product-sona-masoori.png', category: 'Atta, Rice & Dals', hint: 'rice bag' },
     { id: 60, name: 'Tata Sampann Chana Dal (1 kg)', price: 140, quantity: '1 kg', image: 'https://storage.googleapis.com/aip-dev-images-public/product-chana-dal.png', category: 'Atta, Rice & Dals', hint: 'lentils package' },
     { id: 61, name: 'MTR Rava/Sooji (500 g)', price: 45, quantity: '500 g', image: 'https://storage.googleapis.com/aip-dev-images-public/product-sooji.png', category: 'Atta, Rice & Dals', hint: 'semolina pack' },
+    { id: 96, name: 'Tata Sampann Thick Poha (500g)', price: 40, quantity: '500 g', image: 'https://storage.googleapis.com/aip-dev-images-public/product-poha.png', category: 'Atta, Rice & Dals', hint: 'flattened rice' },
 
     // Masala & Oils
     { id: 2, name: 'Tata Salt (1 kg)', price: 25, quantity: '1 kg', image: 'https://storage.googleapis.com/aip-dev-images-public/product-salt.png', category: 'Masala & Oils', hint: 'salt package' },
@@ -31,6 +32,9 @@ export interface Product {
     { id: 62, name: 'Parachute Coconut Oil (500 ml)', price: 150, quantity: '500 ml', image: 'https://storage.googleapis.com/aip-dev-images-public/product-coconut-oil.png', category: 'Masala & Oils', hint: 'oil bottle' },
     { id: 63, name: 'Figaro Olive Oil (500 ml)', price: 450, quantity: '500 ml', image: 'https://storage.googleapis.com/aip-dev-images-public/product-olive-oil.png', category: 'Masala & Oils', hint: 'oil bottle' },
     { id: 64, name: 'Tata Sampann Cumin Seeds (100 g)', price: 60, quantity: '100 g', image: 'https://storage.googleapis.com/aip-dev-images-public/product-cumin.png', category: 'Masala & Oils', hint: 'spices bowl' },
+    { id: 93, name: 'Madhur Sugar (1 kg)', price: 55, quantity: '1 kg', image: 'https://storage.googleapis.com/aip-dev-images-public/product-sugar.png', category: 'Masala & Oils', hint: 'sugar pack' },
+    { id: 94, name: 'Patanjali Jaggery Powder (500g)', price: 70, quantity: '500 g', image: 'https://storage.googleapis.com/aip-dev-images-public/product-jaggery.png', category: 'Masala & Oils', hint: 'jaggery powder' },
+    { id: 97, name: 'Tata Salt Lite (1 kg)', price: 40, quantity: '1 kg', image: 'https://storage.googleapis.com/aip-dev-images-public/product-salt-lite.png', category: 'Masala & Oils', hint: 'salt package' },
 
     // Dairy, Bread & Eggs
     { id: 3, name: 'Amul Milk Taaza (500 ml)', price: 28, quantity: '500 ml', image: 'https://storage.googleapis.com/aip-dev-images-public/product-milk.png', category: 'Dairy, Bread & Eggs', hint: 'milk carton' },
@@ -43,6 +47,8 @@ export interface Product {
     { id: 41, name: 'Fresh Paneer (200 g)', price: 90, quantity: '200 g', image: 'https://storage.googleapis.com/aip-dev-images-public/product-paneer.png', category: 'Dairy, Bread & Eggs', hint: 'paneer block' },
     { id: 65, name: 'Amul Gold Milk (500 ml)', price: 33, quantity: '500 ml', image: 'https://storage.googleapis.com/aip-dev-images-public/product-amul-gold.png', category: 'Dairy, Bread & Eggs', hint: 'milk packet' },
     { id: 66, name: 'Mother Dairy Ghee (1 L)', price: 550, quantity: '1 L', image: 'https://storage.googleapis.com/aip-dev-images-public/product-ghee.png', category: 'Dairy, Bread & Eggs', hint: 'ghee jar' },
+    { id: 92, name: 'Amul Masti Dahi (400g)', price: 35, quantity: '400 g', image: 'https://storage.googleapis.com/aip-dev-images-public/product-dahi.png', category: 'Dairy, Bread & Eggs', hint: 'yogurt cup' },
+    { id: 95, name: 'ID Fresh Idly & Dosa Batter (1 kg)', price: 85, quantity: '1 kg', image: 'https://storage.googleapis.com/aip-dev-images-public/product-id-batter.png', category: 'Dairy, Bread & Eggs', hint: 'batter packet' },
 
     // Vegetables & Fruits
     { id: 7, name: 'Fresh Onions (1 kg)', price: 40, quantity: '1 kg', image: 'https://storage.googleapis.com/aip-dev-images-public/product-onions.png', category: 'Vegetables & Fruits', hint: 'onions' },
