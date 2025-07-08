@@ -139,6 +139,7 @@ export default function CommunityPage() {
                 </Card>
 
                 <div className="mt-12">
+                    <p className="text-lg text-primary font-semibold text-center mb-2">{t('community.hub.features.tagline')}</p>
                     <h2 className="text-2xl font-bold mb-2 text-center">{t('community.hub.features.title')}</h2>
                     <p className="text-muted-foreground text-center mb-6 max-w-xl mx-auto">{t('community.hub.features.description')}</p>
                     <div className="grid sm:grid-cols-2 gap-4">
@@ -203,5 +204,3 @@ export default function CommunityPage() {
     </div>
   );
 }
-
-    

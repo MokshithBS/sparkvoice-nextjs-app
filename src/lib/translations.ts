@@ -217,6 +217,7 @@ export const translations = {
     'community.hub.discover.join': 'Join',
     'community.hub.features.title': 'How Hives Help You Save',
     'community.hub.features.description': 'Chat, decide, budget, and shop together using shared carts.',
+    'community.hub.features.tagline': 'Shop together, save together.',
     'community.hub.features.chat_together.title': 'Chat Together',
     'community.hub.features.chat_together.description': 'Coordinate orders and discuss products in a dedicated group chat.',
     'community.hub.features.decide_together.title': 'Decide Together',
@@ -508,6 +509,7 @@ export const translations = {
     'community.hub.discover.join': 'शामिल हों',
     'community.hub.features.title': 'हाइव्स कैसे आपकी बचत में मदद करते हैं',
     'community.hub.features.description': 'साझा कार्ट का उपयोग करके एक साथ चैट करें, निर्णय लें, बजट बनाएं और खरीदारी करें।',
+    'community.hub.features.tagline': 'एक साथ खरीदारी करें, एक साथ बचत करें।',
     'community.hub.features.chat_together.title': 'एक साथ चैट करें',
     'community.hub.features.chat_together.description': 'एक समर्पित समूह चैट में ऑर्डर समन्वय करें और उत्पादों पर चर्चा करें।',
     'community.hub.features.decide_together.title': 'एक साथ निर्णय लें',
@@ -797,6 +799,7 @@ export const translations = {
     'community.hub.discover.join': 'ಸೇರಿ',
     'community.hub.features.title': 'ಹೈವ್‌ಗಳು ನಿಮಗೆ ಹೇಗೆ ಉಳಿತಾಯ ಮಾಡಲು ಸಹಾಯ ಮಾಡುತ್ತವೆ',
     'community.hub.features.description': 'ಹಂಚಿದ ಕಾರ್ಟ್‌ಗಳನ್ನು ಬಳಸಿಕೊಂಡು ಒಟ್ಟಿಗೆ ಚಾಟ್ ಮಾಡಿ, ನಿರ್ಧರಿಸಿ, ಬಜೆಟ್ ಮಾಡಿ ಮತ್ತು ಶಾಪಿಂಗ್ ಮಾಡಿ.',
+    'community.hub.features.tagline': 'ಒಟ್ಟಿಗೆ ಶಾಪಿಂಗ್ ಮಾಡಿ, ಒಟ್ಟಿಗೆ ಉಳಿಸಿ.',
     'community.hub.features.chat_together.title': 'ಒಟ್ಟಿಗೆ ಚಾಟ್ ಮಾಡಿ',
     'community.hub.features.chat_together.description': 'ಮೀಸಲಾದ ಗುಂಪು ಚಾಟ್‌ನಲ್ಲಿ ಆದೇಶಗಳನ್ನು ಸಮನ್ವಯಗೊಳಿಸಿ ಮತ್ತು ಉತ್ಪನ್ನಗಳನ್ನು ಚರ್ಚಿಸಿ.',
     'community.hub.features.decide_together.title': 'ಒಟ್ಟಿಗೆ ನಿರ್ಧರಿಸಿ',
@@ -1085,6 +1088,7 @@ export const translations = {
     'community.hub.discover.join': 'சேர்',
     'community.hub.features.title': 'ஹைவ்ஸ் உங்களுக்கு எப்படி சேமிக்க உதவுகின்றன',
     'community.hub.features.description': 'பகிரப்பட்ட வண்டிகளைப் பயன்படுத்தி ஒன்றாக அரட்டை அடிக்கவும், முடிவு செய்யவும், பட்ஜெட் செய்யவும் மற்றும் ஷாப்பிங் செய்யவும்.',
+    'community.hub.features.tagline': 'ஒன்றாக ஷாப்பிங் செய்யுங்கள், ஒன்றாக சேமிக்கவும்.',
     'community.hub.features.chat_together.title': 'ஒன்றாக அரட்டை அடிக்கவும்',
     'community.hub.features.chat_together.description': 'ஒரு பிரத்யேக குழு அரட்டையில் ஆர்டர்களை ஒருங்கிணைத்து தயாரிப்புகளைப் பற்றி விவாதிக்கவும்.',
     'community.hub.features.decide_together.title': 'ஒன்றாக முடிவு செய்யவும்',
@@ -1168,5 +1172,3 @@ export const languageNames: Record<string, string> = {
   kn: 'ಕನ್ನಡ',
   ta: 'தமிழ்',
 };
-
-    

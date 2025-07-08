@@ -1,10 +1,10 @@
 
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { ArrowLeft, Users, Send, IndianRupee, Plus, Trash2, Mic, Bot, Sparkles, X } from 'lucide-react';
+import { ArrowLeft, Users, Send, IndianRupee, Plus, Trash2, Mic, Bot, Sparkles, X, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -15,6 +15,8 @@ import { useToast } from '@/hooks/use-toast';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Progress } from '@/components/ui/progress';
 import { useLanguage } from '@/context/language-context';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { products, type Product } from '@/lib/products';
 
 // Mock Data
 const hiveData = {
@@ -48,8 +50,21 @@ export default function HiveDetailPage({ params }: { params: { hiveId: string } 
     const { toast } = useToast();
     const { t } = useLanguage();
 
+    // State for the "Add Item" dialog
+    const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+    const [searchQuery, setSearchQuery] = useState('');
+
     const totalCost = cart.reduce((acc, item) => acc + item.price, 0);
     const equalShare = totalCost > 0 ? totalCost / hiveData.members.length : 0;
+
+    const availableProducts = useMemo(() => {
+        if (!searchQuery) return [];
+        return products.filter(p => 
+            !cart.some(cartItem => cartItem.id === p.id) &&
+            p.name.toLowerCase().includes(searchQuery.toLowerCase())
+        );
+    }, [cart, searchQuery]);
+
 
     const calculateMemberCost = (memberName: string) => {
         return cart.reduce((total, item) => {
@@ -60,11 +75,23 @@ export default function HiveDetailPage({ params }: { params: { hiveId: string } 
         }, 0);
     };
 
-    const handleAddItem = () => {
+    const handleAddItemToCart = (product: Product) => {
+        const newItem = {
+            id: product.id,
+            name: product.name,
+            price: product.salePrice || product.price,
+            addedBy: 'You',
+            image: product.image,
+            hint: product.hint,
+        };
+        setCart(currentCart => [...currentCart, newItem]);
+        setChat(currentChat => [...currentChat, { type: 'user', user: 'You', message: `I've added ${product.name} to the cart.` }]);
         toast({
-            title: t('common.featureNotImplemented'),
-            description: t('community.hive.cart.addItemToast'),
+            title: 'Item Added',
+            description: `${product.name} has been added to the Hive's shared cart.`,
         });
+        setIsAddDialogOpen(false); // Close dialog
+        setSearchQuery(''); // Reset search
     };
 
     const handleRemoveItem = (itemId: number) => {
@@ -145,9 +172,50 @@ export default function HiveDetailPage({ params }: { params: { hiveId: string } 
                                         )}
                                     </div>
                                 ))}
-                                <Button variant="outline" className="w-full" onClick={handleAddItem}>
-                                    <Plus className="mr-2 h-4 w-4" /> {t('community.hive.cart.addItemButton')}
-                                </Button>
+                                <Dialog open={isAddDialogOpen} onOpenChange={(isOpen) => { setIsAddDialogOpen(isOpen); if (!isOpen) setSearchQuery(''); }}>
+                                    <DialogTrigger asChild>
+                                        <Button variant="outline" className="w-full">
+                                            <Plus className="mr-2 h-4 w-4" /> {t('community.hive.cart.addItemButton')}
+                                        </Button>
+                                    </DialogTrigger>
+                                    <DialogContent className="max-w-md">
+                                        <DialogHeader>
+                                            <DialogTitle>Add Item to Hive Cart</DialogTitle>
+                                            <DialogDescription>
+                                                Search for a product to add to the shared cart.
+                                            </DialogDescription>
+                                        </DialogHeader>
+                                        <div className="py-4">
+                                            <div className="relative">
+                                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                                                <Input 
+                                                    placeholder="Search for atta, milk, etc..." 
+                                                    value={searchQuery}
+                                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                                    className="pl-10"
+                                                />
+                                            </div>
+                                            <div className="mt-4 max-h-[50vh] min-h-[10rem] overflow-y-auto space-y-2 pr-2">
+                                                {availableProducts.length > 0 ? availableProducts.map(product => (
+                                                    <div key={product.id} className="flex items-center justify-between gap-2 p-2 rounded-lg hover:bg-muted">
+                                                        <div className="flex items-center gap-3 overflow-hidden">
+                                                            <Image src={product.image} alt={product.name} width={40} height={40} className="rounded-md border bg-white flex-shrink-0" data-ai-hint={product.hint} />
+                                                            <div className="overflow-hidden">
+                                                                <p className="text-sm font-medium truncate">{product.name}</p>
+                                                                <p className="text-sm text-muted-foreground">₹{(product.salePrice || product.price).toFixed(2)}</p>
+                                                            </div>
+                                                        </div>
+                                                        <Button size="sm" onClick={() => handleAddItemToCart(product)}>Add</Button>
+                                                    </div>
+                                                )) : (
+                                                    <p className="text-sm text-muted-foreground text-center py-4">
+                                                        {searchQuery ? "No products found for your search." : "Start typing to search for products."}
+                                                    </p>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </DialogContent>
+                                </Dialog>
                             </CardContent>
                         </Card>
 
@@ -280,5 +348,3 @@ export default function HiveDetailPage({ params }: { params: { hiveId: string } 
         </div>
     );
 }
-
-    
