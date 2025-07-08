@@ -42,12 +42,11 @@ export function ProductGrid({ products }: { products: Product[] }) {
                     </div>
                 )}
                 </div>
-                <div className="p-2 space-y-2 flex flex-col h-28 justify-between">
+                <div className="p-2 space-y-2 flex flex-col h-24 justify-between">
                     <h3 className="text-sm font-medium truncate">{product.name}</h3>
-                    <div className="flex justify-between items-center">
-                        <p className="text-xs text-muted-foreground">{product.quantity}</p>
+                    <div>
                         {product.salePrice ? (
-                            <div className="flex items-baseline gap-1.5">
+                            <div className="flex items-baseline gap-1.5 justify-center">
                                 <del className="text-xs text-muted-foreground">₹{product.price.toFixed(2)}</del>
                                 <p className="font-bold text-base text-primary">₹{product.salePrice.toFixed(2)}</p>
                             </div>

@@ -125,7 +125,6 @@ export default function CartPage() {
                         <div className="flex justify-between items-start">
                           <div>
                             <h3 className="font-semibold">{item.name}</h3>
-                            <p className="text-sm text-muted-foreground">{item.quantity}</p>
                           </div>
                           <p className="font-bold text-lg">₹{(item.price * item.cartQuantity).toFixed(2)}</p>
                         </div>

@@ -27,9 +27,9 @@ const hiveData = {
         { id: 4, name: 'Priya K.', avatar: 'https://storage.googleapis.com/aip-dev-images-public/avatar-3.png', hint: 'woman face' },
     ],
     sharedCart: [
-        { id: 1, name: 'Aashirvaad Atta (5kg)', price: 225, addedBy: 'Anika S.', image: 'https://storage.googleapis.com/aip-dev-images-public/product-atta.png', hint: 'flour bag' },
-        { id: 2, name: 'Amul Milk Taaza (500ml)', price: 28, addedBy: 'You', image: 'https://storage.googleapis.com/aip-dev-images-public/product-milk.png', hint: 'milk carton' },
-        { id: 3, name: 'Fresh Onions (1kg)', price: 40, addedBy: 'Rohan V.', image: 'https://storage.googleapis.com/aip-dev-images-public/product-onions.png', hint: 'onions' },
+        { id: 1, name: 'Aashirvaad Atta (5 kg)', price: 225, addedBy: 'Anika S.', image: 'https://storage.googleapis.com/aip-dev-images-public/product-atta.png', hint: 'flour bag' },
+        { id: 2, name: 'Amul Milk Taaza (500 ml)', price: 28, addedBy: 'You', image: 'https://storage.googleapis.com/aip-dev-images-public/product-milk.png', hint: 'milk carton' },
+        { id: 3, name: 'Fresh Onions (1 kg)', price: 40, addedBy: 'Rohan V.', image: 'https://storage.googleapis.com/aip-dev-images-public/product-onions.png', hint: 'onions' },
     ],
     chat: [
         { type: 'user', user: 'Anika S.', message: 'I\'ve added the big atta pack for everyone.' },
@@ -63,7 +63,7 @@ export default function HiveDetailPage({ params }: { params: { hiveId: string } 
     const handleAddItem = () => {
         const newItem = {
             id: 12,
-            name: 'Lays Potato Chips',
+            name: 'Lays Potato Chips (Classic Salted)',
             price: 20,
             addedBy: 'You',
             image: 'https://storage.googleapis.com/aip-dev-images-public/snacks.png',
