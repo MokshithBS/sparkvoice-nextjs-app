@@ -129,13 +129,11 @@ export function ProfileDialog() {
           <Label className="flex items-center gap-2 font-semibold">
             <User className="h-5 w-5 text-primary" /> My Account
           </Label>
-          <Button
-            variant="ghost"
-            className="w-full justify-start"
-            onClick={() => handleNotImplemented('My Orders')}
-          >
-            My Orders
-          </Button>
+          <DialogClose asChild>
+            <Button asChild variant="ghost" className="w-full justify-start">
+              <Link href="/orders">My Orders</Link>
+            </Button>
+          </DialogClose>
           <DialogClose asChild>
             <Button asChild variant="ghost" className="w-full justify-start">
               <Link href="/community">My Hives</Link>
