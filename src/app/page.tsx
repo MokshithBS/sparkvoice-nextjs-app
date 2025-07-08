@@ -6,6 +6,7 @@ import { Hero } from '@/components/landing/hero';
 import { HowItWorks } from '@/components/landing/how-it-works';
 import { Problem } from '@/components/landing/problem';
 import { Testimonials } from '@/components/landing/testimonials';
+import { WalmartImpact } from '@/components/landing/walmart-impact';
 
 export default function LandingPage() {
   return (
@@ -16,6 +17,7 @@ export default function LandingPage() {
         <Problem />
         <Features />
         <HowItWorks />
+        <WalmartImpact />
         <Testimonials />
         <Faq />
       </main>
