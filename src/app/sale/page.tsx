@@ -79,11 +79,19 @@ export default function SalePage() {
 
     } catch (error) {
       console.error("Failed to get personalized sale:", error);
-      toast({
-        variant: 'destructive',
-        title: t('common.error.generic.title'),
-        description: t('common.error.generic.description'),
-      });
+      if (error instanceof Error && (error.message.includes('503') || error.message.toLowerCase().includes('overloaded'))) {
+        toast({
+            variant: 'destructive',
+            title: 'AI Service Unavailable',
+            description: 'The AI model is currently busy. Please try again in a moment.',
+        });
+      } else {
+        toast({
+          variant: 'destructive',
+          title: t('common.error.generic.title'),
+          description: t('common.error.generic.description'),
+        });
+      }
       setIsModalOpen(false); // Close modal on error to show all deals
     } finally {
       setIsLoading(false);

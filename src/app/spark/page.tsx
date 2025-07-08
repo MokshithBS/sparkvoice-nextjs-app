@@ -126,6 +126,22 @@ function SparkPageComponent() {
     }
   }, [isCameraOpen, toast]);
 
+  const handleAIError = (error: unknown, title: string, description: string) => {
+    console.error(`Error in ${title}:`, error);
+    if (error instanceof Error && (error.message.includes('503') || error.message.toLowerCase().includes('overloaded'))) {
+      toast({
+        variant: 'destructive',
+        title: 'AI Service Unavailable',
+        description: 'The AI model is currently busy. Please try again in a few moments.',
+      });
+    } else {
+      toast({
+        variant: 'destructive',
+        title,
+        description,
+      });
+    }
+  };
 
   const handleCloseCamera = useCallback(() => {
     setIsCameraOpen(false);
@@ -259,12 +275,7 @@ function SparkPageComponent() {
         await processAndConfirmList(result);
       }
     } catch (error) {
-      console.error('Error parsing list:', error);
-      toast({
-        variant: 'destructive',
-        title: 'Parsing Failed',
-        description: 'Could not read the shopping list. Please try a clearer image.',
-      });
+      handleAIError(error, 'Parsing Failed', 'Could not read the shopping list. Please try a clearer image.');
     } finally {
       setIsLoading(false);
     }
@@ -286,12 +297,7 @@ function SparkPageComponent() {
       const result = await parseTextList({ textList, availableProducts: availableProductsForAI });
       await processAndConfirmList(result);
     } catch (error) {
-      console.error('Error parsing text list:', error);
-      toast({
-        variant: 'destructive',
-        title: 'Parsing Failed',
-        description: 'Could not read the shopping list. Please check the format.',
-      });
+      handleAIError(error, 'Parsing Failed', 'Could not read the shopping list. Please check the format.');
     } finally {
       setIsLoading(false);
     }
@@ -335,8 +341,7 @@ function SparkPageComponent() {
                     setParsedItems(result.shoppableItems);
                     await generateConfirmationAudio(result.confirmationText);
                 } catch (error) {
-                    console.error("Error getting recipe from voice:", error);
-                    toast({ variant: 'destructive', title: 'Recipe Not Found', description: 'We could not find a recipe for what you said.' });
+                    handleAIError(error, 'Recipe Not Found', 'We could not find a recipe for what you said.');
                 } finally {
                     setIsLoading(false);
                 }
@@ -370,8 +375,7 @@ function SparkPageComponent() {
       const result = await parseVoiceList({ audioDataUri, availableProducts: availableProductsForAI });
       await processAndConfirmList(result);
     } catch (error) {
-      console.error('Error parsing voice list:', error);
-      toast({ variant: 'destructive', title: 'Parsing Failed', description: 'Could not understand the shopping list. Please try speaking clearly.' });
+      handleAIError(error, 'Parsing Failed', 'Could not understand the shopping list. Please try speaking clearly.');
     } finally {
       setIsLoading(false);
     }
@@ -411,12 +415,7 @@ function SparkPageComponent() {
       });
 
     } catch (error) {
-      console.error('Error generating contextual cart:', error);
-      toast({
-        variant: 'destructive',
-        title: 'Generation Failed',
-        description: 'We could not build your cart at this time. Please try again.',
-      });
+      handleAIError(error, 'Generation Failed', 'We could not build your cart at this time. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -451,8 +450,7 @@ function SparkPageComponent() {
             confirmationText: result.summaryText,
         });
     } catch (error) {
-        console.error('Error in Spark Saver:', error);
-        toast({ variant: 'destructive', title: 'Generation Failed', description: 'We could not build your cart at this time. Please try again.' });
+      handleAIError(error, 'Generation Failed', 'We could not build your cart at this time. Please try again.');
     } finally {
         setIsLoading(false);
     }
@@ -480,8 +478,7 @@ function SparkPageComponent() {
         setPriceMatchResult(result);
 
     } catch (error) {
-        console.error("Error comparing bill:", error);
-        toast({ variant: 'destructive', title: 'Analysis Failed', description: 'An error occurred while comparing prices. Please try again.' });
+        handleAIError(error, 'Analysis Failed', 'An error occurred while comparing prices. Please try again.');
     } finally {
         setIsLoading(false);
     }
@@ -510,8 +507,7 @@ function SparkPageComponent() {
         setPantryConfirmation(result.confirmationText);
 
     } catch (error) {
-        console.error("Error checking pantry:", error);
-        toast({ variant: 'destructive', title: 'Analysis Failed', description: 'An error occurred while analyzing your pantry. Please try again.' });
+      handleAIError(error, 'Analysis Failed', 'An error occurred while analyzing your pantry. Please try again.');
     } finally {
         setIsLoading(false);
     }

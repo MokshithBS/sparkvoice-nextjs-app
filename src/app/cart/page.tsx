@@ -50,11 +50,23 @@ export default function CartPage() {
                 }
             } catch (error) {
                 console.error("Failed to get product suggestions:", error);
-                 if (error instanceof Error && error.message.includes('429')) {
+                 if (error instanceof Error && (error.message.includes('503') || error.message.toLowerCase().includes('overloaded'))) {
+                    toast({
+                        variant: 'destructive',
+                        title: 'AI Service Unavailable',
+                        description: 'The AI model is currently busy. Please try again in a moment.',
+                    });
+                } else if (error instanceof Error && error.message.includes('429')) {
                     toast({
                         variant: 'destructive',
                         title: 'Suggestion service is busy',
                         description: 'Too many requests were made. Please wait a moment before trying again.',
+                    });
+                } else {
+                    toast({
+                        variant: 'destructive',
+                        title: 'Suggestion Failed',
+                        description: 'Could not fetch product suggestions at this time.',
                     });
                 }
                 setSuggestedProducts([]);

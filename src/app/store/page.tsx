@@ -118,6 +118,13 @@ export default function StorePage() {
           }
         } catch (error) {
           console.error("Failed to get product suggestions:", error);
+           if (error instanceof Error && (error.message.includes('503') || error.message.toLowerCase().includes('overloaded'))) {
+             toast({
+                variant: 'destructive',
+                title: 'AI Service Unavailable',
+                description: 'The AI model is currently busy. Please try again in a moment.',
+            });
+          }
         } finally {
           setIsSuggesting(false);
         }
@@ -134,7 +141,7 @@ export default function StorePage() {
     } else {
         setSuggestedProducts([]);
     }
-  }, [searchQuery, filteredProducts, availableProductsForAI]);
+  }, [searchQuery, filteredProducts, availableProductsForAI, toast]);
 
   const handleRecipeInputChange = (field: keyof RecipeInput, value: string) => {
     setRecipeInput(prev => ({ ...prev, [field]: value }));
@@ -162,11 +169,19 @@ export default function StorePage() {
         }
     } catch (error) {
         console.error("Failed to get ingredients:", error);
-        toast({
-            variant: 'destructive',
-            title: t('common.error.generic.title'),
-            description: t('common.error.generic.description'),
-        });
+        if (error instanceof Error && (error.message.includes('503') || error.message.toLowerCase().includes('overloaded'))) {
+            toast({
+                variant: 'destructive',
+                title: 'AI Service Unavailable',
+                description: 'The AI model is currently busy. Please try again in a moment.',
+            });
+        } else {
+            toast({
+                variant: 'destructive',
+                title: t('common.error.generic.title'),
+                description: t('common.error.generic.description'),
+            });
+        }
     } finally {
         setIsFetchingIngredients(false);
     }
