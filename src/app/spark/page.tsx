@@ -5,7 +5,7 @@ import { Suspense, useRef, useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { ArrowLeft, Camera, FileText, Loader2, Mic, PiggyBank, Sparkles, StopCircle, Trash2, Video, Volume2, Receipt, AlertCircle, Globe } from 'lucide-react';
+import { ArrowLeft, Camera, FileText, Loader2, Mic, Bot, Sparkles, StopCircle, Trash2, Video, Volume2, Receipt, AlertCircle, Globe } from 'lucide-react';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 
 import { Button } from '@/components/ui/button';
@@ -13,7 +13,7 @@ import { useToast } from '@/hooks/use-toast';
 import { parseList } from '@/ai/flows/list-parser-flow';
 import { parseVoiceList } from '@/ai/flows/voice-list-parser-flow';
 import { parseTextList } from '@/ai/flows/text-list-parser-flow';
-import { generateSparkSaverCart } from '@/ai/flows/spark-saver-flow.ts';
+import { generateContextualCart } from '@/ai/flows/spark-saver-flow.ts';
 import { compareBill } from '@/ai/flows/price-match-flow.ts';
 import { products } from '@/lib/products';
 import { getIngredientsForDish, type RecipeToCartOutput } from '@/ai/flows/recipe-to-cart-flow.ts';
@@ -26,13 +26,10 @@ import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
 import { useCart } from '@/context/cart-context';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useLanguage } from '@/context/language-context';
 import type { Language } from '@/lib/translations';
 import { translations } from '@/lib/translations';
 import { cn } from '@/lib/utils';
-import { ProductGrid } from '@/components/store/product-grid';
-
 
 const CameraView = ({ onCapture, onClose, videoRef, hasCameraPermission }: { onCapture: () => void, onClose: () => void, videoRef: React.RefObject<HTMLVideoElement>, hasCameraPermission: boolean | null }) => (
     <div className="space-y-4 text-center">
@@ -79,10 +76,8 @@ function SparkPageComponent() {
   const [priceMatchResult, setPriceMatchResult] = useState<PriceMatchOutput | null>(null);
   const [recipeResult, setRecipeResult] = useState<RecipeToCartOutput | null>(null);
 
-  // SparkSaver state
-  const [budget, setBudget] = useState('');
-  const [familySize, setFamilySize] = useState('');
-  const [preference, setPreference] = useState<'Veg' | 'Non-Veg' | 'Jain'>('Veg');
+  // Context to Cart state
+  const [contextualQuery, setContextualQuery] = useState('');
   
   const { toast } = useToast();
   const { addToCartBatch } = useCart();
@@ -159,9 +154,7 @@ function SparkPageComponent() {
     setTextList('');
     setIsLoading(false);
     setConfirmationText(null);
-    setBudget('');
-    setFamilySize('');
-    setPreference('Veg');
+    setContextualQuery('');
     setPriceMatchResult(null);
     setRecipeResult(null);
     setLanguagePrompt(null);
@@ -383,23 +376,21 @@ function SparkPageComponent() {
     }
   };
 
-  const handleSparkSaver = async () => {
-    if (!budget || !familySize) {
+  const handleContextToCart = async () => {
+    if (!contextualQuery.trim()) {
       toast({
         variant: 'destructive',
         title: 'Missing Information',
-        description: 'Please enter a budget and family size.',
+        description: 'Please describe what you need.',
       });
       return;
     }
     setIsLoading(true);
     resetViewStates();
     try {
-      const availableProductsForAI = products.map(({ id, name, category, price, quantity }) => ({ id, name, category, price, quantity }));
-      const result = await generateSparkSaverCart({
-        budget: Number(budget),
-        familySize: Number(familySize),
-        preference,
+      const availableProductsForAI = products.map(({ id, name, category, price, quantity }) => ({ id, name, category, price, salePrice: price, quantity }));
+      const result = await generateContextualCart({
+        query: contextualQuery,
         availableProducts: availableProductsForAI,
       });
 
@@ -407,7 +398,7 @@ function SparkPageComponent() {
         toast({
           variant: 'destructive',
           title: 'Could Not Generate Cart',
-          description: 'We could not generate a cart for your budget. Please try a different amount.',
+          description: "We couldn't generate a cart for your request. Please try being more specific.",
         });
         setParsedItems([]);
         return;
@@ -420,11 +411,11 @@ function SparkPageComponent() {
       });
 
     } catch (error) {
-      console.error('Error generating SparkSaver cart:', error);
+      console.error('Error generating contextual cart:', error);
       toast({
         variant: 'destructive',
         title: 'Generation Failed',
-        description: 'We could not build your budget cart at this time. Please try again.',
+        description: 'We could not build your cart at this time. Please try again.',
       });
     } finally {
       setIsLoading(false);
@@ -439,7 +430,7 @@ function SparkPageComponent() {
     setIsLoading(true);
     resetViewStates();
     try {
-        const availableProductsForAI = products.map(({ id, name, category, price, quantity }) => ({ id, name, category, price, quantity }));
+        const availableProductsForAI = products.map(({ id, name, category, price, quantity }) => ({ id, name, category, price, salePrice: price, quantity }));
         const result = await compareBill({
             billPhotoDataUri: photoDataUri,
             availableProducts: availableProductsForAI
@@ -593,7 +584,7 @@ function SparkPageComponent() {
                         )}
                         {confirmationText && (
                             <div className="flex items-center gap-4 p-3 bg-secondary/20 rounded-lg">
-                                <Volume2 className="text-primary flex-shrink-0" />
+                                {/* <Volume2 className="text-primary flex-shrink-0" /> */}
                                 <p className="flex-1 text-sm text-secondary-foreground">{confirmationText}</p>
                             </div>
                         )}
@@ -707,7 +698,7 @@ function SparkPageComponent() {
             <Tabs value={activeTab} className="w-full" onValueChange={handleTabChange}>
               <TabsList className="grid w-full grid-cols-5">
                 <TabsTrigger value="scan" className="gap-2"><Camera /> Scan</TabsTrigger>
-                <TabsTrigger value="saver" className="gap-2"><PiggyBank /> SparkSaver</TabsTrigger>
+                <TabsTrigger value="context" className="gap-2"><Bot /> AI Assistant</TabsTrigger>
                 <TabsTrigger value="match" className="gap-2"><Receipt /> Price Match</TabsTrigger>
                 <TabsTrigger value="speak" className="gap-2"><Mic /> Speak</TabsTrigger>
                 <TabsTrigger value="type" className="gap-2"><FileText /> Type</TabsTrigger>
@@ -756,7 +747,34 @@ function SparkPageComponent() {
                         </Button>
                     </div>
 
-                    {isCameraOpen && <CameraView onCapture={handleCapture} onClose={handleCloseCamera} videoRef={videoRef} hasCameraPermission={hasCameraPermission} />}
+                    <div className={cn(isCameraOpen ? "block" : "hidden", "space-y-4 text-center")}>
+                        <div className="relative w-full aspect-video bg-muted rounded-lg overflow-hidden border">
+                            <video ref={videoRef} className="w-full h-full object-cover" autoPlay playsInline muted />
+                            {hasCameraPermission === false && (
+                            <div className="absolute inset-0 flex items-center justify-center p-4 bg-background/80">
+                                <Alert variant="destructive">
+                                <Camera className="h-4 w-4" />
+                                <AlertTitle>Camera Access Denied</AlertTitle>
+                                <AlertDescription>
+                                    Please enable camera access in your browser settings to use this feature.
+                                </AlertDescription>
+                                </Alert>
+                            </div>
+                            )}
+                            {hasCameraPermission === null && (
+                            <div className="absolute inset-0 flex items-center justify-center bg-background/80">
+                                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                            </div>
+                            )}
+                        </div>
+                        <div className="flex justify-center gap-4">
+                            <Button onClick={handleCapture} size="lg" disabled={!hasCameraPermission}>
+                            <Camera className="mr-2" /> Capture
+                            </Button>
+                            <Button onClick={handleCloseCamera} variant="outline" size="lg">Cancel</Button>
+                        </div>
+                        </div>
+
                   </CardContent>
                 </Card>
               </TabsContent>
@@ -794,47 +812,50 @@ function SparkPageComponent() {
                             {isLoading ? ( <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Analyzing your bill...</> ) : ( <><Sparkles className="mr-2 h-4 w-4" /> Compare Prices</> )}
                         </Button>
                     </div>
-                     {isCameraOpen && <CameraView onCapture={handleCapture} onClose={handleCloseCamera} videoRef={videoRef} hasCameraPermission={hasCameraPermission} />}
+                     <div className={cn(isCameraOpen ? "block" : "hidden", "space-y-4 text-center")}>
+                        <div className="relative w-full aspect-video bg-muted rounded-lg overflow-hidden border">
+                            <video ref={videoRef} className="w-full h-full object-cover" autoPlay playsInline muted />
+                            {hasCameraPermission === false && (
+                            <div className="absolute inset-0 flex items-center justify-center p-4 bg-background/80">
+                                <Alert variant="destructive">
+                                <Camera className="h-4 w-4" />
+                                <AlertTitle>Camera Access Denied</AlertTitle>
+                                <AlertDescription>
+                                    Please enable camera access in your browser settings to use this feature.
+                                </AlertDescription>
+                                </Alert>
+                            </div>
+                            )}
+                            {hasCameraPermission === null && (
+                            <div className="absolute inset-0 flex items-center justify-center bg-background/80">
+                                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                            </div>
+                            )}
+                        </div>
+                        <div className="flex justify-center gap-4">
+                            <Button onClick={handleCapture} size="lg" disabled={!hasCameraPermission}>
+                            <Camera className="mr-2" /> Capture
+                            </Button>
+                            <Button onClick={handleCloseCamera} variant="outline" size="lg">Cancel</Button>
+                        </div>
+                        </div>
                   </CardContent>
                 </Card>
               </TabsContent>
 
-              <TabsContent value="saver">
+              <TabsContent value="context">
                 <Card>
                   <CardHeader>
-                    <CardTitle className="flex items-center gap-2">SparkSaver</CardTitle>
-                    <CardDescription>Let AI build the cheapest &amp; healthiest grocery cart for your weekly needs within your budget.</CardDescription>
+                    <CardTitle className="flex items-center gap-2">AI Shopping Assistant</CardTitle>
+                    <CardDescription>Describe a scenario (e.g., "weekend party," "healthy snacks for kids") and let our AI build a cart for you.</CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-6">
-                    <div className="space-y-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="budget">Your Weekly Budget (₹)</Label>
-                        <Input id="budget" type="number" placeholder="e.g., 1500" value={budget} onChange={(e) => setBudget(e.target.value)} disabled={isLoading} />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="family-size">Family Size</Label>
-                        <Input id="family-size" type="number" placeholder="e.g., 4" value={familySize} onChange={(e) => setFamilySize(e.target.value)} disabled={isLoading} />
-                      </div>
-                      <div className="space-y-2">
-                        <Label>Dietary Preference</Label>
-                        <RadioGroup value={preference} onValueChange={(value: any) => setPreference(value)} className="flex gap-4 pt-1">
-                          <div className="flex items-center space-x-2">
-                            <RadioGroupItem value="Veg" id="veg" />
-                            <Label htmlFor="veg">Veg</Label>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <RadioGroupItem value="Non-Veg" id="non-veg" />
-                            <Label htmlFor="non-veg">Non-Veg</Label>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <RadioGroupItem value="Jain" id="jain" />
-                            <Label htmlFor="jain">Jain</Label>
-                          </div>
-                        </RadioGroup>
-                      </div>
+                    <div className="space-y-2">
+                       <Label htmlFor="context-query">What do you need?</Label>
+                       <Textarea id="context-query" placeholder="e.g.&#10;Planning a birthday party for 8 people&#10;Need healthy brain food for kids' exams&#10;It's raining, I want comfort food" value={contextualQuery} onChange={(e) => setContextualQuery(e.target.value)} className="min-h-[150px]" disabled={isLoading}/>
                     </div>
-                    <Button onClick={handleSparkSaver} disabled={isLoading || !budget || !familySize} className="w-full" size="lg">
-                      {isLoading ? (<><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Building your cart...</>) : (<><Sparkles className="mr-2 h-4 w-4" /> Spark It!</>)}
+                    <Button onClick={handleContextToCart} disabled={isLoading || !contextualQuery.trim()} className="w-full" size="lg">
+                      {isLoading ? (<><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Building your cart...</>) : (<><Sparkles className="mr-2 h-4 w-4" /> Generate Cart</>)}
                     </Button>
                   </CardContent>
                 </Card>

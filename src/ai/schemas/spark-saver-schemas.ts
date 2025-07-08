@@ -9,24 +9,20 @@ const ProductSchemaForAI = z.object({
   quantity: z.string(),
 });
 
-export const SparkSaverInputSchema = z.object({
-  budget: z.number().describe('The maximum budget for the weekly grocery list.'),
-  familySize: z.number().describe('The number of people in the family.'),
-  preference: z.enum(['Veg', 'Non-Veg', 'Jain']).describe('The dietary preference of the family.'),
+export const ContextToCartInputSchema = z.object({
+  query: z.string().describe("The user's high-level, contextual request (e.g., 'planning a party', 'need healthy food')."),
   availableProducts: z
     .array(ProductSchemaForAI)
     .describe('The full list of products available in the store with their prices.'),
 });
-export type SparkSaverInput = z.infer<typeof SparkSaverInputSchema>;
+export type ContextToCartInput = z.infer<typeof ContextToCartInputSchema>;
 
-export const SparkSaverOutputSchema = z.object({
-  items: z.array(ListParserOutputItemSchema).describe("The optimized list of items for the cart."),
-  totalCost: z.number().describe('The calculated total cost of the suggested cart.'),
-  savings: z.number().describe('The estimated savings compared to an average non-optimized cart.'),
+export const ContextToCartOutputSchema = z.object({
+  items: z.array(ListParserOutputItemSchema).describe("The curated list of items for the cart."),
   summaryText: z
     .string()
     .describe(
-      'A friendly, natural language summary of the generated cart, highlighting the total cost and savings.'
+      'A friendly, natural language summary of the generated cart, explaining the choices made based on the context.'
     ),
 });
-export type SparkSaverOutput = z.infer<typeof SparkSaverOutputSchema>;
+export type ContextToCartOutput = z.infer<typeof ContextToCartOutputSchema>;

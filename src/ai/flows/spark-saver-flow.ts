@@ -1,55 +1,51 @@
 'use server';
 /**
- * @fileOverview An AI flow to build a budget-friendly grocery cart.
- * - generateSparkSaverCart - A function that builds a cart based on budget, family size, and preferences.
+ * @fileOverview An AI flow to build a contextual grocery cart.
+ * - generateContextualCart - A function that builds a cart based on a high-level user query.
  */
 
 import {ai} from '@/ai/genkit';
 import {
-  type SparkSaverInput,
-  SparkSaverInputSchema,
-  type SparkSaverOutput,
-  SparkSaverOutputSchema,
+  type ContextToCartInput,
+  ContextToCartInputSchema,
+  type ContextToCartOutput,
+  ContextToCartOutputSchema,
 } from '@/ai/schemas/spark-saver-schemas';
 
-export async function generateSparkSaverCart(
-  input: SparkSaverInput
-): Promise<SparkSaverOutput> {
-  return sparkSaverFlow(input);
+export async function generateContextualCart(
+  input: ContextToCartInput
+): Promise<ContextToCartOutput> {
+  return contextToCartFlow(input);
 }
 
-const sparkSaverPrompt = ai.definePrompt({
-  name: 'sparkSaverPrompt',
-  input: {schema: SparkSaverInputSchema},
-  output: {schema: SparkSaverOutputSchema},
-  prompt: `You are an expert Indian home budgeting assistant called "SparkSaver". Your goal is to create the most optimal, budget-friendly, and healthy weekly grocery cart for a family based on their needs.
+const contextToCartPrompt = ai.definePrompt({
+  name: 'contextToCartPrompt',
+  input: {schema: ContextToCartInputSchema},
+  output: {schema: ContextToCartOutputSchema},
+  prompt: `You are a creative and intelligent shopping assistant for an Indian e-commerce platform called SparkVoice. Your goal is to transform a user's high-level, contextual request into a practical and personalized shopping cart.
 
 You will be given:
-1.  Budget: {{budget}} INR
-2.  Family Size: {{familySize}} people
-3.  Dietary Preference: {{preference}}
-4.  A complete list of all products available in the store (in JSON format).
+1.  The user's request: '{{query}}'
+2.  A complete list of all products available in the store.
 
 Your tasks are:
-1.  **Analyze Needs**: Based on the family size and preference, determine the essential weekly grocery needs. Prioritize staple items like atta, rice, dals, basic vegetables, milk, and cooking oil.
-2.  **Optimize for Budget**: From the available products, select the most cost-effective items and quantities to build a full weekly grocery list that stays strictly within the specified budget. Choose value-for-money brands and pack sizes.
-3.  **Ensure Health**: While optimizing for cost, ensure the cart is balanced and healthy. Include a good mix of vegetables, proteins (dals for veg, maybe eggs/chicken if available and non-veg), and staples.
-4.  **Calculate Totals**: Calculate the exact total cost of the generated cart. Also, estimate the savings a user makes with this optimized cart compared to a typical unplanned shopping, assuming a 15-20% saving.
-5.  **Generate Summary**: Create a friendly, encouraging summary message in English. It should state the total cost, the estimated savings, and briefly mention the types of items included. For example: "I've created a healthy weekly cart for your family of {{familySize}} for just ₹{totalCost}, saving you about ₹{savings}! It includes all your essentials like dals, veggies, and milk."
-6.  **Return JSON**: Provide ONLY a JSON object that matches the output schema. The 'items' array should contain the product name and the recommended quantity.
+1.  **Analyze Intent**: Understand the user's core need (e.g., party, health focus, comfort food for a rainy day, quick meal for students).
+2.  **Select Relevant Products**: From the list of available products, create a curated list of items that match the user's context. Be thoughtful about quantities (e.g., for a party of 8, suggest larger packs of snacks and drinks).
+3.  **Generate a Creative Summary**: Write a friendly, personalized summary message ('summaryText') that explains your choices and why they fit the context. For example: "For your beach trip, I've added sunscreen for protection, coconut water to stay hydrated, and some easy-to-carry snacks!"
+4.  **Return JSON**: Provide ONLY a JSON object that matches the output schema. The 'items' array should contain the product name and the recommended quantity.
 
 Available Products (JSON format):
 {{{json availableProducts}}}`,
 });
 
-const sparkSaverFlow = ai.defineFlow(
+const contextToCartFlow = ai.defineFlow(
   {
-    name: 'sparkSaverFlow',
-    inputSchema: SparkSaverInputSchema,
-    outputSchema: SparkSaverOutputSchema,
+    name: 'contextToCartFlow',
+    inputSchema: ContextToCartInputSchema,
+    outputSchema: ContextToCartOutputSchema,
   },
   async (input) => {
-    const {output} = await sparkSaverPrompt(input);
+    const {output} = await contextToCartPrompt(input);
     if (!output) {
       throw new Error('The AI failed to generate a valid response.');
     }
