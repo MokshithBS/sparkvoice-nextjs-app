@@ -106,10 +106,21 @@ const recipeToCartFlow = ai.defineFlow(
     outputSchema: RecipeToCartOutputSchema,
   },
   async (input) => {
-    const {output} = await recipeToCartPrompt(input);
-    if (!output) {
-      throw new Error('The AI failed to generate a valid response.');
+    try {
+      const {output} = await recipeToCartPrompt(input);
+      if (!output) {
+        throw new Error('The AI failed to generate a valid response.');
+      }
+      return output;
+    } catch (error) {
+      console.error("Error in recipeToCartFlow:", error);
+      // Re-throwing a new Error ensures that the client-side code can properly
+      // inspect the error message for keywords like '503' or 'overloaded'.
+      if (error instanceof Error) {
+        throw new Error(error.message);
+      }
+      // Fallback for non-Error objects
+      throw new Error('An unknown error occurred while processing the recipe.');
     }
-    return output;
   }
 );
