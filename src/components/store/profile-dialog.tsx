@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -11,7 +12,6 @@ import {
   DialogDescription,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
   Select,
@@ -24,37 +24,15 @@ import { Separator } from '@/components/ui/separator';
 import { useLanguage } from '@/context/language-context';
 import { useTheme } from '@/context/theme-context';
 import type { Language } from '@/lib/translations';
-import { generateAvatar } from '@/ai/flows/generate-avatar-flow';
-import { Loader2, Palette, Sparkles, User } from 'lucide-react';
+import { Palette, Sparkles, User } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 export function ProfileDialog() {
   const { language, setLanguage, languageNames, t } = useLanguage();
   const { theme, setTheme } = useTheme();
-  const [avatarPrompt, setAvatarPrompt] = useState('');
-  const [avatarUrl, setAvatarUrl] = useState('/avatar-placeholder.png');
-  const [isGenerating, setIsGenerating] = useState(false);
   const { toast } = useToast();
+  const avatarUrl = 'https://storage.googleapis.com/aip-dev-images-public/avatar-4.png';
 
-  const handleGenerateAvatar = async () => {
-    if (!avatarPrompt.trim()) return;
-    setIsGenerating(true);
-    try {
-      const result = await generateAvatar({ prompt: avatarPrompt });
-      if (result.imageDataUri) {
-        setAvatarUrl(result.imageDataUri);
-      }
-    } catch (error) {
-      console.error('Avatar generation failed:', error);
-      toast({
-        variant: 'destructive',
-        title: t('common.error.generic.title'),
-        description: t('common.error.generic.description'),
-      });
-    } finally {
-      setIsGenerating(false);
-    }
-  };
 
   const handleNotImplemented = (feature: string) => {
     toast({
@@ -76,42 +54,20 @@ export function ProfileDialog() {
         {/* AI Avatar Section */}
         <div className="space-y-4">
           <Label className="flex items-center gap-2 font-semibold">
-            <Sparkles className="h-5 w-5 text-primary" /> AI Profile Picture
+            <Sparkles className="h-5 w-5 text-primary" /> My Profile Picture
           </Label>
           <div className="flex items-center gap-4">
             <div className="relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-full border-2 border-primary/20 bg-muted">
               <Image
                 src={avatarUrl}
-                alt="AI Generated Avatar"
+                alt="User Avatar"
                 fill
                 className="object-cover"
+                data-ai-hint="person face"
               />
-              {isGenerating && (
-                <div className="absolute inset-0 flex items-center justify-center bg-background/80">
-                  <Loader2 className="h-6 w-6 animate-spin text-primary" />
-                </div>
-              )}
             </div>
-            <div className="w-full space-y-2">
-              <Input
-                id="avatar-prompt"
-                placeholder="e.g., A happy person with a laptop"
-                value={avatarPrompt}
-                onChange={(e) => setAvatarPrompt(e.target.value)}
-                disabled={isGenerating}
-              />
-              <Button
-                onClick={handleGenerateAvatar}
-                disabled={isGenerating || !avatarPrompt.trim()}
-                className="w-full"
-              >
-                {isGenerating ? (
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                ) : (
-                  <Sparkles className="mr-2 h-4 w-4" />
-                )}
-                Generate Avatar
-              </Button>
+            <div className='w-full space-y-2 text-sm text-muted-foreground'>
+                <p>You can customize your avatar, manage your details, and more.</p>
             </div>
           </div>
         </div>
