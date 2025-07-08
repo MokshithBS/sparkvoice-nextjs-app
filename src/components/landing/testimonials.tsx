@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Card, CardContent } from "@/components/ui/card"
@@ -19,7 +20,7 @@ const testimonials = [
   },
   {
     key: "gupta",
-    avatar: "MG",
+    avatar: "AG",
     avatarUrl: "https://storage.googleapis.com/aip-dev-images-public/avatar-3.png",
     hint: "man face",
   },

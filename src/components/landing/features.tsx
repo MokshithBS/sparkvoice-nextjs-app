@@ -1,33 +1,34 @@
+
 'use client';
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { useLanguage } from "@/context/language-context";
-import { Languages, ListChecks, Network, Phone, Speaker, Zap } from "lucide-react"
+import { Bot, Leaf, Receipt, ScanSearch, Sparkles, Users2 } from "lucide-react"
 
 const featureItems = [
   {
-    icon: <Zap className="w-8 h-8 text-accent" />,
-    key: "zeroFriction",
+    icon: <Sparkles className="w-8 h-8 text-accent" />,
+    key: "multimodalInput",
   },
   {
-    icon: <ListChecks className="w-8 h-8 text-accent" />,
-    key: "personalizedCart",
+    icon: <Bot className="w-8 h-8 text-accent" />,
+    key: "aiAssistant",
   },
   {
-    icon: <Speaker className="w-8 h-8 text-accent" />,
-    key: "kiranaReady",
+    icon: <Users2 className="w-8 h-8 text-accent" />,
+    key: "sparkHives",
   },
   {
-    icon: <Languages className="w-8 h-8 text-accent" />,
-    key: "multilingual",
+    icon: <ScanSearch className="w-8 h-8 text-accent" />,
+    key: "pantryManagement",
   },
   {
-    icon: <Phone className="w-8 h-8 text-accent" />,
-    key: "featurePhone",
+    icon: <Leaf className="w-8 h-8 text-accent" />,
+    key: "sparkGreen",
   },
   {
-    icon: <Network className="w-8 h-8 text-accent" />,
-    key: "seamlessIntegration",
+    icon: <Receipt className="w-8 h-8 text-accent" />,
+    key: "priceMatch",
   },
 ]
 
