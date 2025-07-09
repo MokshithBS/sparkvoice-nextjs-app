@@ -4,7 +4,7 @@
 import Link from "next/link"
 import { ShoppingCart, Menu, Phone } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetTrigger } from "@/components/ui/sheet"
 import { useState } from "react"
 import { WhatsAppIcon } from "../icons/whatsapp-icon"
 import { useLanguage } from "@/context/language-context"
@@ -63,6 +63,10 @@ export function Header() {
             </Button>
           </SheetTrigger>
           <SheetContent side="right">
+            <SheetHeader className="sr-only">
+              <SheetTitle>Navigation Menu</SheetTitle>
+              <SheetDescription>Main navigation links and actions for SparkVoice.</SheetDescription>
+            </SheetHeader>
             <div className="grid gap-4 p-4">
               <Link href="#" className="flex items-center gap-2" prefetch={false} onClick={closeSheet}>
                 <ShoppingCart className="h-6 w-6 text-primary" />
