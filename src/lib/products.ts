@@ -27,7 +27,7 @@ export interface Product {
     // Masala & Oils
     { id: 2, name: 'Tata Salt (1 kg)', price: 25, quantity: '1 kg', image: 'https://storage.googleapis.com/aip-dev-images-public/product-salt.png', category: 'Masala & Oils', hint: 'salt package', isVeg: true },
     { id: 5, name: 'Saffola Gold Oil (1 L)', price: 180, salePrice: 159, quantity: '1 L', image: 'https://storage.googleapis.com/aip-dev-images-public/product-oil.png', category: 'Masala & Oils', hint: 'oil bottle', isVeg: true },
-    { id: 16, name: 'Fortune Sun Lite Oil (1 L)', price: 160, quantity: '1 L', image: 'https://storage.googleapis.com/aip-dev-images-public/product-sunflower-oil.png', category: 'Masala & Oils', hint: 'oil bottle', isVeg: true },
+    { id: 16, name: 'Fortune Sun Lite Oil (1 L)', price: 160, salePrice: 145, quantity: '1 L', image: 'https://storage.googleapis.com/aip-dev-images-public/product-sunflower-oil.png', category: 'Masala & Oils', hint: 'oil bottle', isVeg: true },
     { id: 17, name: 'Everest Turmeric Powder (200 g)', price: 55, quantity: '200 g', image: 'https://storage.googleapis.com/aip-dev-images-public/product-turmeric.png', category: 'Masala & Oils', hint: 'spice powder', isVeg: true },
     { id: 18, name: 'MDH Deggi Mirch (100 g)', price: 70, quantity: '100 g', image: 'https://storage.googleapis.com/aip-dev-images-public/product-chilli-powder.png', category: 'Masala & Oils', hint: 'spice powder', isVeg: true },
     { id: 42, name: 'Fortune Mustard Oil (1 L)', price: 175, quantity: '1 L', image: 'https://storage.googleapis.com/aip-dev-images-public/product-mustard-oil.png', category: 'Masala & Oils', hint: 'oil bottle', isVeg: true },
