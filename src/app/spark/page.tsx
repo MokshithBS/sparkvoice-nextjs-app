@@ -75,55 +75,54 @@ function SparkPageComponent() {
   const availableProductsForPantryCheck = useMemo(() => products.map(({ id, name, category }) => ({ id, name, category })), []);
 
   useEffect(() => {
-    const cleanupStream = () => {
+    // This effect handles the camera stream lifecycle.
+    if (!isCameraOpen) {
+      // Ensure any existing stream is cleaned up when the camera is closed.
       if (mediaStreamRef.current) {
         mediaStreamRef.current.getTracks().forEach((track) => track.stop());
         mediaStreamRef.current = null;
-        if(videoRef.current) videoRef.current.srcObject = null;
       }
-    };
+      return;
+    }
 
-    if (isCameraOpen) {
-      setHasCameraPermission(null);
+    const getCameraPermission = async () => {
+      setHasCameraPermission(null); // Reset permission state to show a loader.
+
       if (!navigator.mediaDevices?.getUserMedia) {
         console.error('Camera API not supported in this browser.');
         toast({ variant: 'destructive', title: 'Not Supported', description: 'Your browser does not support camera access.' });
         setHasCameraPermission(false);
         return;
       }
-      
-      let isCancelled = false;
-      
-      navigator.mediaDevices.getUserMedia({ video: true })
-        .then(stream => {
-          if (isCancelled) {
-            stream.getTracks().forEach(track => track.stop());
-            return;
-          }
-          mediaStreamRef.current = stream;
-          if (videoRef.current) {
-            videoRef.current.srcObject = stream;
-          }
-          setHasCameraPermission(true);
-        })
-        .catch(error => {
-          if (isCancelled) return;
-          console.error('Error accessing camera:', error);
-          setHasCameraPermission(false);
-          toast({
-            variant: 'destructive',
-            title: 'Camera Access Denied',
-            description: 'Please enable camera permissions in your browser settings to use this feature.',
-          });
-        });
 
-      return () => {
-        isCancelled = true;
-        cleanupStream();
-      };
-    } else {
-        cleanupStream();
-    }
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        mediaStreamRef.current = stream; // Store stream in ref to manage its lifecycle.
+
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+        }
+        setHasCameraPermission(true);
+      } catch (error) {
+        console.error('Error accessing camera:', error);
+        setHasCameraPermission(false);
+        toast({
+          variant: 'destructive',
+          title: 'Camera Access Denied',
+          description: 'Please enable camera permissions in your browser settings to use this feature.',
+        });
+      }
+    };
+
+    getCameraPermission();
+
+    // The cleanup function for this effect, which runs when `isCameraOpen` changes or the component unmounts.
+    return () => {
+      if (mediaStreamRef.current) {
+        mediaStreamRef.current.getTracks().forEach((track) => track.stop());
+        mediaStreamRef.current = null;
+      }
+    };
   }, [isCameraOpen, toast]);
 
   const handleAIError = (error: unknown, title: string, description: string) => {
