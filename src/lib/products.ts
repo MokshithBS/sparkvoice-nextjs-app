@@ -77,7 +77,7 @@ export interface Product {
     // Snacks & Beverages
     { id: 4, name: 'Parle-G Biscuits (1 pack)', price: 10, quantity: '1 pack', image: 'https://storage.googleapis.com/aip-dev-images-public/product-biscuit.png', category: 'Snacks & Beverages', hint: 'biscuit packet', isVeg: true },
     { id: 12, name: 'Lays Potato Chips (Classic Salted)', price: 20, salePrice: 18, quantity: 'Classic Salted', image: 'https://storage.googleapis.com/aip-dev-images-public/snacks.png', category: 'Snacks & Beverages', hint: 'potato chips', isVeg: true },
-    { id: 25, name: 'Coca-Cola (750 ml)', price: 40, quantity: '750 ml', image: 'https://storage.googleapis.com/aip-dev-images-public/product-coke.png', category: 'Snacks & Beverages', hint: 'soda bottle', isVeg: true },
+    { id: 25, name: 'Coca-Cola (1 L)', price: 55, quantity: '1 L', image: 'https://storage.googleapis.com/aip-dev-images-public/product-coke.png', category: 'Snacks & Beverages', hint: 'soda bottle', isVeg: true },
     { id: 26, name: 'Tata Tea Gold (1 kg)', price: 500, quantity: '1 kg', image: 'https://storage.googleapis.com/aip-dev-images-public/product-tea.png', category: 'Snacks & Beverages', hint: 'tea box', isVeg: true },
     { id: 27, name: 'Nescafe Classic Coffee (100 g)', price: 300, quantity: '100 g', image: 'https://storage.googleapis.com/aip-dev-images-public/product-coffee.png', category: 'Snacks & Beverages', hint: 'coffee jar', isVeg: true },
     { id: 36, name: 'Cadbury Dairy Milk (1 bar)', price: 45, quantity: '1 bar', image: 'https://storage.googleapis.com/aip-dev-images-public/product-chocolate.png', category: 'Snacks & Beverages', hint: 'chocolate bar', isVeg: true },
