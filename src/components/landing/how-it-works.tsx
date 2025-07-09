@@ -1,22 +1,24 @@
 
 'use client';
 
-import React from "react";
+import Image from "next/image";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Bot, Camera, Mic } from "lucide-react"
 import { useLanguage } from "@/context/language-context"
 
 const steps = [
   {
-    icon: <Camera className="w-10 h-10 text-accent" />,
+    image: "https://storage.googleapis.com/aip-dev-images-public/how-it-works-snap.png",
+    hint: "phone scanning list",
     key: "snap",
   },
   {
-    icon: <Mic className="w-10 h-10 text-accent" />,
+    image: "https://storage.googleapis.com/aip-dev-images-public/how-it-works-speak.png",
+    hint: "person speaking phone",
     key: "say",
   },
   {
-    icon: <Bot className="w-10 h-10 text-accent" />,
+    image: "https://storage.googleapis.com/aip-dev-images-public/how-it-works-describe.png",
+    hint: "phone party planning",
     key: "describe",
   }
 ]
@@ -36,18 +38,21 @@ export function HowItWorks() {
         </div>
         <div className="mx-auto grid max-w-5xl items-stretch gap-8 sm:grid-cols-1 md:grid-cols-3 lg:gap-12 mt-12">
           {steps.map((step) => (
-            <Card key={step.key} className="shadow-lg hover:shadow-xl transition-shadow duration-300 flex flex-col">
+            <Card key={step.key} className="shadow-lg hover:shadow-xl transition-shadow duration-300 flex flex-col group overflow-hidden">
               <CardHeader className="flex flex-col items-center text-center pb-4">
-                {step.icon}
-                <CardTitle className="mt-4 font-headline text-2xl">{t(`landing.howItWorks.steps.${step.key}.title` as any)}</CardTitle>
+                <CardTitle className="font-headline text-2xl">{t(`landing.howItWorks.steps.${step.key}.title` as any)}</CardTitle>
               </CardHeader>
-              <CardContent className="text-center text-muted-foreground flex flex-col flex-grow justify-between">
+              <CardContent className="text-center text-muted-foreground flex flex-col flex-grow p-4 pt-0">
                 <p className="mb-4">{t(`landing.howItWorks.steps.${step.key}.description` as any)}</p>
-                <div className="aspect-[4/3] flex items-center justify-center">
-                    <div className="w-48 h-48 rounded-full bg-gradient-to-br from-primary/10 via-secondary/10 to-accent/10 flex items-center justify-center">
-                        {React.cloneElement(step.icon, {className: "w-24 h-24 text-primary/80"})}
-                    </div>
-                </div>
+                 <div className="relative aspect-[4/3] w-full mt-auto rounded-lg overflow-hidden">
+                    <Image
+                        src={step.image}
+                        alt={t(`landing.howItWorks.steps.${step.key}.title` as any)}
+                        fill
+                        className="object-cover group-hover:scale-105 transition-transform duration-300"
+                        data-ai-hint={step.hint}
+                    />
+                 </div>
               </CardContent>
             </Card>
           ))}
