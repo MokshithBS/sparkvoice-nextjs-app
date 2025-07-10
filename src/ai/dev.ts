@@ -12,3 +12,4 @@ import './flows/personalized-sale-flow.ts';
 import './flows/pantry-checker-flow.ts';
 import './flows/contextual-cart-flow.ts';
 import './flows/generate-avatar-flow.ts';
+import './flows/diet-assistant-flow.ts';

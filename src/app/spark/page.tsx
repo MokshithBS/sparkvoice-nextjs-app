@@ -5,7 +5,7 @@ import { Suspense, useRef, useState, useEffect, useCallback, useMemo } from 'rea
 import Image from 'next/image';
 import Link from 'next/link';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { ArrowLeft, Camera, FileText, Loader2, Mic, Bot, Sparkles, StopCircle, Trash2, Video, Volume2, Receipt, AlertCircle, Globe, PiggyBank, ScanSearch, Bell, Repeat } from 'lucide-react';
+import { ArrowLeft, Camera, FileText, Loader2, Mic, Bot, Sparkles, StopCircle, Trash2, Video, Volume2, Receipt, AlertCircle, Globe, PiggyBank, ScanSearch, Bell, Repeat, HeartPulse } from 'lucide-react';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 
 import { Button } from '@/components/ui/button';
@@ -18,6 +18,8 @@ import { generateSparkSaverCart } from '@/ai/flows/spark-saver-flow';
 import { compareBill } from '@/ai/flows/price-match-flow.ts';
 import { products, type Product } from '@/lib/products';
 import { getIngredientsForDish, type RecipeToCartOutput } from '@/ai/flows/recipe-to-cart-flow.ts';
+import { generateDietCart } from '@/ai/flows/diet-assistant-flow.ts';
+import type { DietAssistantOutput } from '@/ai/schemas/diet-assistant-schemas';
 import { generateSpeech } from '@/ai/flows/tts-flow';
 import { translations, type Language } from '@/lib/translations';
 import { checkPantry } from '@/ai/flows/pantry-checker-flow';
@@ -33,6 +35,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useCart } from '@/context/cart-context';
 import { useLanguage } from '@/context/language-context';
 import { cn } from '@/lib/utils';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 
 function SparkPageComponent() {
@@ -50,6 +53,7 @@ function SparkPageComponent() {
   const [priceMatchResult, setPriceMatchResult] = useState<PriceMatchOutput | null>(null);
   const [recipeResult, setRecipeResult] = useState<RecipeToCartOutput | null>(null);
   const [audioConfirmationUrl, setAudioConfirmationUrl] = useState<string | null>(null);
+  const [dietResult, setDietResult] = useState<DietAssistantOutput | null>(null);
 
   // Pantry check state
   const [pantrySuggestions, setPantrySuggestions] = useState<Product[]>([]);
@@ -58,7 +62,8 @@ function SparkPageComponent() {
   // Context to Cart state
   const [contextualQuery, setContextualQuery] = useState('');
   const [sparkSaverInput, setSparkSaverInput] = useState({ budget: '', familySize: '', preferences: '' });
-  
+  const [dietAssistantInput, setDietAssistantInput] = useState({ goal: '', medicalCondition: '', familySize: '', budget: '' });
+
   const { toast } = useToast();
   const { addToCartBatch } = useCart();
   const { t, languageNames, setLanguage, language } = useLanguage();
@@ -160,6 +165,8 @@ function SparkPageComponent() {
     setAudioConfirmationUrl(null);
     setPantrySuggestions([]);
     setPantryConfirmation(null);
+    setDietResult(null);
+    setDietAssistantInput({ goal: '', medicalCondition: '', familySize: '', budget: '' });
     if (isCameraOpen) handleCloseCamera();
   }, [isCameraOpen, handleCloseCamera]);
 
@@ -455,6 +462,37 @@ function SparkPageComponent() {
     }
   };
 
+  const handleDietAssistant = async () => {
+    const budget = parseFloat(dietAssistantInput.budget);
+    const familySize = parseInt(dietAssistantInput.familySize, 10);
+    if (isNaN(budget) || budget <= 0 || isNaN(familySize) || familySize <= 0 || !dietAssistantInput.goal) {
+        toast({ variant: 'destructive', title: 'Invalid Input', description: 'Please enter a valid goal, budget, and family size.' });
+        return;
+    }
+    setIsLoading(true);
+    resetViewStates();
+    try {
+        const result = await generateDietCart({
+            goal: dietAssistantInput.goal,
+            medicalCondition: dietAssistantInput.medicalCondition,
+            budget,
+            familySize,
+            availableProducts: availableProductsForAI,
+        });
+
+        if (!result || result.cart.length === 0) {
+            toast({ variant: 'destructive', title: 'Could Not Generate Cart', description: "We couldn't generate a diet plan for your request. Please try different parameters." });
+            return;
+        }
+
+        setDietResult(result);
+    } catch (error) {
+      handleAIError(error, 'Generation Failed', 'We could not build your diet cart at this time. Please try again.');
+    } finally {
+        setIsLoading(false);
+    }
+  };
+
 
   const handlePriceMatch = async () => {
     if (!photoDataUri) {
@@ -571,6 +609,7 @@ function SparkPageComponent() {
     setAudioConfirmationUrl(null);
     setPantrySuggestions([]);
     setPantryConfirmation(null);
+    setDietResult(null);
   }
 
   const startOver = () => {
@@ -600,7 +639,8 @@ function SparkPageComponent() {
   const hasPriceMatchResult = !!priceMatchResult;
   const hasRecipeResult = !!recipeResult;
   const hasPantryResult = pantrySuggestions.length > 0;
-  const showResultPage = hasParsedListResult || hasPriceMatchResult || hasPantryResult;
+  const hasDietResult = !!dietResult;
+  const showResultPage = hasParsedListResult || hasPriceMatchResult || hasPantryResult || hasDietResult;
 
   return (
     <div className="flex flex-col min-h-dvh bg-background">
@@ -625,6 +665,53 @@ function SparkPageComponent() {
           {showResultPage ? (
             <div className="space-y-6">
               <Card>
+                {hasDietResult && dietResult && (
+                   <>
+                    <CardHeader>
+                        <CardTitle>Your Personalized Diet Plan</CardTitle>
+                        <CardDescription>
+                            Here's a sample weekly grocery cart and nutritional summary based on your goals. Review the items and add them to your cart.
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-6">
+                       <Alert variant={dietResult.diet_flags.toLowerCase() === 'balanced' ? 'default' : 'destructive'} className={dietResult.diet_flags.toLowerCase() === 'balanced' ? 'border-green-500/50 bg-green-500/10 text-green-700 dark:text-green-300' : ''}>
+                           <AlertCircle className="h-4 w-4" />
+                           <AlertTitle className="font-bold">Nutrition Tip</AlertTitle>
+                           <AlertDescription>{dietResult.nutrition_tip}</AlertDescription>
+                       </Alert>
+
+                       <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-center">
+                            {Object.entries(dietResult.daily_nutrition_summary).map(([key, value]) => (
+                                <div key={key} className="p-3 bg-muted rounded-lg">
+                                    <p className="text-sm font-medium text-muted-foreground capitalize">{key}</p>
+                                    <p className="text-lg font-bold text-foreground">{value}</p>
+                                </div>
+                            ))}
+                        </div>
+                        
+                        <div>
+                            <h3 className="font-semibold mb-2">Suggested Grocery Cart (Total: ₹{dietResult.total_estimated_cost.toFixed(2)})</h3>
+                            <div className="space-y-3">
+                                {dietResult.cart.map((item, index) => (
+                                    <div key={index} className="p-3 rounded-lg border bg-muted/50">
+                                        <div className="flex justify-between items-start">
+                                            <h4 className="font-medium">{item.name}</h4>
+                                            <p className="font-semibold">~₹{item.estimated_price.toFixed(2)}</p>
+                                        </div>
+                                        <p className="text-xs text-muted-foreground">Qty: {item.quantity}</p>
+                                        <p className="text-sm mt-1">{item.key_nutrition_facts}</p>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div className="flex justify-between items-center pt-4 border-t">
+                            <Button variant="outline" onClick={startOver}>Start Over</Button>
+                            <Button onClick={() => addToCartBatch(dietResult.cart.map(item => ({ product: item.name, englishProduct: item.name, quantity: item.quantity, requestedText: item.name })))} size="lg">Add All to Cart</Button>
+                        </div>
+                    </CardContent>
+                  </>
+                )}
                 {hasPantryResult && (
                   <>
                     <CardHeader>
@@ -822,8 +909,9 @@ function SparkPageComponent() {
                 )}
               </div>
               <Tabs value={activeTab} className={cn("w-full", isCameraOpen && "hidden")} onValueChange={handleTabChange}>
-              <TabsList className="grid w-full grid-cols-6">
+              <TabsList className="grid w-full grid-cols-7">
                 <TabsTrigger value="scan" className="gap-2"><Camera /> Scan</TabsTrigger>
+                <TabsTrigger value="diet" className="gap-2"><HeartPulse /> Diet</TabsTrigger>
                 <TabsTrigger value="pantry" className="gap-2"><ScanSearch /> Pantry</TabsTrigger>
                 <TabsTrigger value="saver" className="gap-2"><PiggyBank /> Saver</TabsTrigger>
                 <TabsTrigger value="context" className="gap-2"><Bot /> AI Cart</TabsTrigger>
@@ -877,6 +965,49 @@ function SparkPageComponent() {
                         </Button>
                     </div>
                   </CardContent>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="diet">
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2">SparkDiet AI</CardTitle>
+                        <CardDescription>Get a personalized, health-conscious grocery cart for your specific needs.</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                       <div className="space-y-2">
+                            <Label htmlFor="diet-goal">Primary Goal</Label>
+                             <Select value={dietAssistantInput.goal} onValueChange={(value) => setDietAssistantInput(s => ({...s, goal: value}))}>
+                                <SelectTrigger id="diet-goal">
+                                    <SelectValue placeholder="Select a health goal" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="weight-loss">Weight Loss</SelectItem>
+                                    <SelectItem value="muscle-gain">Muscle Gain</SelectItem>
+                                    <SelectItem value="diabetic-friendly">Diabetic Friendly</SelectItem>
+                                    <SelectItem value="heart-healthy">Heart Healthy</SelectItem>
+                                    <SelectItem value="balanced-diet">Balanced General Diet</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+                         <div className="space-y-2">
+                            <Label htmlFor="medical-condition">Medical Condition (optional)</Label>
+                            <Input id="medical-condition" placeholder="e.g., High Blood Pressure, PCOS" value={dietAssistantInput.medicalCondition} onChange={(e) => setDietAssistantInput(s => ({...s, medicalCondition: e.target.value}))} disabled={isLoading} />
+                        </div>
+                        <div className="grid sm:grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="diet-budget">Weekly Budget (₹)</Label>
+                                <Input id="diet-budget" type="number" placeholder="e.g., 2000" value={dietAssistantInput.budget} onChange={(e) => setDietAssistantInput(s => ({...s, budget: e.target.value}))} disabled={isLoading} />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="diet-family-size">Family Size</Label>
+                                <Input id="diet-family-size" type="number" placeholder="e.g., 2" value={dietAssistantInput.familySize} onChange={(e) => setDietAssistantInput(s => ({...s, familySize: e.target.value}))} disabled={isLoading} />
+                            </div>
+                        </div>
+                        <Button onClick={handleDietAssistant} disabled={isLoading || !dietAssistantInput.goal || !dietAssistantInput.budget || !dietAssistantInput.familySize} className="w-full" size="lg">
+                            {isLoading ? (<><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Generating Diet Plan...</>) : (<><Sparkles className="mr-2 h-4 w-4" /> Generate Diet Cart</>)}
+                        </Button>
+                    </CardContent>
                 </Card>
               </TabsContent>
 
