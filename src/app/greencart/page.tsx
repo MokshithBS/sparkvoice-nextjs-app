@@ -82,32 +82,38 @@ export default function GreenCartPage() {
 
   const handleConfirm = () => {
     let swapsApplied = 0;
-    swappedItems.forEach(originalId => {
+    
+    // Create a copy of the cart to avoid issues with modifying state during iteration.
+    const itemsToProcess = [...swappedItems];
+    
+    itemsToProcess.forEach(originalId => {
       const swap = potentialSwaps.find(s => s.originalId === originalId);
       if (swap) {
+        // First, remove the original item from the cart completely.
+        removeFromCart(swap.originalId);
+
+        // Then, find the new product to add.
         const swapProductDetails = products.find(p => p.id === swap.swapId);
+        
+        // Find if the swapped item already exists in the main cart.
+        const existingCartItem = cartItems.find(item => item.id === swap.swapId);
+        
         if (swapProductDetails) {
-          removeFromCart(swap.originalId); // Remove original
-          updateQuantity(swap.swapId, swap.quantity); // Add/update swap
-          swapsApplied++;
+            // Calculate the new total quantity for the swapped item.
+            const newQuantity = (existingCartItem?.cartQuantity || 0) + swap.quantity;
+            // Use updateQuantity to add or update the swapped item.
+            updateQuantity(swap.swapId, newQuantity);
+            swapsApplied++;
         }
       }
     });
 
-    // Simulate checkout for remaining items + newly swapped items
     toast({
       title: t('cart.toast.orderPlaced.title'),
       description: `${t('cart.toast.orderPlaced.description')} ${swapsApplied > 0 ? `with ${swapsApplied} green swap(s) applied.` : ''}`,
     });
     
-    // Clear only if swaps happened to avoid clearing an unswapped cart
-    if (swapsApplied > 0) {
-      // The logic inside useCart handles combining quantities if the swapped item already exists.
-    }
-    
-    // Instead of clearCart, we now remove only the swapped *original* items.
-    // The rest of the cart remains for checkout.
-    router.push('/cart'); // Go back to cart to see the result
+    router.push('/cart');
   };
 
   return (
@@ -192,7 +198,7 @@ export default function GreenCartPage() {
                 </div>
               </div>
 
-              <Button size="lg" className="w-full mt-4" onClick={handleConfirm}>
+              <Button size="lg" className="w-full mt-4" onClick={handleConfirm} disabled={potentialSwaps.length === 0}>
                 {t('greenCart.confirmButton', { count: swappedItems.length.toString() })} &amp; Update Cart
               </Button>
             </CardContent>
