@@ -1,4 +1,3 @@
-'use server';
 /**
  * @fileOverview Schemas for the SparkDiet AI assistant.
  */
