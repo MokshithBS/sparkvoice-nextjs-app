@@ -34,7 +34,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { CommunityCta } from '@/components/store/community-cta';
 import { useLanguage } from '@/context/language-context';
-import { SustainabilityCta } from '@/components/store/sustainability-cta';
+import { DietAssistantCta } from '@/components/store/diet-assistant-cta';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface RecipeInput {
@@ -334,7 +334,7 @@ export default function StorePage() {
               <SparkSaverCta />
               <PantryScanCta />
               <CommunityCta />
-              <SustainabilityCta />
+              <DietAssistantCta />
               <DiwaliBanner />
               <ShopByRecipe 
                 recipeInput={recipeInput}
