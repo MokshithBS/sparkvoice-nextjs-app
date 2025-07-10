@@ -16,15 +16,17 @@ export const DietAssistantInputSchema = z.object({
 });
 export type DietAssistantInput = z.infer<typeof DietAssistantInputSchema>;
 
-const DietCartItemSchema = z.object({
+export const DietCartItemSchema = z.object({
     name: z.string().describe("The exact name of the product from the available products list."),
     quantity: z.string().describe("The suggested quantity of the product to purchase (e.g., '1 kg', '2 packs')."),
     estimated_price: z.number().describe("The estimated price for the suggested quantity of this item."),
     key_nutrition_facts: z.string().describe("A brief summary of the key nutritional facts for this item (e.g., 'High in protein and fiber')."),
 });
 
+const UnpricedDietCartItemSchema = DietCartItemSchema.omit({ estimated_price: true });
+
 export const DietAssistantOutputSchema = z.object({
-  cart: z.array(DietCartItemSchema).describe("The generated list of grocery items for the cart."),
+  cart: z.array(UnpricedDietCartItemSchema).describe("The generated list of grocery items for the cart."),
   total_estimated_cost: z.number().describe("The total estimated cost for all items in the generated cart, which should be within the user's budget."),
   daily_nutrition_summary: z.object({
     calories: z.string().describe("Estimated total daily calories per person."),
