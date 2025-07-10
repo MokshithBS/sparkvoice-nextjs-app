@@ -2,7 +2,6 @@
 'use client';
 import { useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
-import { DiwaliBanner } from '@/components/store/diwali-banner';
 import { LocationHeader } from '@/components/store/location-header';
 import { SearchBar } from '@/components/store/search-bar';
 import { CategoryGrid } from '@/components/store/category-grid';
@@ -36,6 +35,7 @@ import { CommunityCta } from '@/components/store/community-cta';
 import { useLanguage } from '@/context/language-context';
 import { DietAssistantCta } from '@/components/store/diet-assistant-cta';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { SustainabilityCta } from '@/components/store/sustainability-cta';
 
 interface RecipeInput {
   dishName: string;
@@ -330,12 +330,12 @@ export default function StorePage() {
           ) : (
             <>
               <SparkVoiceCta />
+              <SustainabilityCta />
               <ContextualCartCta />
               <SparkSaverCta />
               <PantryScanCta />
               <CommunityCta />
               <DietAssistantCta />
-              <DiwaliBanner />
               <ShopByRecipe 
                 recipeInput={recipeInput}
                 onRecipeInputChange={handleRecipeInputChange}
