@@ -36,6 +36,8 @@ import { useCart } from '@/context/cart-context';
 import { useLanguage } from '@/context/language-context';
 import { cn } from '@/lib/utils';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Bar, BarChart, CartesianGrid, XAxis, YAxis, ResponsiveContainer } from "recharts"
+import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from "@/components/ui/chart"
 
 
 function SparkPageComponent() {
@@ -78,6 +80,21 @@ function SparkPageComponent() {
 
   const availableProductsForAI = useMemo(() => products.map(({ id, name, price, salePrice, quantity, category }) => ({ id, name, price: salePrice || price, quantity, category })), []);
   const availableProductsForPantryCheck = useMemo(() => products.map(({ id, name, category }) => ({ id, name, category })), []);
+
+  const dietChartData = useMemo(() => {
+    if (!dietResult) return [];
+    return Object.entries(dietResult.daily_nutrition_summary).map(([name, value]) => ({
+      name: name.charAt(0).toUpperCase() + name.slice(1),
+      value: parseFloat(value) || 0,
+    }));
+  }, [dietResult]);
+
+  const dietChartConfig = {
+    value: {
+      label: "Value",
+      color: "hsl(var(--primary))",
+    },
+  } satisfies ChartConfig;
 
   useEffect(() => {
     // This effect handles the camera stream lifecycle.
@@ -668,7 +685,7 @@ function SparkPageComponent() {
                 {hasDietResult && dietResult && (
                    <>
                     <CardHeader>
-                        <CardTitle>Your Personalized Diet Plan</CardTitle>
+                        <CardTitle>Your Personalized SparkDiet Plan</CardTitle>
                         <CardDescription>
                             Here's a sample weekly grocery cart and nutritional summary based on your goals. Review the items and add them to your cart.
                         </CardDescription>
@@ -680,13 +697,31 @@ function SparkPageComponent() {
                            <AlertDescription>{dietResult.nutrition_tip}</AlertDescription>
                        </Alert>
 
-                       <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-center">
-                            {Object.entries(dietResult.daily_nutrition_summary).map(([key, value]) => (
-                                <div key={key} className="p-3 bg-muted rounded-lg">
-                                    <p className="text-sm font-medium text-muted-foreground capitalize">{key}</p>
-                                    <p className="text-lg font-bold text-foreground">{value}</p>
-                                </div>
-                            ))}
+                       <div>
+                          <h3 className="font-semibold mb-2 text-center">Daily Nutrition Summary (per person)</h3>
+                           <ChartContainer config={dietChartConfig} className="h-[250px] w-full">
+                            <ResponsiveContainer width="100%" height="100%">
+                               <BarChart data={dietChartData} margin={{ top: 20, right: 20, bottom: 5, left: 0 }}>
+                                  <CartesianGrid vertical={false} />
+                                  <XAxis
+                                    dataKey="name"
+                                    tickLine={false}
+                                    axisLine={false}
+                                    tickMargin={8}
+                                    />
+                                    <YAxis 
+                                     tickLine={false}
+                                     axisLine={false}
+                                     tickMargin={8}
+                                    />
+                                  <ChartTooltip
+                                    cursor={false}
+                                    content={<ChartTooltipContent />}
+                                    />
+                                  <Bar dataKey="value" fill="var(--color-value)" radius={4} />
+                                </BarChart>
+                              </ResponsiveContainer>
+                           </ChartContainer>
                         </div>
                         
                         <div>
@@ -911,7 +946,7 @@ function SparkPageComponent() {
               <Tabs value={activeTab} className={cn("w-full", isCameraOpen && "hidden")} onValueChange={handleTabChange}>
               <TabsList className="grid w-full grid-cols-7">
                 <TabsTrigger value="scan" className="gap-2"><Camera /> Scan</TabsTrigger>
-                <TabsTrigger value="diet" className="gap-2"><HeartPulse /> Diet</TabsTrigger>
+                <TabsTrigger value="diet" className="gap-2"><HeartPulse /> SparkDiet</TabsTrigger>
                 <TabsTrigger value="pantry" className="gap-2"><ScanSearch /> Pantry</TabsTrigger>
                 <TabsTrigger value="saver" className="gap-2"><PiggyBank /> Saver</TabsTrigger>
                 <TabsTrigger value="context" className="gap-2"><Bot /> AI Cart</TabsTrigger>
@@ -971,7 +1006,7 @@ function SparkPageComponent() {
               <TabsContent value="diet">
                 <Card>
                     <CardHeader>
-                        <CardTitle className="flex items-center gap-2">SparkDiet AI</CardTitle>
+                        <CardTitle className="flex items-center gap-2">SparkDiet</CardTitle>
                         <CardDescription>Get a personalized, health-conscious grocery cart for your specific needs.</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">

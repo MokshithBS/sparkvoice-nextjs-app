@@ -17,7 +17,7 @@ export function DietAssistantCta() {
                 <HeartPulse className="w-6 h-6 text-blue-700" />
             </div>
             <div>
-                <h3 className="font-bold font-headline text-foreground">SparkDiet AI</h3>
+                <h3 className="font-bold font-headline text-foreground">SparkDiet</h3>
                 <p className="text-sm text-muted-foreground">
                     Get a personalized, healthy grocery cart.
                 </p>
