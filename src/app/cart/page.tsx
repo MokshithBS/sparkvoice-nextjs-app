@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
-import { ArrowLeft, Trash2, Minus, Plus, ShoppingCart, Loader2 } from 'lucide-react';
+import { ArrowLeft, Trash2, Minus, Plus, ShoppingCart, Loader2, Leaf } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import type { Product } from '@/lib/products';
@@ -194,9 +194,17 @@ export default function CartPage() {
                       <span>{t('cart.summary.total')}</span>
                       <span>₹{cartTotal.toFixed(2)}</span>
                     </div>
-                    <Button className="w-full" size="lg" onClick={handleCheckout}>
-                      {t('cart.summary.placeOrder')}
-                    </Button>
+                    <div className="grid gap-2">
+                       <Button asChild className="w-full bg-green-600 hover:bg-green-700 text-white" size="lg">
+                          <Link href="/greencart">
+                            <Leaf className="mr-2 h-5 w-5"/>
+                            {t('greenCart.reviewButton')}
+                          </Link>
+                        </Button>
+                        <Button className="w-full" size="lg" onClick={handleCheckout}>
+                        {t('cart.summary.placeOrder')}
+                        </Button>
+                    </div>
                   </CardContent>
                 </Card>
               </div>
