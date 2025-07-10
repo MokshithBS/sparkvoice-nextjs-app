@@ -330,12 +330,12 @@ export default function StorePage() {
           ) : (
             <>
               <SparkVoiceCta />
-              <SustainabilityCta />
               <ContextualCartCta />
               <SparkSaverCta />
               <PantryScanCta />
               <CommunityCta />
               <DietAssistantCta />
+              <SustainabilityCta />
               <ShopByRecipe 
                 recipeInput={recipeInput}
                 onRecipeInputChange={handleRecipeInputChange}

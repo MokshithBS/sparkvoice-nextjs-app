@@ -45,15 +45,24 @@ export function CartProvider({ children }: { children: ReactNode }) {
   };
 
   const updateQuantity = (productId: number, quantity: number) => {
-    if (quantity <= 0) {
-      removeFromCart(productId);
-    } else {
-      setCartItems(prevItems =>
-        prevItems.map(item =>
-          item.id === productId ? { ...item, cartQuantity: quantity } : item
-        )
-      );
-    }
+    setCartItems(prevItems => {
+        const existingItem = prevItems.find(item => item.id === productId);
+        if (quantity <= 0) {
+            return prevItems.filter(item => item.id !== productId);
+        }
+        if (existingItem) {
+            return prevItems.map(item =>
+                item.id === productId ? { ...item, cartQuantity: quantity } : item
+            );
+        }
+        // If the item is not in the cart, find its details from the main product list and add it.
+        const productToAdd = products.find(p => p.id === productId);
+        if (productToAdd) {
+             const cartPrice = productToAdd.salePrice ?? productToAdd.price;
+            return [...prevItems, { ...productToAdd, price: cartPrice, cartQuantity: quantity }];
+        }
+        return prevItems;
+    });
   };
   
   const removeFromCart = (productId: number) => {
