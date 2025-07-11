@@ -51,5 +51,3 @@ export const DietAssistantOutputSchema = z.object({
   nutrition_tip: z.string().describe("A single, personalized, and actionable nutrition tip for the user based on their goal."),
 });
 export type DietAssistantOutput = z.infer<typeof DietAssistantOutputSchema>;
-
-```
