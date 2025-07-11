@@ -1,3 +1,4 @@
+
 'use server';
 /**
  * @fileOverview An AI flow to analyze a food photo and return nutritional information.
@@ -5,6 +6,7 @@
  */
 
 import {ai} from '@/ai/genkit';
+import {z} from 'genkit';
 import {
   type FoodAnalyzerInput,
   FoodAnalyzerInputSchema,
