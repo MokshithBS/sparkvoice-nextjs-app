@@ -83,9 +83,11 @@ function SparkPageComponent() {
 
   const dietChartData = useMemo(() => {
     if (!dietResult) return [];
-    return Object.entries(dietResult.daily_nutrition_summary).map(([name, value]) => ({
+    return Object.entries(dietResult.daily_nutrition_summary)
+      .filter(([key]) => key !== 'sodium') // Exclude sodium for a cleaner chart
+      .map(([name, value]) => ({
       name: name.charAt(0).toUpperCase() + name.slice(1),
-      value: parseFloat(value) || 0,
+      value: parseFloat(value as any) || 0,
     }));
   }, [dietResult]);
 
@@ -691,10 +693,16 @@ function SparkPageComponent() {
                         </CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-6">
-                       <Alert variant={dietResult.diet_flags.toLowerCase() === 'balanced' ? 'default' : 'destructive'} className={dietResult.diet_flags.toLowerCase() === 'balanced' ? 'border-green-500/50 bg-green-500/10 text-green-700 dark:text-green-300' : ''}>
+                       <Alert variant={dietResult.diet_flags.toLowerCase() === 'balanced' ? 'default' : 'destructive'} className={cn(
+                           (dietResult.errors.length > 0 || dietResult.calorie_warnings.length > 0) ? "border-destructive/50 bg-destructive/10 text-destructive dark:text-destructive" : "border-green-500/50 bg-green-500/10 text-green-700 dark:text-green-300"
+                       )}>
                            <AlertCircle className="h-4 w-4" />
-                           <AlertTitle className="font-bold">Nutrition Tip</AlertTitle>
-                           <AlertDescription>{dietResult.nutrition_tip}</AlertDescription>
+                           <AlertTitle className="font-bold">{dietResult.errors.length > 0 ? "Errors & Warnings" : "Nutrition Tip"}</AlertTitle>
+                           <AlertDescription>
+                            {dietResult.errors.length > 0 && <div><ul className="list-disc pl-4">{dietResult.errors.map((e, i) => <li key={`e-${i}`}>{e}</li>)}</ul></div>}
+                            {dietResult.calorie_warnings.length > 0 && <div><ul className="list-disc pl-4">{dietResult.calorie_warnings.map((w, i) => <li key={`w-${i}`}>{w}</li>)}</ul></div>}
+                            {dietResult.errors.length === 0 && dietResult.calorie_warnings.length === 0 && dietResult.nutrition_tip}
+                           </AlertDescription>
                        </Alert>
 
                        <div>
@@ -726,7 +734,7 @@ function SparkPageComponent() {
                         
                         <div>
                             <h3 className="font-semibold mb-2">Suggested Grocery Cart (Total: ₹{dietResult.total_estimated_cost.toFixed(2)})</h3>
-                            <div className="space-y-3">
+                            <div className="space-y-3 max-h-80 overflow-y-auto pr-2">
                                 {dietResult.cart.map((item, index) => (
                                     <div key={index} className="p-3 rounded-lg border bg-muted/50">
                                         <div className="flex justify-between items-start">
@@ -1022,6 +1030,7 @@ function SparkPageComponent() {
                                     <SelectItem value="diabetic-friendly">Diabetic Friendly</SelectItem>
                                     <SelectItem value="heart-healthy">Heart Healthy</SelectItem>
                                     <SelectItem value="balanced-diet">Balanced General Diet</SelectItem>
+                                    <SelectItem value="Jain">Jain Diet</SelectItem>
                                 </SelectContent>
                             </Select>
                         </div>
