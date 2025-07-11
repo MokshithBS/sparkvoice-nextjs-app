@@ -42,7 +42,7 @@ Your tasks are:
     -   Carefully consider the user's goal, condition, family size, and budget. For 'diabetic', prioritize low-glycemic, low-sugar foods. For 'Jain', exclude all root vegetables.
 2.  **Create a Shopping List**:
     -   Select a variety of culturally relevant Indian food items (dals, millets, vegetables, paneer, atta) that align with health goals.
-    -   Suggest a reasonable weekly quantity for each item based on the family size.
+    -   Suggest a reasonable weekly quantity for each item based on the family size (e.g. "1", "2 packs"). The number of units to buy.
     -   For each item, provide a simple, user-friendly \`key_nutrition_facts\` summary (e.g., "High in protein, good for weight loss").
 3.  **Generate Summaries**:
     -   Provide a \`nutrition_tip\`.
@@ -75,12 +75,17 @@ const dietAssistantFlow = ai.defineFlow(
     const enrichedCart = await Promise.all(
         aiCart.map(async (item) => {
             const productDetails = products.find(p => p.name === item.name);
-            const estimated_price = productDetails ? (productDetails.salePrice || productDetails.price) * (parseInt(item.quantity) || 1) : 0;
+            
+            // Correctly parse quantity for price calculation (e.g., "2 packs" -> 2, "1 kg" -> 1)
+            const numericQuantity = parseInt(item.quantity.match(/^(\d+)/)?.[1] || '1', 10);
+            const estimated_price = productDetails ? (productDetails.salePrice || productDetails.price) * numericQuantity : 0;
             total_estimated_cost += estimated_price;
             
             let nutrition: NutritionInfo | null = null;
             try {
-                nutrition = await fetchNutrition(`${item.quantity} ${item.name}`);
+                // The query for nutrition should still be descriptive, e.g., "1 kg Aashirvaad Atta"
+                const nutritionQuery = `${productDetails?.quantity || ''} ${item.name}`.trim();
+                nutrition = await fetchNutrition(nutritionQuery);
             } catch (error) {
                 console.error(`Nutrition API error for ${item.name}:`, error);
                 errors.push(`Nutrition API failed for ${item.name}.`);
@@ -93,7 +98,16 @@ const dietAssistantFlow = ai.defineFlow(
             return {
                 ...item,
                 estimated_price,
-                nutrition: nutrition || { calories: 0, protein: 0, carbs: 0, fat: 0, fiber: 0, sugar: 0, sodium: 0 },
+                // The nutrition info is for the whole purchasable unit, so we multiply by the number of units
+                nutrition: {
+                    calories: (nutrition?.calories || 0) * numericQuantity,
+                    protein: (nutrition?.protein || 0) * numericQuantity,
+                    carbs: (nutrition?.carbs || 0) * numericQuantity,
+                    fat: (nutrition?.fat || 0) * numericQuantity,
+                    fiber: (nutrition?.fiber || 0) * numericQuantity,
+                    sugar: (nutrition?.sugar || 0) * numericQuantity,
+                    sodium: (nutrition?.sodium || 0) * numericQuantity,
+                },
             };
         })
     );
