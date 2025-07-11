@@ -19,7 +19,9 @@ import { compareBill } from '@/ai/flows/price-match-flow.ts';
 import { products, type Product } from '@/lib/products';
 import { getIngredientsForDish, type RecipeToCartOutput } from '@/ai/flows/recipe-to-cart-flow.ts';
 import { generateDietCart } from '@/ai/flows/diet-assistant-flow.ts';
+import { analyzeFood } from '@/ai/flows/food-analyzer-flow.ts';
 import type { DietAssistantOutput } from '@/ai/schemas/diet-assistant-schemas';
+import type { FoodAnalyzerOutput } from '@/ai/schemas/food-analyzer-schemas';
 import { generateSpeech } from '@/ai/flows/tts-flow';
 import { translations, type Language } from '@/lib/translations';
 import { checkPantry } from '@/ai/flows/pantry-checker-flow';
@@ -36,7 +38,7 @@ import { useCart } from '@/context/cart-context';
 import { useLanguage } from '@/context/language-context';
 import { cn } from '@/lib/utils';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Bar, BarChart, CartesianGrid, XAxis, YAxis, ResponsiveContainer } from "recharts"
+import { Bar, BarChart, CartesianGrid, XAxis, YAxis, ResponsiveContainer, Pie, PieChart } from "recharts"
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from "@/components/ui/chart"
 
 
@@ -56,6 +58,7 @@ function SparkPageComponent() {
   const [recipeResult, setRecipeResult] = useState<RecipeToCartOutput | null>(null);
   const [audioConfirmationUrl, setAudioConfirmationUrl] = useState<string | null>(null);
   const [dietResult, setDietResult] = useState<DietAssistantOutput | null>(null);
+  const [foodAnalysisResult, setFoodAnalysisResult] = useState<FoodAnalyzerOutput | null>(null);
 
   // Pantry check state
   const [pantrySuggestions, setPantrySuggestions] = useState<Product[]>([]);
@@ -91,11 +94,28 @@ function SparkPageComponent() {
     }));
   }, [dietResult]);
 
+  const foodChartData = useMemo(() => {
+    if (!foodAnalysisResult) return [];
+    const { carbs, protein, fat } = foodAnalysisResult.nutrition;
+    return [
+      { name: 'Carbs (g)', value: carbs, fill: 'hsl(var(--chart-1))' },
+      { name: 'Protein (g)', value: protein, fill: 'hsl(var(--chart-2))' },
+      { name: 'Fat (g)', value: fat, fill: 'hsl(var(--chart-3))' },
+    ]
+  }, [foodAnalysisResult]);
+
   const dietChartConfig = {
     value: {
       label: "Value",
       color: "hsl(var(--primary))",
     },
+  } satisfies ChartConfig;
+
+  const foodChartConfig = {
+    value: { label: "Grams" },
+    carbs: { label: "Carbs", color: "hsl(var(--chart-1))" },
+    protein: { label: "Protein", color: "hsl(var(--chart-2))" },
+    fat: { label: "Fat", color: "hsl(var(--chart-3))" },
   } satisfies ChartConfig;
 
   useEffect(() => {
@@ -185,6 +205,7 @@ function SparkPageComponent() {
     setPantrySuggestions([]);
     setPantryConfirmation(null);
     setDietResult(null);
+    setFoodAnalysisResult(null);
     setDietAssistantInput({ goal: '', medicalCondition: '', familySize: '', budget: '' });
     if (isCameraOpen) handleCloseCamera();
   }, [isCameraOpen, handleCloseCamera]);
@@ -512,6 +533,30 @@ function SparkPageComponent() {
     }
   };
 
+  const handleFoodAnalysis = async () => {
+    if (!photoDataUri) {
+        toast({ variant: 'destructive', title: 'No Food Photo', description: 'Please upload or capture a photo of your meal first.' });
+        return;
+    }
+    setIsLoading(true);
+    resetViewStates();
+    try {
+        const result = await analyzeFood({ photoDataUri });
+        
+        if (!result || !result.nutrition) {
+            toast({ variant: 'destructive', title: 'Analysis Failed', description: 'We could not analyze your food item. Please try a clearer photo.' });
+            return;
+        }
+
+        setFoodAnalysisResult(result);
+
+    } catch (error) {
+        handleAIError(error, 'Analysis Failed', 'An error occurred while analyzing your food. Please try again.');
+    } finally {
+        setIsLoading(false);
+    }
+  };
+
 
   const handlePriceMatch = async () => {
     if (!photoDataUri) {
@@ -629,6 +674,7 @@ function SparkPageComponent() {
     setPantrySuggestions([]);
     setPantryConfirmation(null);
     setDietResult(null);
+    setFoodAnalysisResult(null);
   }
 
   const startOver = () => {
@@ -659,7 +705,8 @@ function SparkPageComponent() {
   const hasRecipeResult = !!recipeResult;
   const hasPantryResult = pantrySuggestions.length > 0;
   const hasDietResult = !!dietResult;
-  const showResultPage = hasParsedListResult || hasPriceMatchResult || hasPantryResult || hasDietResult;
+  const hasFoodAnalysisResult = !!foodAnalysisResult;
+  const showResultPage = hasParsedListResult || hasPriceMatchResult || hasPantryResult || hasDietResult || hasFoodAnalysisResult;
 
   return (
     <div className="flex flex-col min-h-dvh bg-background">
@@ -684,6 +731,52 @@ function SparkPageComponent() {
           {showResultPage ? (
             <div className="space-y-6">
               <Card>
+                {hasFoodAnalysisResult && foodAnalysisResult && (
+                   <>
+                    <CardHeader>
+                        <CardTitle>Food Nutrition Analysis</CardTitle>
+                        <CardDescription>
+                            Here is the nutritional breakdown for the food we identified in your photo.
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-6">
+                       <div className="text-center p-4 bg-muted rounded-lg">
+                           <p className="text-sm text-muted-foreground">Identified Food</p>
+                           <p className="text-2xl font-bold">{foodAnalysisResult.foodName}</p>
+                           <p className="text-sm text-muted-foreground">Estimated Serving: {foodAnalysisResult.servingSize}</p>
+                       </div>
+                        <div className="grid grid-cols-2 gap-4 text-center">
+                            <div className="p-3 bg-muted/50 rounded-lg">
+                                <p className="text-sm text-muted-foreground">Calories</p>
+                                <p className="text-3xl font-bold text-primary">{foodAnalysisResult.nutrition.calories.toFixed(0)}</p>
+                                <p className="text-xs text-muted-foreground">kcal</p>
+                            </div>
+                             <div className="p-3 bg-muted/50 rounded-lg">
+                                <p className="text-sm text-muted-foreground">Sugar</p>
+                                <p className="text-3xl font-bold text-primary">{foodAnalysisResult.nutrition.sugar.toFixed(1)}</p>
+                                <p className="text-xs text-muted-foreground">grams</p>
+                            </div>
+                        </div>
+
+                       <div>
+                          <h3 className="font-semibold mb-2 text-center">Macronutrient Breakdown</h3>
+                           <ChartContainer config={foodChartConfig} className="h-48 w-full">
+                            <ResponsiveContainer width="100%" height="100%">
+                               <PieChart>
+                                  <ChartTooltip cursor={false} content={<ChartTooltipContent hideLabel />} />
+                                  <Pie data={foodChartData} dataKey="value" nameKey="name" innerRadius={50} outerRadius={70} strokeWidth={2}>
+                                  </Pie>
+                                </PieChart>
+                              </ResponsiveContainer>
+                           </ChartContainer>
+                        </div>
+                        
+                        <div className="flex justify-center items-center pt-4 border-t">
+                            <Button variant="outline" onClick={startOver}>Analyze Another Item</Button>
+                        </div>
+                    </CardContent>
+                  </>
+                )}
                 {hasDietResult && dietResult && (
                    <>
                     <CardHeader>
@@ -1013,45 +1106,85 @@ function SparkPageComponent() {
 
               <TabsContent value="diet">
                 <Card>
-                    <CardHeader>
-                        <CardTitle className="flex items-center gap-2">SparkDiet</CardTitle>
-                        <CardDescription>Get a personalized, health-conscious grocery cart for your specific needs.</CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                       <div className="space-y-2">
-                            <Label htmlFor="diet-goal">Primary Goal</Label>
-                             <Select value={dietAssistantInput.goal} onValueChange={(value) => setDietAssistantInput(s => ({...s, goal: value}))}>
-                                <SelectTrigger id="diet-goal">
-                                    <SelectValue placeholder="Select a health goal" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="weight-loss">Weight Loss</SelectItem>
-                                    <SelectItem value="muscle-gain">Muscle Gain</SelectItem>
-                                    <SelectItem value="diabetic-friendly">Diabetic Friendly</SelectItem>
-                                    <SelectItem value="heart-healthy">Heart Healthy</SelectItem>
-                                    <SelectItem value="balanced-diet">Balanced General Diet</SelectItem>
-                                    <SelectItem value="Jain">Jain Diet</SelectItem>
-                                </SelectContent>
-                            </Select>
-                        </div>
-                         <div className="space-y-2">
-                            <Label htmlFor="medical-condition">Medical Condition (optional)</Label>
-                            <Input id="medical-condition" placeholder="e.g., High Blood Pressure, PCOS" value={dietAssistantInput.medicalCondition} onChange={(e) => setDietAssistantInput(s => ({...s, medicalCondition: e.target.value}))} disabled={isLoading} />
-                        </div>
-                        <div className="grid sm:grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                                <Label htmlFor="diet-budget">Weekly Budget (₹)</Label>
-                                <Input id="diet-budget" type="number" placeholder="e.g., 2000" value={dietAssistantInput.budget} onChange={(e) => setDietAssistantInput(s => ({...s, budget: e.target.value}))} disabled={isLoading} />
-                            </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="diet-family-size">Family Size</Label>
-                                <Input id="diet-family-size" type="number" placeholder="e.g., 2" value={dietAssistantInput.familySize} onChange={(e) => setDietAssistantInput(s => ({...s, familySize: e.target.value}))} disabled={isLoading} />
-                            </div>
-                        </div>
-                        <Button onClick={handleDietAssistant} disabled={isLoading || !dietAssistantInput.goal || !dietAssistantInput.budget || !dietAssistantInput.familySize} className="w-full" size="lg">
-                            {isLoading ? (<><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Generating Diet Plan...</>) : (<><Sparkles className="mr-2 h-4 w-4" /> Generate Diet Cart</>)}
-                        </Button>
-                    </CardContent>
+                    <Tabs defaultValue="plan">
+                        <TabsList className="grid w-full grid-cols-2">
+                           <TabsTrigger value="plan">Plan My Diet</TabsTrigger>
+                           <TabsTrigger value="analyze">Analyze My Meal</TabsTrigger>
+                        </TabsList>
+                        <TabsContent value="plan">
+                           <CardHeader>
+                                <CardTitle className="flex items-center gap-2">SparkDiet Planner</CardTitle>
+                                <CardDescription>Get a personalized, health-conscious grocery cart for your specific needs.</CardDescription>
+                            </CardHeader>
+                            <CardContent className="space-y-4">
+                                <div className="space-y-2">
+                                    <Label htmlFor="diet-goal">Primary Goal</Label>
+                                    <Select value={dietAssistantInput.goal} onValueChange={(value) => setDietAssistantInput(s => ({...s, goal: value}))}>
+                                        <SelectTrigger id="diet-goal">
+                                            <SelectValue placeholder="Select a health goal" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="weight-loss">Weight Loss</SelectItem>
+                                            <SelectItem value="muscle-gain">Muscle Gain</SelectItem>
+                                            <SelectItem value="diabetic-friendly">Diabetic Friendly</SelectItem>
+                                            <SelectItem value="heart-healthy">Heart Healthy</SelectItem>
+                                            <SelectItem value="balanced-diet">Balanced General Diet</SelectItem>
+                                            <SelectItem value="Jain">Jain Diet</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="medical-condition">Medical Condition (optional)</Label>
+                                    <Input id="medical-condition" placeholder="e.g., High Blood Pressure, PCOS" value={dietAssistantInput.medicalCondition} onChange={(e) => setDietAssistantInput(s => ({...s, medicalCondition: e.target.value}))} disabled={isLoading} />
+                                </div>
+                                <div className="grid sm:grid-cols-2 gap-4">
+                                    <div className="space-y-2">
+                                        <Label htmlFor="diet-budget">Weekly Budget (₹)</Label>
+                                        <Input id="diet-budget" type="number" placeholder="e.g., 2000" value={dietAssistantInput.budget} onChange={(e) => setDietAssistantInput(s => ({...s, budget: e.target.value}))} disabled={isLoading} />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="diet-family-size">Family Size</Label>
+                                        <Input id="diet-family-size" type="number" placeholder="e.g., 2" value={dietAssistantInput.familySize} onChange={(e) => setDietAssistantInput(s => ({...s, familySize: e.target.value}))} disabled={isLoading} />
+                                    </div>
+                                </div>
+                                <Button onClick={handleDietAssistant} disabled={isLoading || !dietAssistantInput.goal || !dietAssistantInput.budget || !dietAssistantInput.familySize} className="w-full" size="lg">
+                                    {isLoading ? (<><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Generating Diet Plan...</>) : (<><Sparkles className="mr-2 h-4 w-4" /> Generate Diet Cart</>)}
+                                </Button>
+                            </CardContent>
+                        </TabsContent>
+                        <TabsContent value="analyze">
+                            <CardHeader>
+                                <CardTitle className="flex items-center gap-2">Meal Analyzer</CardTitle>
+                                <CardDescription>Snap a photo of your food to get instant calorie and nutrition information.</CardDescription>
+                            </CardHeader>
+                            <CardContent className="space-y-6">
+                                <div className="relative aspect-video w-full flex items-center justify-center bg-muted rounded-lg border-2 border-dashed">
+                                {photoDataUri ? (
+                                    <Image src={photoDataUri} alt="Food Preview" fill className="object-contain rounded-lg" />
+                                ) : (
+                                    <p className="text-muted-foreground">Food photo preview</p>
+                                )}
+                                </div>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <Label htmlFor="food-photo" className="sr-only">Upload from Device</Label>
+                                    <Button asChild variant="outline" className="w-full">
+                                        <label htmlFor="food-photo-upload" className="cursor-pointer">
+                                            <FileText className="mr-2" /> Upload Photo
+                                        </label>
+                                    </Button>
+                                    <Input id="food-photo-upload" type="file" accept="image/*" className="sr-only" onChange={handleFileChange} disabled={isLoading}/>
+                                </div>
+                                <Button onClick={handleOpenCamera} variant="outline" disabled={isLoading}>
+                                    <Camera className="mr-2" /> Open Camera
+                                </Button>
+                                </div>
+                                <Button onClick={handleFoodAnalysis} disabled={isLoading || !photoDataUri} className="w-full" size="lg">
+                                    {isLoading ? ( <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Analyzing...</> ) : ( <><Sparkles className="mr-2 h-4 w-4" /> Analyze Food</> )}
+                                </Button>
+                            </CardContent>
+                        </TabsContent>
+                    </Tabs>
                 </Card>
               </TabsContent>
 
@@ -1209,7 +1342,3 @@ export default function SparkPage() {
     </Suspense>
   )
 }
-
-    
-
-    
