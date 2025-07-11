@@ -28,10 +28,12 @@ export interface MappedNutritionInfo {
 
 export async function fetchNutrition(query: string): Promise<MappedNutritionInfo | null> {
   const apiKey = process.env.CALORIENINJAS_API_KEY;
+  const defaultNutrition = { calories: 0, protein: 0, fat: 0, carbs: 0, sugar: 0, fiber: 0, sodium: 0 };
+  
   if (!apiKey || apiKey === 'YOUR_API_KEY_HERE') {
     console.warn("CalorieNinjas API key is not configured. Skipping nutrition fetch.");
     // Return a default structure with 0s to avoid breaking calculations downstream.
-    return { calories: 0, protein: 0, fat: 0, carbs: 0, sugar: 0, fiber: 0, sodium: 0 };
+    return defaultNutrition;
   }
   
   try {
@@ -43,8 +45,7 @@ export async function fetchNutrition(query: string): Promise<MappedNutritionInfo
         console.error(`Nutrition API error for query "${query}": ${response.status} ${response.statusText}`);
         const errorBody = await response.text();
         console.error("Error body:", errorBody);
-        // Throw an error to be caught by the calling flow
-        throw new Error(`Nutrition API returned status ${response.status}`);
+        return defaultNutrition;
     }
 
     const items = await response.json() as NutritionInfo[];
@@ -52,7 +53,7 @@ export async function fetchNutrition(query: string): Promise<MappedNutritionInfo
     if (items.length === 0) {
         console.warn(`No nutrition info found for query: "${query}"`);
         // Return a default structure with 0s if no data is found.
-        return { calories: 0, protein: 0, fat: 0, carbs: 0, sugar: 0, fiber: 0, sodium: 0 };
+        return defaultNutrition;
     }
     
     // Aggregate results if multiple items are returned (e.g., "1 cup rice and 1 cup dal")
@@ -88,7 +89,7 @@ export async function fetchNutrition(query: string): Promise<MappedNutritionInfo
 
   } catch (error) {
       console.error(`Failed to fetch nutrition data for "${query}":`, error);
-      // Re-throw the error to be handled by the calling flow.
-      throw error;
+      // Fallback to default values in case of any network error or unexpected issue.
+      return defaultNutrition;
   }
 }
