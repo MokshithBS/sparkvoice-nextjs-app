@@ -39,7 +39,7 @@ import { useLanguage } from '@/context/language-context';
 import { cn } from '@/lib/utils';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis, ResponsiveContainer, Pie, PieChart, Cell } from "recharts"
-import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from "@/components/ui/chart"
+import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig, ChartLegend, ChartLegendContent } from "@/components/ui/chart"
 
 
 function SparkPageComponent() {
@@ -98,9 +98,9 @@ function SparkPageComponent() {
     if (!foodAnalysisResult) return [];
     const { carbs, protein, fat } = foodAnalysisResult.totalNutrition;
     return [
-      { name: 'Carbs', value: carbs, fill: 'hsl(var(--chart-1))' },
-      { name: 'Protein', value: protein, fill: 'hsl(var(--chart-2))' },
-      { name: 'Fat', value: fat, fill: 'hsl(var(--chart-3))' },
+      { name: 'carbs', value: carbs, fill: 'hsl(var(--chart-1))' },
+      { name: 'protein', value: protein, fill: 'hsl(var(--chart-2))' },
+      { name: 'fat', value: fat, fill: 'hsl(var(--chart-3))' },
     ]
   }, [foodAnalysisResult]);
 
@@ -767,6 +767,7 @@ function SparkPageComponent() {
                                           <Cell key={`cell-${index}`} fill={entry.fill} />
                                       ))}
                                   </Pie>
+                                  <ChartLegend content={<ChartLegendContent nameKey="name" />} />
                                 </PieChart>
                               </ResponsiveContainer>
                            </ChartContainer>
