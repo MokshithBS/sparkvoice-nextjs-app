@@ -20,16 +20,25 @@ const NutritionSchema = z.object({
   sugar: z.number().describe('Estimated sugar in grams.'),
   sodium: z.number().describe('Estimated sodium in milligrams.'),
 });
+export type Nutrition = z.infer<typeof NutritionSchema>;
+
+export const FoodItemSchema = z.object({
+    foodName: z.string().describe('The name of the food identified in the image.'),
+    servingSize: z
+      .string()
+      .describe(
+        'The estimated serving size of the food in the image (e.g., "1 bowl", "2 pieces", "100g").'
+      ),
+    nutrition: NutritionSchema.describe(
+      'A detailed breakdown of nutritional facts for this item.'
+    ),
+});
+export type FoodItemSchema = z.infer<typeof FoodItemSchema>;
+
 
 export const FoodAnalyzerOutputSchema = z.object({
-  foodName: z.string().describe('The name of the food identified in the image.'),
-  servingSize: z
-    .string()
-    .describe(
-      'The estimated serving size of the food in the image (e.g., "1 bowl", "2 pieces", "100g").'
-    ),
-  nutrition: NutritionSchema.describe(
-    'A detailed breakdown of nutritional facts for this item.'
-  ),
+  identifiedItems: z.array(FoodItemSchema).describe('An array of all food items identified on the plate with their nutritional info.'),
+  totalNutrition: NutritionSchema.describe('The aggregated nutritional information for the entire meal.'),
+  summary: z.string().describe('A brief, human-readable summary of the meal\'s nutrition.'),
 });
 export type FoodAnalyzerOutput = z.infer<typeof FoodAnalyzerOutputSchema>;
