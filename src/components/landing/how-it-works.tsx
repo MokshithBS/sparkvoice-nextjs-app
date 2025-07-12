@@ -7,17 +7,17 @@ import { useLanguage } from "@/context/language-context"
 
 const steps = [
   {
-    image: "https://storage.googleapis.com/aip-dev-images-public/how-it-works-snap.png",
+    image: "https://storage.googleapis.com/aip-dev-images-public/Items%20list.jpeg",
     hint: "phone scanning list",
     key: "snap",
   },
   {
-    image: "https://storage.googleapis.com/aip-dev-images-public/how-it-works-speak.png",
+    image: "https://storage.googleapis.com/aip-dev-images-public/speak.png",
     hint: "person speaking phone",
     key: "say",
   },
   {
-    image: "https://storage.googleapis.com/aip-dev-images-public/how-it-works-describe.png",
+    image: "https://storage.googleapis.com/aip-dev-images-public/cart.png",
     hint: "phone party planning",
     key: "describe",
   }

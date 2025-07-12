@@ -13,16 +13,16 @@ export interface Product {
   
   export const products: Product[] = [
     // Atta, Rice & Dals
-    { id: 1, name: 'Aashirvaad Atta (5 kg)', price: 250, salePrice: 225, quantity: '5 kg', image: 'https://storage.googleapis.com/aip-dev-images-public/product-atta.png', category: 'Atta, Rice & Dals', hint: 'flour bag', isVeg: true },
-    { id: 13, name: 'India Gate Basmati Rice (5 kg)', price: 650, quantity: '5 kg', image: 'https://storage.googleapis.com/aip-dev-images-public/product-basmati-rice.png', category: 'Atta, Rice & Dals', hint: 'rice bag', isVeg: true },
-    { id: 106, name: 'India Gate Basmati Rice (1 kg)', price: 140, quantity: '1 kg', image: 'https://storage.googleapis.com/aip-dev-images-public/product-basmati-rice.png', category: 'Atta, Rice & Dals', hint: 'rice bag', isVeg: true },
-    { id: 14, name: 'Tata Sampann Toor Dal (1 kg)', price: 150, quantity: '1 kg', image: 'https://storage.googleapis.com/aip-dev-images-public/product-toor-dal.png', category: 'Atta, Rice & Dals', hint: 'lentils package', isVeg: true },
-    { id: 15, name: 'Organic Moong Dal (1 kg)', price: 165, quantity: '1 kg', image: 'https://storage.googleapis.com/aip-dev-images-public/product-moong-dal.png', category: 'Atta, Rice & Dals', hint: 'lentils package', isVeg: true },
-    { id: 52, name: 'Fortune Besan (1 kg)', price: 80, quantity: '1 kg', image: 'https://storage.googleapis.com/aip-dev-images-public/product-besan.png', category: 'Atta, Rice & Dals', hint: 'flour pack', isVeg: true },
-    { id: 59, name: 'Sona Masoori Rice (5 kg)', price: 550, quantity: '5 kg', image: 'https://storage.googleapis.com/aip-dev-images-public/product-sona-masoori.png', category: 'Atta, Rice & Dals', hint: 'rice bag', isVeg: true },
-    { id: 60, name: 'Tata Sampann Chana Dal (1 kg)', price: 140, quantity: '1 kg', image: 'https://storage.googleapis.com/aip-dev-images-public/product-chana-dal.png', category: 'Atta, Rice & Dals', hint: 'lentils package', isVeg: true },
-    { id: 61, name: 'MTR Rava/Sooji (500 g)', price: 45, quantity: '500 g', image: 'https://storage.googleapis.com/aip-dev-images-public/product-sooji.png', category: 'Atta, Rice & Dals', hint: 'semolina pack', isVeg: true },
-    { id: 96, name: 'Tata Sampann Thick Poha (500g)', price: 40, quantity: '500 g', image: 'https://storage.googleapis.com/aip-dev-images-public/product-poha.png', category: 'Atta, Rice & Dals', hint: 'flattened rice', isVeg: true },
+    { id: 1, name: 'Aashirvaad Atta (5 kg)', price: 250, salePrice: 225, quantity: '5 kg', image: 'https://storage.googleapis.com/aip-dev-images-public/AashirvaadAtta.png', category: 'Atta, Rice & Dals', hint: 'flour bag', isVeg: true },
+    { id: 13, name: 'India Gate Basmati Rice (5 kg)', price: 650, quantity: '5 kg', image: 'https://storage.googleapis.com/aip-dev-images-public/Indiagatebasmati5kg.png', category: 'Atta, Rice & Dals', hint: 'rice bag', isVeg: true },
+    { id: 106, name: 'India Gate Basmati Rice (1 kg)', price: 140, quantity: '1 kg', image: 'https://storage.googleapis.com/aip-dev-images-public/indiagatebasmatirice.png', category: 'Atta, Rice & Dals', hint: 'rice bag', isVeg: true },
+    { id: 14, name: 'Tata Sampann Toor Dal (1 kg)', price: 150, quantity: '1 kg', image: 'https://storage.googleapis.com/aip-dev-images-public/Tata%20Sampan%20Toor%20Daal.webp', category: 'Atta, Rice & Dals', hint: 'lentils package', isVeg: true },
+    { id: 15, name: 'Organic Moong Dal (1 kg)', price: 165, quantity: '1 kg', image: 'https://storage.googleapis.com/aip-dev-images-public/Tata%20Sampan%20Organic%20Masoor%20daal.webp', category: 'Atta, Rice & Dals', hint: 'lentils package', isVeg: true },
+    { id: 52, name: 'Fortune Besan (1 kg)', price: 80, quantity: '1 kg', image: 'https://storage.googleapis.com/aip-dev-images-public/Fortune%20Besan%201kg.webp', category: 'Atta, Rice & Dals', hint: 'flour pack', isVeg: true },
+    { id: 59, name: 'Sona Masoori Rice (5 kg)', price: 550, quantity: '5 kg', image: 'https://storage.googleapis.com/aip-dev-images-public/Sona%20Masoori.webp', category: 'Atta, Rice & Dals', hint: 'rice bag', isVeg: true },
+    { id: 60, name: 'Tata Sampann Chana Dal (1 kg)', price: 140, quantity: '1 kg', image: 'https://storage.googleapis.com/aip-dev-images-public/Tata%20Sampan%20Chana%20Daal.webp', category: 'Atta, Rice & Dals', hint: 'lentils package', isVeg: true },
+    { id: 61, name: 'MTR Rava/Sooji (500 g)', price: 45, quantity: '500 g', image: 'https://storage.googleapis.com/aip-dev-images-public/Mtr%20rava%20sooji%20500gram.webp', category: 'Atta, Rice & Dals', hint: 'semolina pack', isVeg: true },
+    { id: 96, name: 'Tata Sampann Thick Poha (500g)', price: 40, quantity: '500 g', image: 'https://storage.googleapis.com/aip-dev-images-public/tatapoha.png', category: 'Atta, Rice & Dals', hint: 'flattened rice', isVeg: true },
 
     // Masala & Oils
     { id: 2, name: 'Tata Salt (1 kg)', price: 25, quantity: '1 kg', image: 'https://storage.googleapis.com/aip-dev-images-public/product-salt.png', category: 'Masala & Oils', hint: 'salt package', isVeg: true },

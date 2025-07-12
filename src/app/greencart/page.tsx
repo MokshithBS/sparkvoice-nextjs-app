@@ -28,9 +28,9 @@ interface SustainableSwap {
   quantity: number;
 }
 
+// Updated with a more logical swap
 const sustainableSwaps: Record<number, number> = {
-  16: 5,   // Fortune Sun Lite Oil -> Saffola Gold Oil
-  25: 108, // Coca-Cola (1L) -> Paper Boat Aamras
+  16: 5,   // Fortune Sun Lite Oil Pouch -> Saffola Gold Oil Tin (better packaging)
 };
 
 export default function GreenCartPage() {
@@ -198,7 +198,7 @@ export default function GreenCartPage() {
                 </div>
               </div>
 
-              <Button size="lg" className="w-full mt-4" onClick={handleConfirm} disabled={potentialSwaps.length === 0}>
+              <Button size="lg" className="w-full mt-4" onClick={handleConfirm} disabled={potentialSwaps.length === 0 && !offsetAdded}>
                 {t('greenCart.confirmButton', { count: swappedItems.length.toString() })} &amp; Update Cart
               </Button>
             </CardContent>
