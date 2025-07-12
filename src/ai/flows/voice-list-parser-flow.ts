@@ -1,3 +1,4 @@
+
 'use server';
 /**
  * @fileOverview An AI flow to parse spoken shopping lists.
@@ -44,6 +45,7 @@ const voiceListParserFlow = ai.defineFlow(
   },
   async (input) => {
     // Step 1: Transcribe the audio to text.
+    // Pass ONLY the audioDataUri to the transcription prompt.
     const transcriptionResponse = await transcriptionPrompt({ audioDataUri: input.audioDataUri });
     const transcribedText = transcriptionResponse.output?.transcript;
 
@@ -51,7 +53,7 @@ const voiceListParserFlow = ai.defineFlow(
       throw new Error("The AI failed to transcribe the audio.");
     }
 
-    // Step 2: Use the reliable text parser flow with the transcribed text.
+    // Step 2: Use the reliable text parser flow with the transcribed text and the available products.
     const result = await parseTextList({
       textList: transcribedText,
       availableProducts: input.availableProducts,
