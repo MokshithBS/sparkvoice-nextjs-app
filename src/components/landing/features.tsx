@@ -3,7 +3,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { useLanguage } from "@/context/language-context";
-import { Bot, Leaf, Receipt, ScanSearch, Sparkles, Users2 } from "lucide-react"
+import { Bot, HeartPulse, Leaf, Receipt, ScanSearch, Sparkles, Users2 } from "lucide-react"
 
 const featureItems = [
   {
@@ -21,6 +21,10 @@ const featureItems = [
   {
     icon: <ScanSearch className="w-8 h-8 text-accent" />,
     key: "pantryManagement",
+  },
+  {
+    icon: <HeartPulse className="w-8 h-8 text-accent" />,
+    key: "sparkDiet",
   },
   {
     icon: <Leaf className="w-8 h-8 text-accent" />,
