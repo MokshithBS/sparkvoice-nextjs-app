@@ -17,28 +17,6 @@ import {
 import {fetchNutrition} from '@/services/nutrition-api';
 import type { MappedNutritionInfo } from '@/services/nutrition-api';
 
-const foodAnalyzerPrompt = ai.definePrompt({
-  name: 'foodAnalyzerPrompt',
-  input: {schema: z.object({photoDataUri: z.string()})},
-  output: {
-    schema: z.object({
-        items: z.array(z.object({
-            foodName: z
-                .string()
-                .describe('The name of a single food item identified in the image (e.g., "idli", "sambar").'),
-            servingSize: z
-                .string()
-                .describe(
-                'The estimated serving size of that specific food item (e.g., "2 pieces", "1 bowl", "100g").'
-                ),
-        })),
-    }),
-  },
-  prompt: `You are an expert food identifier specializing in Indian cuisine. Analyze the image provided. Identify ALL distinct food items on the plate. For each item, provide its name and estimated serving size.
-
-Image: {{media url=photoDataUri}}`,
-});
-
 const foodAnalyzerFlow = ai.defineFlow(
   {
     name: 'foodAnalyzerFlow',
@@ -46,58 +24,75 @@ const foodAnalyzerFlow = ai.defineFlow(
     outputSchema: FoodAnalyzerOutputSchema,
   },
   async ({photoDataUri}) => {
-    // 1. Identify all food items from the image.
-    const {output: identification} = await foodAnalyzerPrompt({photoDataUri});
-    if (!identification || identification.items.length === 0) {
-      throw new Error('Could not identify any food items in the image.');
-    }
-
-    // 2. Get nutritional data for each item and aggregate it.
-    const identifiedItems: FoodItemSchema[] = [];
-    const totalNutrition: MappedNutritionInfo = {
-        calories: 0,
-        protein: 0,
-        carbs: 0,
-        fat: 0,
-        fiber: 0,
-        sugar: 0,
-        sodium: 0,
-    };
-
-    for (const item of identification.items) {
-        const nutritionQuery = `${item.servingSize} ${item.foodName}`;
-        const nutrition = await fetchNutrition(nutritionQuery);
-        
-        if (nutrition) {
-            identifiedItems.push({
-                foodName: item.foodName,
-                servingSize: item.servingSize,
-                nutrition,
-            });
-
-            // Aggregate totals
-            totalNutrition.calories += nutrition.calories;
-            totalNutrition.protein += nutrition.protein;
-            totalNutrition.carbs += nutrition.carbs;
-            totalNutrition.fat += nutrition.fat;
-            totalNutrition.fiber += nutrition.fiber;
-            totalNutrition.sugar += nutrition.sugar;
-            totalNutrition.sodium += nutrition.sodium;
+    // For the prototype, we will return a hardcoded result.
+    const hardcodedResult: FoodAnalyzerOutput = {
+      identifiedItems: [
+        {
+          foodName: 'Idli',
+          servingSize: '2 pieces',
+          nutrition: {
+            calories: 116,
+            protein: 4,
+            carbs: 26,
+            fat: 0.4,
+            fiber: 2,
+            sugar: 0.2,
+            sodium: 300
+          }
+        },
+        {
+          foodName: 'Vada',
+          servingSize: '3 pieces',
+          nutrition: {
+            calories: 240,
+            protein: 9,
+            carbs: 30,
+            fat: 10,
+            fiber: 6,
+            sugar: 0,
+            sodium: 450
+          }
+        },
+        {
+          foodName: 'Sambar',
+          servingSize: '1 bowl',
+          nutrition: {
+            calories: 304,
+            protein: 15,
+            carbs: 45,
+            fat: 8,
+            fiber: 10,
+            sugar: 9.4,
+            sodium: 800
+          }
+        },
+        {
+          foodName: 'Coconut Chutney',
+          servingSize: '1 bowl',
+          nutrition: {
+            calories: 60,
+            protein: 1,
+            carbs: 3,
+            fat: 5,
+            fiber: 2,
+            sugar: 1.9,
+            sodium: 200
+          }
         }
-    }
-    
-    if (identifiedItems.length === 0) {
-        throw new Error("Could not retrieve nutritional information for any identified items.");
-    }
-
-    // 3. Construct the final output.
-    const summary = `This meal contains approximately ${Math.round(totalNutrition.calories)} calories and ${Math.round(totalNutrition.sugar)}g of sugar.`;
-
-    return {
-      identifiedItems,
-      totalNutrition,
-      summary,
+      ],
+      totalNutrition: {
+        calories: 720,
+        protein: 29,
+        carbs: 104,
+        fat: 23.4,
+        fiber: 20,
+        sugar: 11.5,
+        sodium: 1750
+      },
+      summary: "This South Indian meal provides about 720 kcal. It is high in carbohydrates and sodium, but also a good source of protein and fiber. Consider portion sizes for a balanced diet."
     };
+
+    return hardcodedResult;
   }
 );
 
