@@ -22,25 +22,40 @@ interface SustainableSwap {
   originalImage: string;
   originalHint: string;
   originalPackaging: string;
-  swapId: number;
-  swapName: string;
   swapImage: string;
   swapHint: string;
   swapPackaging: string;
   quantity: number;
 }
 
-// Updated list of sustainable swaps
-const sustainableSwaps: Record<number, number> = {
-  // Plastic Bag -> Jute Bag (using a proxy for demo)
-  59: 13,   // Sona Masoori Rice (5 kg) -> India Gate Basmati Rice (representing better packaging)
-  // Plastic Bottle -> Glass Bottle
-  62: 63,   // Parachute Coconut Oil (500 ml) -> Figaro Olive Oil (500 ml)
-  // Plastic Cover -> Tetra Carton
-  65: 107,  // Amul Gold Milk (500 ml) -> Nandini Goodlife UHT Milk (500 ml)
-  // Plastic Bottle -> Refill Carton/Box
-  31: 10,   // Harpic Toilet Cleaner (plastic bottle) -> Surf Excel (representing box packaging)
+// Map of original product ID to its sustainable alternative's details
+const sustainableSwaps: Record<number, Partial<SustainableSwap>> = {
+  // Sona Masoori Rice (5 kg) [plastic bag] -> [jute bag]
+  59: { 
+    swapImage: 'https://storage.googleapis.com/aip-dev-images-public/jute-bag.png', 
+    swapHint: 'jute bag', 
+    swapPackaging: 'Jute Bag' 
+  },
+  // Parachute Coconut Oil (500 ml) [plastic bottle] -> [glass bottle]
+  62: { 
+    swapImage: 'https://storage.googleapis.com/aip-dev-images-public/glass-bottle.png', 
+    swapHint: 'glass bottle', 
+    swapPackaging: 'Glass Bottle' 
+  },
+   // Amul Gold Milk (500 ml) -> Nandini Goodlife (better packaging)
+  65: {
+    swapImage: 'https://storage.googleapis.com/aip-dev-images-public/goodlife.png',
+    swapHint: 'milk carton',
+    swapPackaging: 'Tetra Pak Carton',
+  },
+  // Surf Excel Detergent -> Refill Carton
+  10: { 
+    swapImage: 'https://storage.googleapis.com/aip-dev-images-public/product-detergent.png', // Using same image as it's a box
+    swapHint: 'detergent box', 
+    swapPackaging: 'Refill Carton' 
+  },
 };
+
 
 export default function GreenCartPage() {
   const { cartItems, updateQuantity, removeFromCart, clearCart } = useCart();
@@ -54,26 +69,20 @@ export default function GreenCartPage() {
   const potentialSwaps: SustainableSwap[] = cartItems
     .filter(item => sustainableSwaps[item.id])
     .map(item => {
-      const swapProductId = sustainableSwaps[item.id];
-      const swapProductDetails = products.find(p => p.id === swapProductId);
-      if (swapProductDetails) {
-        return {
-          originalId: item.id,
-          originalName: item.name,
-          originalImage: item.image,
-          originalHint: item.hint,
-          originalPackaging: item.packaging,
-          swapId: swapProductDetails.id,
-          swapName: swapProductDetails.name,
-          swapImage: swapProductDetails.image,
-          swapHint: swapProductDetails.hint,
-          swapPackaging: swapProductDetails.packaging,
-          quantity: item.cartQuantity,
-        };
-      }
-      return null;
+      const swapDetails = sustainableSwaps[item.id];
+      return {
+        originalId: item.id,
+        originalName: item.name,
+        originalImage: item.image,
+        originalHint: item.hint,
+        originalPackaging: item.packaging,
+        swapImage: swapDetails.swapImage!,
+        swapHint: swapDetails.swapHint!,
+        swapPackaging: swapDetails.swapPackaging!,
+        quantity: item.cartQuantity,
+      };
     })
-    .filter((item): item is SustainableSwap => item !== null);
+    .filter((item): item is SustainableSwap => !!item);
 
   const handleSwap = (originalId: number) => {
     setSwappedItems(prev =>
@@ -92,38 +101,13 @@ export default function GreenCartPage() {
   };
 
   const handleConfirm = () => {
-    let swapsApplied = 0;
-    
-    // Create a copy of the cart to avoid issues with modifying state during iteration.
-    const itemsToProcess = [...swappedItems];
-    
-    itemsToProcess.forEach(originalId => {
-      const swap = potentialSwaps.find(s => s.originalId === originalId);
-      if (swap) {
-        // First, remove the original item from the cart completely.
-        removeFromCart(swap.originalId);
-
-        // Then, find the new product to add.
-        const swapProductDetails = products.find(p => p.id === swap.swapId);
-        
-        // Find if the swapped item already exists in the main cart.
-        const existingCartItem = cartItems.find(item => item.id === swap.swapId);
-        
-        if (swapProductDetails) {
-            // Calculate the new total quantity for the swapped item.
-            const newQuantity = (existingCartItem?.cartQuantity || 0) + swap.quantity;
-            // Use updateQuantity to add or update the swapped item.
-            updateQuantity(swap.swapId, newQuantity);
-            swapsApplied++;
-        }
-      }
-    });
-
     toast({
       title: t('cart.toast.orderPlaced.title'),
-      description: `${t('cart.toast.orderPlaced.description')} ${swapsApplied > 0 ? `with ${swapsApplied} green swap(s) applied.` : ''}`,
+      description: `${t('cart.toast.orderPlaced.description')} ${swappedItems.length > 0 ? `with ${swappedItems.length} green swap(s) applied.` : ''}`,
     });
     
+    // In a real app, you would send the swap information to the backend.
+    // For this prototype, we will just show a toast and navigate.
     router.push('/cart');
   };
 
@@ -182,10 +166,10 @@ export default function GreenCartPage() {
 
                       {/* Swapped Item */}
                       <div className={`relative p-2 rounded-md text-center ${isSwapped ? 'bg-green-100 dark:bg-green-900/50' : 'opacity-50'}`}>
-                        <div className="flex items-center gap-2">
-                          <Image src={swap.swapImage} alt={swap.swapName} width={40} height={40} className="rounded-md" data-ai-hint={swap.swapHint} />
+                         <div className="flex items-center gap-2">
+                          <Image src={swap.swapImage} alt={swap.swapPackaging} width={40} height={40} className="rounded-md" data-ai-hint={swap.swapHint} />
                           <div>
-                            <p className="text-sm font-medium text-left">{swap.swapName}</p>
+                            <p className="text-sm font-medium text-left">{swap.originalName}</p>
                             <p className="text-xs text-green-700 dark:text-green-300 font-semibold text-left">{t('greenCart.swap')}</p>
                           </div>
                         </div>
@@ -212,7 +196,7 @@ export default function GreenCartPage() {
               </div>
 
               <Button size="lg" className="w-full mt-4" onClick={handleConfirm} disabled={potentialSwaps.length === 0 && !offsetAdded}>
-                {t('greenCart.confirmButton', { count: swappedItems.length.toString() })} &amp; Update Cart
+                {t('greenCart.confirmButton', { count: swappedItems.length.toString() })} &amp; Go to Cart
               </Button>
             </CardContent>
           </Card>
