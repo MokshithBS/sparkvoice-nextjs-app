@@ -30,6 +30,11 @@ const nextConfig: NextConfig = {
         hostname: 'via.placeholder.com',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'images.openfoodfacts.org',
+        pathname: '/**',
+      },
     ],
   },
 };
