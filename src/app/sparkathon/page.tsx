@@ -155,24 +155,67 @@ export default function SparkathonPage() {
                         <CardTitle className="text-2xl font-headline">Our Technology Stack</CardTitle>
                     </div>
                 </CardHeader>
-                <CardContent className="space-y-4 text-muted-foreground">
-                    <p>
-                        Built from the ground up for performance, scalability, and rapid Al integration, our stack is modern and robust.
-                    </p>
-                    <ul className="space-y-3">
-                        <li><strong className="text-foreground">Core Framework:</strong> Next.js 15 utilizing the App Router, Server Components, and Turbopack for a high-performance, server-first architecture.</li>
-                        <li><strong className="text-foreground">Frontend:</strong> React 18 with TypeScript for building a type-safe, component-based, and reactive user Interface.</li>
-                        <li><strong className="text-foreground">UI & Styling:</strong> A combination of ShadCN UI for our accessible component library and Tailwind CSS for rapid, utility-first styling.</li>
-                        <li><strong className="text-foreground">AI Orchestration & Backend:</strong> We use Google's Genkit, an open-source framework, to build, deploy, and monitor our production-grade Al flows. This allows us to chain prompts, integrate tools, and manage complex agentic logic reliably.</li>
-                        <li>
-                            <strong className="text-foreground">AI Models:</strong>
-                            <ul className="list-disc pl-6 mt-1 space-y-1">
-                                <li><strong className="text-foreground">Gemini 2.0 Flash:</strong> For our core multimodal reasoning, handling complex vision tasks (list & bill OCR), natural language understanding (contextual carts, recipe generation), and structured data output.</li>
-                                <li><strong className="text-foreground">Gemini 2.0 Flash Image Generation:</strong> Used for creative features like generating user avatars.</li>
-                                <li><strong className="text-foreground">Gemini 2.5 Flash TTS:</strong> Powers our text-to-speech capabilities, providing voice feedback in our conversational flows.</li>
+                <CardContent className="space-y-6 text-muted-foreground">
+                    <div className="space-y-4">
+                        <div>
+                            <h4 className="font-semibold text-foreground">Core Framework:</h4>
+                            <p>Next.js 15 leveraging App Router, Server Components, and Turbopack</p>
+                            <ul className="list-disc pl-6 mt-1 space-y-1 text-sm">
+                                <li>→ Enabled server-first architecture with streaming SSR.</li>
+                                <li>→ Server Components offload rendering logic to the server, keeping client bundles lean.</li>
+                                <li>→ Turbopack ensures blazing-fast build and dev refresh times — ideal for AI iteration cycles.</li>
                             </ul>
-                        </li>
-                    </ul>
+                        </div>
+                        <div>
+                            <h4 className="font-semibold text-foreground">Frontend:</h4>
+                            <p>React 18 with TypeScript</p>
+                            <ul className="list-disc pl-6 mt-1 space-y-1 text-sm">
+                                <li>→ Fully type-safe and componentized UI enabling multimodal interaction flows (OCR preview, voice input, cart visualization).</li>
+                                <li>→ React’s concurrent rendering ensures responsiveness even under async AI load.</li>
+                            </ul>
+                        </div>
+                         <div>
+                            <h4 className="font-semibold text-foreground">UI & Styling:</h4>
+                            <p>ShadCN UI + Tailwind CSS</p>
+                            <ul className="list-disc pl-6 mt-1 space-y-1 text-sm">
+                                <li>→ Built a scalable, accessible, and mobile-first UI system using utility-first styling.</li>
+                                <li>→ Optimized for low-bandwidth users with minimal layout shift and fast render time.</li>
+                            </ul>
+                        </div>
+                         <div>
+                            <h4 className="font-semibold text-foreground">AI Orchestration & Backend:</h4>
+                            <p>Google Genkit + GCP Cloud Functions</p>
+                            <ul className="list-disc pl-6 mt-1 space-y-1 text-sm">
+                                <li>→ Genkit is used to orchestrate prompt flows, vision models, and pricing logic.</li>
+                                <li>→ Integrated fallback/error handling and tool chaining (OCR, TTS, nutrition APIs, etc.).</li>
+                                <li>→ GCP Cloud Buckets handle image storage (grocery lists, scanned bills, pantry photos), not Firebase Storage — for better CDN access and persistence.</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 className="font-semibold text-foreground">AI Models & Customization:</h4>
+                             <ul className="list-disc pl-6 mt-1 space-y-2 text-sm">
+                                <li><strong>Gemini 2.0 Flash:</strong> → Fine-tuned on CRAFT (Character Region Awareness for Text Detection) and TrOCR for improved OCR accuracy on Indian handwriting and vernacular lists. → Handles end-to-end contextual cart generation from image/voice/text input.</li>
+                                <li><strong>Gemini 2.0 Flash – Image Generation:</strong> → Used to dynamically generate user avatars and preview cart items in cases where image links are unavailable.</li>
+                                <li><strong>Gemini 2.5 Flash – Text-to-Speech (TTS):</strong> → Multilingual voice feedback used in rural-access flows, integrated via Genkit agents.</li>
+                            </ul>
+                        </div>
+                         <div>
+                            <h4 className="font-semibold text-foreground">Database & Security:</h4>
+                            <p>Firebase Firestore with role-based rules</p>
+                            <ul className="list-disc pl-6 mt-1 space-y-1 text-sm">
+                                <li>→ Cart history, pantry scans, community polls, and price-match logs are stored in a queryable NoSQL schema.</li>
+                                <li>→ Firebase Auth secures user-specific data, allowing full personalization at scale.</li>
+                            </ul>
+                        </div>
+                         <div>
+                            <h4 className="font-semibold text-foreground">External Integrations:</h4>
+                            <ul className="list-disc pl-6 mt-1 space-y-1 text-sm">
+                                <li>→ CalorieNinjas API for nutritional breakdown in SparkDiet Planner.</li>
+                                <li>→ Google Custom Search + scraped datasets for cart item image completion and fallback.</li>
+                                <li>→ PriceMatch APIs / simulated kirana rate inputs power Instant Price Defender.</li>
+                            </ul>
+                        </div>
+                    </div>
                 </CardContent>
             </Card>
 
