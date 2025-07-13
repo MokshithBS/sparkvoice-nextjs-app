@@ -23,8 +23,8 @@ export async function parseVoiceList(input: VoiceListParserInput): Promise<ListP
 // Define a simple prompt that ONLY does transcription.
 const transcriptionPrompt = ai.definePrompt({
   name: 'transcriptionPrompt',
-  // Specify the model that supports audio transcription
-  model: googleAI.model('gemini-2.0-flash-aqa'),
+  // Specify a multimodal model that supports audio transcription
+  model: googleAI.model('gemini-2.0-flash'),
   input: {
     schema: z.object({
       audioDataUri: z.string(),
