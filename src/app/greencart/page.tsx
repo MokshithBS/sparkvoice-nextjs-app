@@ -30,9 +30,19 @@ interface SustainableSwap {
 
 // More swaps for a better demo
 const sustainableSwaps: Record<number, number> = {
+  // Plastic bottle/pouch to Tin/Glass/Carton
   16: 63,  // Fortune Sun Lite Oil (pouch) -> Figaro Olive Oil (tin/glass)
+  5: 63,   // Saffola Gold Oil (bottle) -> Figaro Olive Oil (tin/glass)
+  3: 107,  // Amul Milk Taaza (pouch) -> Nandini Goodlife UHT Milk (carton)
+  
+  // Plastic bottle to Soap bar
   49: 34,  // Dettol Handwash (plastic bottle) -> Lifebuoy Soap Bar (less plastic)
-  3: 107, // Amul Milk Taaza (pouch) -> Nandini Goodlife UHT Milk (carton)
+  
+  // Plastic pouch to Cardboard Box
+  61: 53,  // MTR Rava/Sooji (pouch) -> Quaker Oats (box)
+
+  // Processed pouch to basic staple in carton
+  28: 3,   // Knorr Soup (pouch) -> Amul Milk (carton)
 };
 
 export default function GreenCartPage() {
