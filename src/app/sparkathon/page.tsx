@@ -134,7 +134,12 @@ export default function SparkathonPage() {
                             <p>Users can scan a local kirana bill to see a line-by-line comparison with Walmart’s prices. We highlight exact savings, empowering users to make informed, confident decisions. This feature directly tackles the price trust barrier in Bharat.</p>
                             
                             <h4 className="font-bold text-foreground">🛡️ Instant Price Defender</h4>
-                            <p>Behind the scenes, our system uses a live competitive price-checking engine to continuously compare Walmart’s prices with local kirana rates and regional e-commerce platforms. If we find a better deal, we automatically match or beat it before checkout — no user effort needed.</p>
+                             <p>Behind the scenes, our system uses a live competitive price-checking engine to continuously compare Walmart’s prices with:</p>
+                            <ul className="list-disc pl-5 mt-2 space-y-1 text-muted-foreground">
+                                <li>Local kirana rates (via scanned bills and market APIs)</li>
+                                <li>Regional e-commerce platforms</li>
+                            </ul>
+                            <p>If we find a better deal, we automatically match or beat it before checkout — no user effort needed.</p>
                             
                             <h4 className="font-bold text-foreground">💰 Savings Vault</h4>
                             <p>Every price match and smart purchase adds to the Savings Vault — a visual tracker of how much a user has saved over time. This reinforces financial confidence, especially among first-time digital shoppers.</p>
@@ -142,6 +147,47 @@ export default function SparkathonPage() {
                     </div>
                 </CardContent>
             </Card>
+
+            <Card className="shadow-lg">
+                <CardHeader>
+                     <div className="flex items-center gap-3">
+                        <Rocket className="w-8 h-8 text-primary"/>
+                        <CardTitle className="text-2xl font-headline">Technical Stack</CardTitle>
+                    </div>
+                </CardHeader>
+                <CardContent>
+                    <p className="text-muted-foreground mb-4">
+                        We've built SparkVoice on a modern, scalable, and AI-native technology stack to ensure a robust and fast user experience.
+                    </p>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 text-center">
+                        <div className="p-4 bg-muted/50 rounded-lg">
+                            <h4 className="font-bold">Next.js & React</h4>
+                            <p className="text-sm text-muted-foreground">For a fast, server-rendered frontend.</p>
+                        </div>
+                         <div className="p-4 bg-muted/50 rounded-lg">
+                            <h4 className="font-bold">Google's Genkit</h4>
+                            <p className="text-sm text-muted-foreground">Powers all our generative AI features.</p>
+                        </div>
+                         <div className="p-4 bg-muted/50 rounded-lg">
+                            <h4 className="font-bold">Tailwind CSS</h4>
+                            <p className="text-sm text-muted-foreground">For rapid and responsive UI development.</p>
+                        </div>
+                         <div className="p-4 bg-muted/50 rounded-lg">
+                            <h4 className="font-bold">ShadCN UI</h4>
+                            <p className="text-sm text-muted-foreground">For accessible and modern components.</p>
+                        </div>
+                         <div className="p-4 bg-muted/50 rounded-lg">
+                            <h4 className="font-bold">TypeScript</h4>
+                            <p className="text-sm text-muted-foreground">For robust and type-safe code.</p>
+                        </div>
+                         <div className="p-4 bg-muted/50 rounded-lg">
+                            <h4 className="font-bold">Firebase</h4>
+                            <p className="text-sm text-muted-foreground">For scalable hosting and deployment.</p>
+                        </div>
+                    </div>
+                </CardContent>
+            </Card>
+
 
              <Card className="shadow-lg">
                 <CardHeader>
