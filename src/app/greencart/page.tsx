@@ -21,10 +21,12 @@ interface SustainableSwap {
   originalName: string;
   originalImage: string;
   originalHint: string;
+  originalPackaging: string;
   swapId: number;
   swapName: string;
   swapImage: string;
   swapHint: string;
+  swapPackaging: string;
   quantity: number;
 }
 
@@ -40,9 +42,7 @@ const sustainableSwaps: Record<number, number> = {
   
   // Plastic pouch to Cardboard Box
   61: 53,  // MTR Rava/Sooji (pouch) -> Quaker Oats (box)
-
-  // Processed pouch to basic staple in carton
-  28: 3,   // Knorr Soup (pouch) -> Amul Milk (carton)
+  28: 72,  // Knorr Soup (pouch) -> Gits Gulab Jamun Mix (box)
 };
 
 export default function GreenCartPage() {
@@ -65,10 +65,12 @@ export default function GreenCartPage() {
           originalName: item.name,
           originalImage: item.image,
           originalHint: item.hint,
+          originalPackaging: item.packaging,
           swapId: swapProductDetails.id,
           swapName: swapProductDetails.name,
           swapImage: swapProductDetails.image,
           swapHint: swapProductDetails.hint,
+          swapPackaging: swapProductDetails.packaging,
           quantity: item.cartQuantity,
         };
       }
@@ -165,14 +167,15 @@ export default function GreenCartPage() {
                   return (
                     <div key={swap.originalId} className="grid grid-cols-[1fr_auto_1fr] items-center gap-2 p-3 rounded-lg border bg-muted/50">
                       {/* Original Item */}
-                      <div className={`relative p-2 rounded-md ${isSwapped ? 'opacity-50' : 'bg-background'}`}>
+                      <div className={`relative p-2 rounded-md text-center ${isSwapped ? 'opacity-50' : 'bg-background'}`}>
                         <div className="flex items-center gap-2">
                           <Image src={swap.originalImage} alt={swap.originalName} width={40} height={40} className="rounded-md" data-ai-hint={swap.originalHint} />
                           <div>
-                            <p className="text-sm font-medium">{swap.originalName}</p>
-                            <p className="text-xs text-muted-foreground">{t('greenCart.quantity', { qty: swap.quantity.toString() })}</p>
+                            <p className="text-sm font-medium text-left">{swap.originalName}</p>
+                            <p className="text-xs text-muted-foreground text-left">{t('greenCart.quantity', { qty: swap.quantity.toString() })}</p>
                           </div>
                         </div>
+                        <p className="text-xs font-semibold text-destructive/80 mt-1">{swap.originalPackaging}</p>
                       </div>
 
                       {/* Swap Button */}
@@ -181,14 +184,15 @@ export default function GreenCartPage() {
                       </Button>
 
                       {/* Swapped Item */}
-                      <div className={`relative p-2 rounded-md ${isSwapped ? 'bg-green-100 dark:bg-green-900/50' : 'opacity-50'}`}>
+                      <div className={`relative p-2 rounded-md text-center ${isSwapped ? 'bg-green-100 dark:bg-green-900/50' : 'opacity-50'}`}>
                         <div className="flex items-center gap-2">
                           <Image src={swap.swapImage} alt={swap.swapName} width={40} height={40} className="rounded-md" data-ai-hint={swap.swapHint} />
                           <div>
-                            <p className="text-sm font-medium">{swap.swapName}</p>
-                            <p className="text-xs text-green-700 dark:text-green-300 font-semibold">{t('greenCart.swap')}</p>
+                            <p className="text-sm font-medium text-left">{swap.swapName}</p>
+                            <p className="text-xs text-green-700 dark:text-green-300 font-semibold text-left">{t('greenCart.swap')}</p>
                           </div>
                         </div>
+                         <p className="text-xs font-semibold text-green-700 dark:text-green-300 mt-1">{swap.swapPackaging}</p>
                       </div>
                     </div>
                   );
