@@ -152,39 +152,27 @@ export default function SparkathonPage() {
                 <CardHeader>
                      <div className="flex items-center gap-3">
                         <Rocket className="w-8 h-8 text-primary"/>
-                        <CardTitle className="text-2xl font-headline">Technical Stack</CardTitle>
+                        <CardTitle className="text-2xl font-headline">Our Technology Stack</CardTitle>
                     </div>
                 </CardHeader>
-                <CardContent>
-                    <p className="text-muted-foreground mb-4">
-                        We've built SparkVoice on a modern, scalable, and AI-native technology stack to ensure a robust and fast user experience.
+                <CardContent className="space-y-4 text-muted-foreground">
+                    <p>
+                        Built from the ground up for performance, scalability, and rapid Al integration, our stack is modern and robust.
                     </p>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 text-center">
-                        <div className="p-4 bg-muted/50 rounded-lg">
-                            <h4 className="font-bold">Next.js & React</h4>
-                            <p className="text-sm text-muted-foreground">For a fast, server-rendered frontend.</p>
-                        </div>
-                         <div className="p-4 bg-muted/50 rounded-lg">
-                            <h4 className="font-bold">Google's Genkit</h4>
-                            <p className="text-sm text-muted-foreground">Powers all our generative AI features.</p>
-                        </div>
-                         <div className="p-4 bg-muted/50 rounded-lg">
-                            <h4 className="font-bold">Tailwind CSS</h4>
-                            <p className="text-sm text-muted-foreground">For rapid and responsive UI development.</p>
-                        </div>
-                         <div className="p-4 bg-muted/50 rounded-lg">
-                            <h4 className="font-bold">ShadCN UI</h4>
-                            <p className="text-sm text-muted-foreground">For accessible and modern components.</p>
-                        </div>
-                         <div className="p-4 bg-muted/50 rounded-lg">
-                            <h4 className="font-bold">TypeScript</h4>
-                            <p className="text-sm text-muted-foreground">For robust and type-safe code.</p>
-                        </div>
-                         <div className="p-4 bg-muted/50 rounded-lg">
-                            <h4 className="font-bold">Firebase</h4>
-                            <p className="text-sm text-muted-foreground">For scalable hosting and deployment.</p>
-                        </div>
-                    </div>
+                    <ul className="space-y-3">
+                        <li><strong className="text-foreground">Core Framework:</strong> Next.js 15 utilizing the App Router, Server Components, and Turbopack for a high-performance, server-first architecture.</li>
+                        <li><strong className="text-foreground">Frontend:</strong> React 18 with TypeScript for building a type-safe, component-based, and reactive user Interface.</li>
+                        <li><strong className="text-foreground">UI & Styling:</strong> A combination of ShadCN UI for our accessible component library and Tailwind CSS for rapid, utility-first styling.</li>
+                        <li><strong className="text-foreground">AI Orchestration & Backend:</strong> We use Google's Genkit, an open-source framework, to build, deploy, and monitor our production-grade Al flows. This allows us to chain prompts, integrate tools, and manage complex agentic logic reliably.</li>
+                        <li>
+                            <strong className="text-foreground">AI Models:</strong>
+                            <ul className="list-disc pl-6 mt-1 space-y-1">
+                                <li><strong className="text-foreground">Gemini 2.0 Flash:</strong> For our core multimodal reasoning, handling complex vision tasks (list & bill OCR), natural language understanding (contextual carts, recipe generation), and structured data output.</li>
+                                <li><strong className="text-foreground">Gemini 2.0 Flash Image Generation:</strong> Used for creative features like generating user avatars.</li>
+                                <li><strong className="text-foreground">Gemini 2.5 Flash TTS:</strong> Powers our text-to-speech capabilities, providing voice feedback in our conversational flows.</li>
+                            </ul>
+                        </li>
+                    </ul>
                 </CardContent>
             </Card>
 
