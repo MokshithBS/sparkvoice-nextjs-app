@@ -30,9 +30,9 @@ interface SustainableSwap {
 
 // More swaps for a better demo
 const sustainableSwaps: Record<number, number> = {
-  16: 5,   // Fortune Sun Lite Oil (pouch) -> Saffola Gold Oil (tin)
+  16: 63,  // Fortune Sun Lite Oil (pouch) -> Figaro Olive Oil (tin/glass)
   49: 34,  // Dettol Handwash (plastic bottle) -> Lifebuoy Soap Bar (less plastic)
-  4: 69,   // Parle-G (simple plastic wrap) -> Good Day (often in box/thicker wrap)
+  3: 107, // Amul Milk Taaza (pouch) -> Nandini Goodlife UHT Milk (carton)
 };
 
 export default function GreenCartPage() {
