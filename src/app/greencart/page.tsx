@@ -28,9 +28,11 @@ interface SustainableSwap {
   quantity: number;
 }
 
-// Updated with a more logical swap
+// More swaps for a better demo
 const sustainableSwaps: Record<number, number> = {
-  16: 5,   // Fortune Sun Lite Oil Pouch -> Saffola Gold Oil Tin (better packaging)
+  16: 5,   // Fortune Sun Lite Oil (pouch) -> Saffola Gold Oil (tin)
+  49: 34,  // Dettol Handwash (plastic bottle) -> Lifebuoy Soap Bar (less plastic)
+  4: 69,   // Parle-G (simple plastic wrap) -> Good Day (often in box/thicker wrap)
 };
 
 export default function GreenCartPage() {

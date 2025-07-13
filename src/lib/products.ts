@@ -40,7 +40,7 @@ export interface Product {
     { id: 97, name: 'Tata Salt Lite (1 kg)', price: 40, quantity: '1 kg', image: 'https://storage.googleapis.com/aip-dev-images-public/product-salt-lite.png', category: 'Masala & Oils', hint: 'salt package', isVeg: true },
 
     // Dairy, Bread & Eggs
-    { id: 3, name: 'Amul Milk Taaza (500 ml)', price: 28, quantity: '500 ml', image: 'https://storage.googleapis.com/aip-dev-images-public/product-milk.png', category: 'Dairy, Bread & Eggs', hint: 'milk carton', isVeg: true },
+    { id: 3, name: 'Amul Milk Taaza (500 ml)', price: 28, quantity: '500 ml', image: 'https://storage.googleapis.com/aip-dev-images-public/33.%20Amul%20Gold%20Milk%20(500%20ml).jpeg', category: 'Dairy, Bread & Eggs', hint: 'milk carton', isVeg: true },
     { id: 107, name: 'Nandini Goodlife UHT Milk (500 ml)', price: 30, quantity: '500 ml', image: 'https://storage.googleapis.com/aip-dev-images-public/product-nandini-milk.png', category: 'Dairy, Bread & Eggs', hint: 'milk packet', isVeg: true },
     { id: 91, name: 'Amul Milk Taaza (1 L)', price: 55, quantity: '1 L', image: 'https://storage.googleapis.com/aip-dev-images-public/product-milk.png', category: 'Dairy, Bread & Eggs', hint: 'milk carton', isVeg: true },
     { id: 6, name: 'Farm Fresh Eggs (1 dozen)', price: 72, salePrice: 60, quantity: '1 dozen', image: 'https://storage.googleapis.com/aip-dev-images-public/product-eggs.png', category: 'Dairy, Bread & Eggs', hint: 'egg carton', isVeg: false },
