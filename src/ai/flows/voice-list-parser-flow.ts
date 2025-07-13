@@ -14,6 +14,7 @@ import {
 } from '@/ai/schemas/list-parser-schemas';
 import {z} from 'genkit';
 import { parseTextList } from './text-list-parser-flow';
+import { googleAI } from '@genkit-ai/googleai';
 
 export async function parseVoiceList(input: VoiceListParserInput): Promise<ListParserOutput> {
   return voiceListParserFlow(input);
@@ -22,6 +23,8 @@ export async function parseVoiceList(input: VoiceListParserInput): Promise<ListP
 // Define a simple prompt that ONLY does transcription.
 const transcriptionPrompt = ai.definePrompt({
   name: 'transcriptionPrompt',
+  // Specify the model that supports audio transcription
+  model: googleAI.model('gemini-2.0-flash-aqa'),
   input: {
     schema: z.object({
       audioDataUri: z.string(),
