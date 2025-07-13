@@ -45,7 +45,7 @@ export default function SparkathonPage() {
                 </CardHeader>
                 <CardContent>
                     <p className="text-lg font-medium leading-relaxed">
-                        SparkVoice is a multimodal AI that turns everyday human intent—a photo of a handwritten list, a voice note in a native dialect, or a simple thought—into a complete, delivered shopping cart.
+                        SparkVoice is India's most intelligent, multimodal AI, purpose-built to unlock digital commerce for the next 500 million value-first shoppers. It effortlessly transforms everyday human intent—a photo of a handwritten grocery list, a voice note in a native dialect, or a simple thought—into a complete, value-optimized, delivered shopping cart. We turn the habit of saving ₹5 into seamless reality, proving Walmart's Everyday Low Price commitment at every step.
                     </p>
                 </CardContent>
             </Card>
