@@ -29,10 +29,10 @@ const hiveData = {
         { id: 4, name: 'Priya K.', avatar: 'https://storage.googleapis.com/aip-dev-images-public/avatar-3.png', hint: 'woman face' },
     ],
     sharedCart: [
-        { id: 1, name: 'Aashirvaad Atta (5 kg)', price: 225, addedBy: 'Anika S.', image: 'https://storage.googleapis.com/aip-dev-images-public/product-atta.png', hint: 'flour bag' },
-        { id: 12, name: 'Lays Potato Chips (Classic Salted)', price: 18, addedBy: 'Anika S.', image: 'https://storage.googleapis.com/aip-dev-images-public/snacks.png', hint: 'potato chips' },
-        { id: 3, name: 'Amul Milk Taaza (500 ml)', price: 28, addedBy: 'You', image: 'https://storage.googleapis.com/aip-dev-images-public/product-milk.png', hint: 'milk carton' },
-        { id: 18, name: 'MDH Deggi Mirch (100 g)', price: 70, addedBy: 'Rohan V.', image: 'https://storage.googleapis.com/aip-dev-images-public/product-chilli-powder.png', hint: 'spice powder' },
+        { id: 1, name: 'Aashirvaad Atta (5 kg)', price: 225, addedBy: 'Anika S.', image: 'https://storage.googleapis.com/aip-dev-images-public/AashirvaadAtta.png', hint: 'flour bag' },
+        { id: 12, name: 'Lays Potato Chips (Classic Salted)', price: 18, addedBy: 'Anika S.', image: 'https://images.openfoodfacts.org/images/products/002/840/020/0592/front_en.28.200.jpg', hint: 'potato chips' },
+        { id: 3, name: 'Amul Milk Taaza (500 ml)', price: 28, addedBy: 'You', image: 'https://storage.googleapis.com/aip-dev-images-public/33.%20Amul%20Gold%20Milk%20(500%20ml).jpeg', hint: 'milk carton' },
+        { id: 18, name: 'MDH Deggi Mirch (100 g)', price: 70, addedBy: 'Rohan V.', image: 'https://images.openfoodfacts.org/images/products/890/216/700/0034/front_en.3.200.jpg', hint: 'spice powder' },
     ],
     chat: [
         { type: 'user', user: 'Anika S.', message: 'Okay team, I\'ve added atta and some chips for the weekend get-together.' },
@@ -367,4 +367,5 @@ export default function HiveDetailPage({ params }: { params: { hiveId: string } 
             </main>
         </div>
     );
-}
+
+    
