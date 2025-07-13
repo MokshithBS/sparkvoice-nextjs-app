@@ -32,9 +32,8 @@ export default function SparkathonPage() {
         <div className="container mx-auto max-w-3xl space-y-10">
 
             <div className="text-center space-y-2">
-                <h2 className="text-4xl font-extrabold tracking-tight text-primary font-headline">SparkVoice</h2>
-                <p className="text-2xl font-bold tracking-tight">Speak It or Snap It. Just Spark It.</p>
-                <p className="text-lg text-muted-foreground">Bridging India's Digital Divide, One Conversation at a Time.</p>
+                <h2 className="text-4xl font-extrabold tracking-tight text-primary font-headline">SparkVoice: Your list, your voice, your cart — effortlessly.</h2>
+                <p className="text-lg text-muted-foreground">Empowering every Indian to shop without barriers.</p>
             </div>
 
             <Card className="shadow-lg">
