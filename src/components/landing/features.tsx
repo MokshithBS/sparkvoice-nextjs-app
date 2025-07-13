@@ -3,7 +3,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { useLanguage } from "@/context/language-context";
-import { Bot, HeartPulse, Leaf, Receipt, ScanSearch, Sparkles, Users2 } from "lucide-react"
+import { Bot, HeartPulse, Leaf, Receipt, ScanSearch, Sparkles, Users2, ShieldCheck, PiggyBank } from "lucide-react"
 
 const featureItems = [
   {
@@ -33,6 +33,14 @@ const featureItems = [
   {
     icon: <Receipt className="w-8 h-8 text-accent" />,
     key: "priceMatch",
+  },
+  {
+    icon: <ShieldCheck className="w-8 h-8 text-accent" />,
+    key: "priceDefender",
+  },
+  {
+    icon: <PiggyBank className="w-8 h-8 text-accent" />,
+    key: "savingsVault",
   },
 ]
 
