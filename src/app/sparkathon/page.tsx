@@ -59,16 +59,39 @@ export default function SparkathonPage() {
                 </CardHeader>
                 <CardContent className="space-y-4 text-base text-muted-foreground leading-relaxed">
                    <p>
-                        Walmart’s next phase of growth in India depends on reaching the 500 million consumers in Tier 2/3 cities and rural areas. Yet, conventional e-commerce has hit a wall. The core problem isn't technology; it's that the current digital interface is fundamentally misaligned with how a massive part of India lives and thinks.
+                        Walmart’s next phase of growth in India depends on reaching the 500 million consumers in Tier 2/3 cities and rural areas. But conventional e-commerce has stalled—not because of poor technology, but because it overlooks how India truly shops and thinks.
                     </p>
                     <p>
-                        We see this every day: a grandmother in a village who only trusts her handwritten Kannada grocery list; a first-time internet user intimidated by complex apps; a busy parent who just wants to send a voice note for the week's shopping. These aren't edge cases; they represent the heart of the next billion users.
+                        In India, saving ₹5 isn’t just a deal — it’s a habit, a mindset, and sometimes, a need. We see this value-first psychology daily: a father habitually comparing kirana prices; a student walking to a farther store for cheaper books; a mother bargaining for five minutes to save five rupees. Convenience is secondary to value – this is the real shopping psychology across a massive part of India.
                     </p>
+                    <p>
+                        Digital apps today are either too complex or too disconnected from these deeply ingrained behaviors. We see this gap daily:
+                    </p>
+                    <ul className="list-disc pl-5 space-y-2">
+                        <li>A mother in a village still trusts her handwritten shopping list.</li>
+                        <li>A first-time internet user finds filters and carts confusing.</li>
+                        <li>A busy parent prefers to speak a quick voice note than tap 20 times.</li>
+                    </ul>
+                    <p>
+                        These aren’t edge cases—they are the average Indian shopper, representing the heart of the next billion users.
+                    </p>
+                    <p>
+                        But this friction isn’t just digital for consumers. Local kirana stores—Walmart’s crucial last-mile lifeline—still manually transcribe these same lists and spoken orders, wasting precious time and effort. Worse, there’s often no real-time price clarity, which directly breaks the trust chain with both the consumer and the store.
+                    </p>
+
+                    <Separator className="my-6"/>
+
+                    <h3 className="text-xl font-bold text-foreground">Walmart India's Focus: The Everyday Low Price Engine</h3>
+                    <p>
+                        Walmart U.S. built its empire by guaranteeing Everyday Low Prices, backed by relentless real-time competitive price monitoring and vendor negotiations. To achieve the same dominance in India, the challenge is deeper:
+                    </p>
+                     <ul className="list-disc pl-5 space-y-2">
+                        <li>Prices change weekly—even daily—in crucial categories like fruits, staples, and perishables.</li>
+                        <li>Customers expect hyper-local price relevance, specific to their neighborhood.</li>
+                        <li>Trust only builds when you can show savings, not just say it.</li>
+                    </ul>
                     <p className="font-bold text-foreground">
-                        This is Walmart's key challenge: The digital divide isn't about access to phones, it's about a mismatch in interaction. This daily friction prevents half a billion people from accessing Walmart's ecosystem, limiting market penetration and leaving immense value on the table.
-                    </p>
-                    <p>
-                        At the same time, local kirana stores—Walmart's crucial last-mile partners—are burdened by the same manual friction, transcribing these very same lists and spoken orders, which stifles their efficiency and growth.
+                        SparkVoice isn't just about smarter shopping; it's about fundamentally proving to every Indian father, mother, student, and kirana shop that Walmart offers undeniable, real value. If Walmart wants to win the next 500 million consumers, price intelligence isn’t a feature—it’s the absolute foundation.
                     </p>
                 </CardContent>
             </Card>
