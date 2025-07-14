@@ -1,6 +1,7 @@
+
 'use client';
 
-import { ArrowLeft, ChevronDown, CircleUserRound, Globe } from 'lucide-react';
+import { ArrowLeft, ChevronDown, CircleUserRound, Globe, Sparkles } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/context/language-context';
@@ -36,11 +37,8 @@ export function LocationHeader() {
             </Link>
         </Button>
         <div className="flex items-start gap-3">
-            <div className="text-center">
-                <div className="w-10 h-10 rounded-lg bg-primary flex items-center justify-center">
-                    <span className="font-bold text-primary-foreground text-lg">10</span>
-                </div>
-                <span className="text-[10px] font-bold text-primary/80">MINS</span>
+            <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                <Sparkles className="w-6 h-6 text-primary" />
             </div>
             <Button variant="ghost" className="text-left h-auto p-0" onClick={handleFeatureClick}>
               <div>
