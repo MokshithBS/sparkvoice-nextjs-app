@@ -8,7 +8,6 @@
 
 import {ai} from '@/ai/genkit';
 import { products } from '@/lib/products';
-import { fetchNutrition, type MappedNutritionInfo as NutritionInfo } from '@/services/nutrition-api';
 import {
   type DietAssistantInput,
   DietAssistantInputSchema,
@@ -16,6 +15,7 @@ import {
   DietAssistantOutputSchema,
   DietAssistantAIOutputSchema,
 } from '@/ai/schemas/diet-assistant-schemas';
+import type { DietCartItem } from '@/ai/schemas/diet-assistant-schemas';
 
 export async function generateDietCart(
   input: DietAssistantInput
@@ -31,11 +31,10 @@ const dietAssistantPrompt = ai.definePrompt({
 
 You will be given:
 1.  The user's dietary goal: '{{goal}}'
-2.  A specific daily calorie target (optional): {{calorieTarget}}
-3.  Their medical condition (if any): '{{medicalCondition}}'
-4.  Their household size: {{familySize}}
-5.  Their weekly budget: ₹{{budget}}
-6.  A complete list of available grocery products.
+2.  Their medical condition (if any): '{{medicalCondition}}'
+3.  Their household size: {{familySize}}
+4.  Their weekly budget: ₹{{budget}}
+5.  A complete list of available grocery products.
 
 Your tasks are:
 1.  **Analyze User Needs**:
@@ -53,6 +52,18 @@ Available Products (JSON format):
 {{{json availableProducts}}}`,
 });
 
+// Helper to generate approximate nutrition data for the prototype
+const getRandomNutrition = () => ({
+    calories: Math.floor(Math.random() * 300) + 100, // 100-400 kcal
+    protein: Math.floor(Math.random() * 20), // 0-20g
+    carbs: Math.floor(Math.random() * 50), // 0-50g
+    fat: Math.floor(Math.random() * 15), // 0-15g
+    fiber: Math.floor(Math.random() * 10), // 0-10g
+    sugar: Math.floor(Math.random() * 20), // 0-20g
+    sodium: Math.floor(Math.random() * 500), // 0-500mg
+});
+
+
 const dietAssistantFlow = ai.defineFlow(
   {
     name: 'dietAssistantFlow',
@@ -69,100 +80,46 @@ const dietAssistantFlow = ai.defineFlow(
 
     let total_estimated_cost = 0;
     const errors: string[] = [];
-    const calorie_warnings: string[] = [];
     
     // 2. Enrich cart with prices and nutrition data from API
-    const enrichedCart = await Promise.all(
-        aiCart.map(async (item) => {
-            const productDetails = products.find(p => p.name === item.name);
-            
-            // Correctly parse quantity for price calculation (e.g., "2 packs" -> 2, "1 kg" -> 1)
-            const numericQuantity = parseInt(item.quantity.match(/^(\d+)/)?.[1] || '1', 10);
-            const estimated_price = productDetails ? (productDetails.salePrice || productDetails.price) * numericQuantity : 0;
-            total_estimated_cost += estimated_price;
-            
-            let nutrition: NutritionInfo | null = null;
-            try {
-                // The query for nutrition should still be descriptive, e.g., "1 kg Aashirvaad Atta"
-                const nutritionQuery = `${productDetails?.quantity || ''} ${item.name}`.trim();
-                nutrition = await fetchNutrition(nutritionQuery);
-            } catch (error) {
-                console.error(`Nutrition API error for ${item.name}:`, error);
-                errors.push(`Nutrition API failed for ${item.name}.`);
-            }
+    const enrichedCart: DietCartItem[] = aiCart.map((item) => {
+        const productDetails = products.find(p => p.name === item.name);
+        
+        // Correctly parse quantity for price calculation (e.g., "2 packs" -> 2, "1 kg" -> 1)
+        const numericQuantity = parseInt(item.quantity.match(/^(\d+)/)?.[1] || '1', 10);
+        const estimated_price = productDetails ? (productDetails.salePrice || productDetails.price) * numericQuantity : 0;
+        total_estimated_cost += estimated_price;
+        
+        // For the prototype, we use randomized nutrition data.
+        const nutrition = getRandomNutrition();
 
-            if (!nutrition) {
-                errors.push(`Missing nutrition info for '${item.name}'`);
-            }
-
-            return {
-                ...item,
-                estimated_price,
-                // The nutrition info is for the whole purchasable unit, so we multiply by the number of units
-                nutrition: {
-                    calories: (nutrition?.calories || 0) * numericQuantity,
-                    protein: (nutrition?.protein || 0) * numericQuantity,
-                    carbs: (nutrition?.carbs || 0) * numericQuantity,
-                    fat: (nutrition?.fat || 0) * numericQuantity,
-                    fiber: (nutrition?.fiber || 0) * numericQuantity,
-                    sugar: (nutrition?.sugar || 0) * numericQuantity,
-                    sodium: (nutrition?.sodium || 0) * numericQuantity,
-                },
-            };
-        })
-    );
-
-    // 3. Calculate totals and perform validations
-    const weekly_nutrition_summary = enrichedCart.reduce((totals, item) => {
-        totals.calories += item.nutrition.calories;
-        totals.protein += item.nutrition.protein;
-        totals.carbs += item.nutrition.carbs;
-        totals.fat += item.nutrition.fat;
-        totals.fiber += item.nutrition.fiber;
-        totals.sugar += item.nutrition.sugar;
-        totals.sodium += item.nutrition.sodium;
-        return totals;
-    }, { calories: 0, protein: 0, carbs: 0, fat: 0, fiber: 0, sugar: 0, sodium: 0 });
-
-    const daily_nutrition_summary = {
-        calories: Math.round(weekly_nutrition_summary.calories / input.familySize / 7),
-        protein: Math.round(weekly_nutrition_summary.protein / input.familySize / 7),
-        carbs: Math.round(weekly_nutrition_summary.carbs / input.familySize / 7),
-        fat: Math.round(weekly_nutrition_summary.fat / input.familySize / 7),
-        fiber: Math.round(weekly_nutrition_summary.fiber / input.familySize / 7),
-        sugar: Math.round(weekly_nutrition_summary.sugar / input.familySize / 7),
-        sodium: Math.round(weekly_nutrition_summary.sodium / input.familySize / 7),
-    };
+        return {
+            ...item,
+            estimated_price,
+            nutrition: {
+                calories: (nutrition?.calories || 0) * numericQuantity,
+                protein: (nutrition?.protein || 0) * numericQuantity,
+                carbs: (nutrition?.carbs || 0) * numericQuantity,
+                fat: (nutrition?.fat || 0) * numericQuantity,
+                fiber: (nutrition?.fiber || 0) * numericQuantity,
+                sugar: (nutrition?.sugar || 0) * numericQuantity,
+                sodium: (nutrition?.sodium || 0) * numericQuantity,
+            },
+        };
+    });
 
     // Budget validation
     if (total_estimated_cost > input.budget) {
         errors.push(`Budget exceeded by ₹${(total_estimated_cost - input.budget).toFixed(2)}`);
     }
 
-    // Calorie target validation
-    const recommended = input.calorieTarget || 2000;
-    const actual = daily_nutrition_summary.calories;
-    const difference = actual - recommended;
-    const deviation = Math.abs(difference) / recommended;
-
-    if (deviation > 0.15 && actual > 0) {
-        const direction = difference > 0 ? 'exceed' : 'are below';
-        calorie_warnings.push(`Actual calories (${actual} kcal) ${direction} the recommended target (${recommended} kcal) by more than 15%.`);
-    }
-
     return {
         cart: enrichedCart,
         total_estimated_cost,
-        daily_nutrition_summary,
-        calorie_target: {
-            recommended,
-            actual,
-            difference,
-        },
-        calorie_warnings,
         errors,
         nutrition_tip,
         diet_flags,
     };
   }
 );
+

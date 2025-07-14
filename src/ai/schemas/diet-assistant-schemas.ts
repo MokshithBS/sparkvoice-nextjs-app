@@ -8,7 +8,6 @@ import {ProductForAISchema} from './common-schemas';
 
 export const DietAssistantInputSchema = z.object({
   goal: z.string().describe('The primary health or dietary goal (e.g., "diabetic-friendly", "weight loss", "muscle gain", "Jain").'),
-  calorieTarget: z.number().optional().describe('A specific daily calorie target for one person (e.g., 1200, 2000).'),
   medicalCondition: z.string().optional().describe('Any specific medical condition to consider (e.g., "diabetes", "high blood pressure").'),
   familySize: z.number().int().positive().describe('The number of people in the household.'),
   budget: z.number().positive().describe('The weekly grocery budget in rupees.'),
@@ -49,20 +48,16 @@ export const DietCartItemSchema = AISuggestedCartItemSchema.extend({
     estimated_price: z.number().describe("The estimated price for the suggested quantity of this item."),
     nutrition: NutritionSchema.describe("A detailed breakdown of nutritional facts for this item."),
 });
+export type DietCartItem = z.infer<typeof DietCartItemSchema>;
+
 
 // This is the final output schema for the entire flow.
 export const DietAssistantOutputSchema = z.object({
   cart: z.array(DietCartItemSchema).describe("The generated list of grocery items for the cart with detailed nutritional info."),
   total_estimated_cost: z.number().describe("The total estimated cost for all items in the generated cart."),
-  daily_nutrition_summary: NutritionSchema.describe("An approximate daily nutritional summary for one person based on the generated cart."),
-  calorie_target: z.object({
-    recommended: z.number().describe("The recommended daily calorie target based on the user's goal."),
-    actual: z.number().describe("The actual calculated daily calories per person from the generated cart."),
-    difference: z.number().describe("The difference between the actual and recommended calories."),
-  }).describe("A validation of the cart's calories against the user's target."),
-  calorie_warnings: z.array(z.string()).describe("A list of warnings if the cart deviates significantly from nutritional goals (e.g., 'Actual calories are more than 15% below target', 'Low fiber content')."),
-  errors: z.array(z.string()).describe("A list of errors encountered, such as missing nutritional info for an item or exceeding the budget."),
+  errors: z.array(z.string()).describe("A list of errors encountered, such as exceeding the budget."),
   nutrition_tip: z.string().describe("A single, personalized, and actionable nutrition tip for the user based on their goal."),
   diet_flags: z.string().describe("A summary of the diet's primary characteristics (e.g., 'Balanced', 'High-Protein', 'Low-Carb')."),
 });
 export type DietAssistantOutput = z.infer<typeof DietAssistantOutputSchema>;
+

@@ -67,7 +67,7 @@ function SparkPageComponent() {
   // Context to Cart state
   const [contextualQuery, setContextualQuery] = useState('');
   const [sparkSaverInput, setSparkSaverInput] = useState({ budget: '', familySize: '', preferences: '' });
-  const [dietAssistantInput, setDietAssistantInput] = useState({ goal: '', calorieTarget: '', medicalCondition: '', familySize: '', budget: '' });
+  const [dietAssistantInput, setDietAssistantInput] = useState({ goal: '', medicalCondition: '', familySize: '', budget: '' });
 
   const { toast } = useToast();
   const { addToCartBatch } = useCart();
@@ -84,16 +84,6 @@ function SparkPageComponent() {
   const availableProductsForAI = useMemo(() => products.map(({ id, name, price, salePrice, quantity, category }) => ({ id, name, price: salePrice || price, quantity, category })), []);
   const availableProductsForPantryCheck = useMemo(() => products.map(({ id, name, category }) => ({ id, name, category })), []);
 
-  const dietChartData = useMemo(() => {
-    if (!dietResult) return [];
-    return Object.entries(dietResult.daily_nutrition_summary)
-      .filter(([key]) => key !== 'sodium') // Exclude sodium for a cleaner chart
-      .map(([name, value]) => ({
-      name: name.charAt(0).toUpperCase() + name.slice(1),
-      value: parseFloat(value as any) || 0,
-    }));
-  }, [dietResult]);
-
   const foodChartData = useMemo(() => {
     if (!foodAnalysisResult) return [];
     const { carbs, protein, fat } = foodAnalysisResult.totalNutrition;
@@ -103,13 +93,6 @@ function SparkPageComponent() {
       { name: 'fat', value: fat, fill: 'hsl(var(--chart-3))' },
     ]
   }, [foodAnalysisResult]);
-
-  const dietChartConfig = {
-    value: {
-      label: "Value",
-      color: "hsl(var(--primary))",
-    },
-  } satisfies ChartConfig;
 
   const foodChartConfig = {
     value: { label: "Grams" },
@@ -206,7 +189,7 @@ function SparkPageComponent() {
     setPantryConfirmation(null);
     setDietResult(null);
     setFoodAnalysisResult(null);
-    setDietAssistantInput({ goal: '', calorieTarget: '', medicalCondition: '', familySize: '', budget: '' });
+    setDietAssistantInput({ goal: '', medicalCondition: '', familySize: '', budget: '' });
     if (isCameraOpen) handleCloseCamera();
   }, [isCameraOpen, handleCloseCamera]);
 
@@ -505,7 +488,6 @@ function SparkPageComponent() {
   const handleDietAssistant = async () => {
     const budget = parseFloat(dietAssistantInput.budget);
     const familySize = parseInt(dietAssistantInput.familySize, 10);
-    const calorieTarget = dietAssistantInput.calorieTarget ? parseInt(dietAssistantInput.calorieTarget, 10) : undefined;
     
     if (isNaN(budget) || budget <= 0 || isNaN(familySize) || familySize <= 0 || !dietAssistantInput.goal) {
         toast({ variant: 'destructive', title: 'Invalid Input', description: 'Please enter a valid goal, budget, and family size.' });
@@ -519,7 +501,6 @@ function SparkPageComponent() {
             medicalCondition: dietAssistantInput.medicalCondition,
             budget,
             familySize,
-            calorieTarget,
             availableProducts: availableProductsForAI,
         });
 
@@ -806,43 +787,15 @@ function SparkPageComponent() {
                     </CardHeader>
                     <CardContent className="space-y-6">
                        <Alert variant={dietResult.diet_flags.toLowerCase() === 'balanced' ? 'default' : 'destructive'} className={cn(
-                           (dietResult.errors.length > 0 || dietResult.calorie_warnings.length > 0) ? "border-destructive/50 bg-destructive/10 text-destructive dark:text-destructive" : "border-green-500/50 bg-green-500/10 text-green-700 dark:text-green-300"
+                           (dietResult.errors.length > 0) ? "border-destructive/50 bg-destructive/10 text-destructive dark:text-destructive" : "border-green-500/50 bg-green-500/10 text-green-700 dark:text-green-300"
                        )}>
                            <AlertCircle className="h-4 w-4" />
                            <AlertTitle className="font-bold">{dietResult.errors.length > 0 ? "Errors & Warnings" : "Nutrition Tip"}</AlertTitle>
                            <AlertDescription>
                             {dietResult.errors.length > 0 && <div><ul className="list-disc pl-4">{dietResult.errors.map((e, i) => <li key={`e-${i}`}>{e}</li>)}</ul></div>}
-                            {dietResult.calorie_warnings.length > 0 && <div><ul className="list-disc pl-4">{dietResult.calorie_warnings.map((w, i) => <li key={`w-${i}`}>{w}</li>)}</ul></div>}
-                            {dietResult.errors.length === 0 && dietResult.calorie_warnings.length === 0 && dietResult.nutrition_tip}
+                            {dietResult.errors.length === 0 && dietResult.nutrition_tip}
                            </AlertDescription>
                        </Alert>
-
-                       <div>
-                          <h3 className="font-semibold mb-2 text-center">Daily Nutrition Summary (per person)</h3>
-                           <ChartContainer config={dietChartConfig} className="h-[250px] w-full">
-                            <ResponsiveContainer width="100%" height="100%">
-                               <BarChart data={dietChartData} margin={{ top: 20, right: 20, bottom: 5, left: 0 }}>
-                                  <CartesianGrid vertical={false} />
-                                  <XAxis
-                                    dataKey="name"
-                                    tickLine={false}
-                                    axisLine={false}
-                                    tickMargin={8}
-                                    />
-                                    <YAxis 
-                                     tickLine={false}
-                                     axisLine={false}
-                                     tickMargin={8}
-                                    />
-                                  <ChartTooltip
-                                    cursor={false}
-                                    content={<ChartTooltipContent />}
-                                    />
-                                  <Bar dataKey="value" fill="var(--color-value)" radius={4} />
-                                </BarChart>
-                              </ResponsiveContainer>
-                           </ChartContainer>
-                        </div>
                         
                         <div>
                             <h3 className="font-semibold mb-2">Suggested Grocery Cart (Total: ₹{dietResult.total_estimated_cost.toFixed(2)})</h3>
@@ -1152,15 +1105,9 @@ function SparkPageComponent() {
                                         </SelectContent>
                                     </Select>
                                 </div>
-                                <div className="grid sm:grid-cols-2 gap-4">
-                                    <div className="space-y-2">
-                                        <Label htmlFor="calorie-target">Daily Calorie Target (optional)</Label>
-                                        <Input id="calorie-target" type="number" placeholder="e.g., 2000" value={dietAssistantInput.calorieTarget} onChange={(e) => setDietAssistantInput(s => ({...s, calorieTarget: e.target.value}))} disabled={isLoading} />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label htmlFor="medical-condition">Medical Condition (optional)</Label>
-                                        <Input id="medical-condition" placeholder="e.g., High Blood Pressure" value={dietAssistantInput.medicalCondition} onChange={(e) => setDietAssistantInput(s => ({...s, medicalCondition: e.target.value}))} disabled={isLoading} />
-                                    </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="medical-condition">Medical Condition (optional)</Label>
+                                    <Input id="medical-condition" placeholder="e.g., High Blood Pressure" value={dietAssistantInput.medicalCondition} onChange={(e) => setDietAssistantInput(s => ({...s, medicalCondition: e.target.value}))} disabled={isLoading} />
                                 </div>
                                 <div className="grid sm:grid-cols-2 gap-4">
                                     <div className="space-y-2">
